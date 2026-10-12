@@ -26,5 +26,26 @@ export function campfireView({ campfire, isInReach }) {
     button: TEXTS.rekindleButton,
     isActionEnabled: warning === undefined,
     warning,
+    sleep: sleepButton(campfire, isInReach),
   };
+}
+
+/**
+ * Bouton « Dormir » : le feu éteint, l'heure, puis la distance, dans cet ordre.
+ * @param {import('../../core/commands/campfire.js').CampfireInspection} campfire
+ * @param {boolean} isInReach
+ * @returns {{ button: string, isEnabled: boolean, warning?: string }}
+ */
+function sleepButton(campfire, isInReach) {
+  let warning;
+  if (!campfire.isLit) {
+    warning = TEXTS.fireOut;
+  } else if (!campfire.isBedtime) {
+    warning = TEXTS.tooEarlyToSleep;
+  } else if (!isInReach) {
+    warning = TEXTS.tooFar;
+  }
+  return warning === undefined
+    ? { button: TEXTS.sleepButton, isEnabled: true }
+    : { button: TEXTS.sleepButton, isEnabled: false, warning };
 }

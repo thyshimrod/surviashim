@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.10** | 2026-10-12 | Brouillon — le temps passe : jour / nuit, feu de camp, repousse des arbres |
+| **v0.11** | 2026-10-12 | Brouillon — vivre au rythme des jours : faim, santé, sommeil, sauvegarde, PNJ qui se promènent |
 
 > *Surshim* est un nom de travail.
 
@@ -175,6 +175,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-JOU-04` | Compétences qui progressent par la pratique (agriculture, récolte, combat, artisanat), à la *Stardew*. | REPORTÉ |
 | `C-JOU-05` | **Faim** : la jauge de faim baisse avec le temps, plus vite quand on travaille ou combat ; manger la remonte. Rassasié, le joueur récupère ses PV et son énergie ; affamé, il ne les récupère plus, puis **perd lentement des PV**. Rythme visé : deux à trois repas par journée de jeu. | VALIDÉ (G12) |
 | `C-JOU-06` | **Énergie, rempart contre la Flétrissure** : dans une zone flétrie (et la nuit hors de la lumière), la Flétrissure ronge l'énergie du joueur. Tant qu'il lui reste de l'énergie, il est protégé ; à zéro, la Flétrissure l'atteint : PV qui baissent, coups plus faibles. L'énergie se recharge en dormant, en mangeant et près du Foyer. L'énergie fixe ainsi la **durée d'une expédition** en zone flétrie. Elle ne sert **que** contre la Flétrissure. | VALIDÉ (G13, G14) |
+| `C-JOU-10` | **Faim et santé en v0.8** : la faim baisse d'environ 40 par journée (deux à trois repas) ; rassasié, on récupère des PV ; affamé, on en perd lentement. L'énergie (C-JOU-06) attendra la Flétrissure. | VALIDÉ — v0.8 (précise C-JOU-02, C-JOU-05) |
 | `C-JOU-09` | **Expérience** : le joueur gagne des points d'expérience (d'abord en accomplissant des quêtes), affichés en permanence. Plus tard, des **niveaux** d'expérience ouvriront des compétences ou des actions (et les points de recherche, C-TEC-03). | VALIDÉ — compteur en v0.6, niveaux plus tard |
 | `C-JOU-07` | *Hypothèse à tester* : l'énergie sert aussi d'endurance (esquive, travail). Risque : rendre le jeu trop dur ; à n'essayer qu'une fois la Flétrissure jouable. | PROPOSÉ — hypothèse (G13) |
 | `C-JOU-08` | **La lumière protège** : à la lumière du Foyer, des braseros et des torches, la Flétrissure ne ronge plus l'énergie. Poser des braseros permet d'avancer en zone flétrie par points d'appui. | VALIDÉ (G14) |
@@ -203,6 +204,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-RES-02` | Les ressources se renouvellent : arbres qui repoussent, filons qui réapparaissent dans les mines. | PROPOSÉ |
 | `C-RES-03` | Les ressources rares sont dans les zones flétries et sur les monstres. | PROPOSÉ |
 | `C-RES-04` | **Trois façons de récolter** : **ramasser** à la main (fleurs, branches, cailloux, silex, baies, champignons), **couper** à la hache (arbres → bois), **piocher** à la pioche (rochers → pierre, filons → minerais). | VALIDÉ — outils exigés en v0.5 |
+| `C-RES-09` | **Cueillette** : des buissons à baies et des champignons se ramassent à la main, puis repoussent ; c'est la première nourriture. La cuisine viendra plus tard (C-ART-03). | VALIDÉ — v0.8 |
 | `C-RES-08` | **Progression par les outils** : au départ, on ne peut que ramasser. Les premiers matériaux (silex, branches, fibres) se trouvent dans les ruines ; ils permettent de fabriquer la hache et la pioche, qui ouvrent le bois et la pierre, puis la suite. | VALIDÉ |
 | `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite ou davantage. | PROPOSÉ |
 | `C-RES-06` | **Ressources de départ** : bois, pierre, branche, silex, fibre végétale, fleurs. Puis : minerais, herbes médicinales, plantes rares des zones flétries. | VALIDÉ — silex, branches et fibres arrivent en v0.4 par la fouille |
@@ -258,7 +260,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-VIL-05` | Les villageois **assistent** le joueur sans le remplacer : leur rendement reste inférieur au sien, et les tâches rares (explorer, purifier) restent au joueur. | PROPOSÉ — leçon de *Necesse* |
 | `C-VIL-06` | Pendant un raid, les gardes défendent ; les autres villageois se mettent à l'abri. | PROPOSÉ |
 | `C-VIL-07` | **Personnages non joueurs (PNJ)** rencontrés en explorant : un ermite, une pêcheuse, un vieux soldat… On leur **parle** ; ils racontent la vallée et donnent des **indices** sur des ruines à visiter. Plus tard, certains rejoignent le village (C-VIL-01). | VALIDÉ |
-| `C-VIL-08` | Les PNJ **se déplacent** : petites promenades, puis une routine selon l'heure (travail, repas, sommeil). | VALIDÉ (Q18) — avec le temps (v0.7) |
+| `C-VIL-08` | Les PNJ **se déplacent** : petites promenades, puis une routine selon l'heure (travail, repas, sommeil). | VALIDÉ (Q18) — promenades en v0.8, routine plus tard |
 | `C-VIL-09` | **Quêtes** : un PNJ confie une quête au fil d'un dialogue (rapporter la poupée de chiffon bleue de la fille de Maëlle) ; le journal la suit ; l'objet se trouve en explorant (la poupée est dans un coffre des ruines) ; on le rend au PNJ avec un bouton **Donner**, il remercie et récompense — d'abord en **expérience** (C-JOU-09), plus tard en objets, recettes ou indices. | VALIDÉ — v0.6 |
 
 ### 6.9 CBT — Combat
@@ -314,7 +316,9 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 
 | ID | Concept | Statut |
 |---|---|---|
-| `C-SAU-01` | Sauvegarde automatique à chaque coucher, comme dans *Stardew Valley*. | PROPOSÉ |
+| `C-SAU-01` | Sauvegarde automatique à chaque coucher, comme dans *Stardew Valley* ; au lancement, la partie sauvegardée reprend ; « Nouvelle partie » recommence, après confirmation. | VALIDÉ — v0.8 |
+| `C-SAU-03` | **Dormir près d'un feu allumé**, à partir du soir : on se réveille le lendemain à 6:00, reposé (PV au maximum) et un peu affamé. Pas de coucher obligatoire pour l'instant. | VALIDÉ — v0.8 |
+| `C-SAU-04` | **S'évanouir** à 0 PV : le héros se réveille au matin suivant dans le Vallon, sans rien perdre (version douce de C-SAU-02). | VALIDÉ — v0.8 |
 | `C-SAU-02` | Si le joueur tombe à 0 PV ou ne dort pas avant 2 h du matin, il se réveille le lendemain au Foyer, en ayant perdu une partie des objets portés. | PROPOSÉ — cf. G8 |
 
 ### 6.15 IHM — Interface
@@ -333,6 +337,7 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-IHM-10` | **Notifications** au-dessus du héros, là où le regard se porte, chacune avec une croix : « Lieu découvert », le nom du lieu à chaque retour, « Nouvel indice », « Trouvé : … » (une seule par fouille). Celles des quêtes restent jusqu'à ce qu'on les ferme. | VALIDÉ |
 | `C-IHM-11` | **Atlas d'icônes** : chaque objet, ressource et livre a une icône tirée de la planche d'icônes (24 px). | VALIDÉ |
 | `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent **au milieu de l'écran**, près du héros, et se ferment par × ou Échap. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ |
+| `C-IHM-15` | **Jauges** de santé (PV) et de faim au bandeau ; un bouton « Manger » sur la nourriture de l'inventaire ; une fenêtre « Partie » (sauvegarde, nouvelle partie). | VALIDÉ — v0.8 |
 | `C-IHM-14` | **Horloge** au bandeau : le jour et l'heure (« Jour 1 · 6:00 »). | VALIDÉ — v0.7 |
 | `C-IHM-13` | **Barre d'actions** verticale, à gauche sous le bandeau : une icône par fenêtre (inventaire, artisanat, journal). Survoler une icône affiche son nom et sa touche ; un clic ouvre ou ferme la fenêtre. On n'a pas à connaître les touches. | VALIDÉ |
 
@@ -391,8 +396,8 @@ Chaque version est **jouable** de bout en bout et ajoute une brique. Les version
 | v0.4 | **Livrée.** Fouiller : bibliothèques, coffres et caisses des ruines ; deux livres à trouver (plans de la hache en silex et du feu de camp) ; silex, branches et fibres ; atlas d'icônes | C-MON-09, C-TEC-06, C-RES-06, C-IHM-11 |
 | v0.5 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres de survie, recettes apprises, fenêtre d'artisanat, hache et pioche en silex, outils requis pour couper et piocher | C-INV-03, C-INV-04, C-TEC-07, C-ART-04, C-ART-06, C-RES-04, C-RES-08, C-IHM-12 |
 | v0.6 | **Livrée.** Barre d'actions ; la première quête (la poupée de Maëlle) ; l'expérience | C-IHM-13, C-VIL-09, C-JOU-09 |
-| **v0.7** | **En cours.** Le temps passe : jour / nuit et horloge, nuit sombre avec halos de lumière, feu de camp à poser et à raviver, repousse des arbres | C-MON-02, C-MON-11, C-IHM-14, C-ART-05, C-ART-07, C-RES-07 |
-| v0.8 | Vivre au rythme des jours : faim et nourriture, sommeil, sauvegarde au coucher, PNJ qui se déplacent | C-JOU-02, C-JOU-05, C-SAU-01, C-VIL-08 |
+| v0.7 | **Livrée.** Le temps passe : jour / nuit et horloge, nuit sombre avec halos de lumière, feu de camp à poser et à raviver, repousse des arbres | C-MON-02, C-MON-11, C-IHM-14, C-ART-05, C-ART-07, C-RES-07 |
+| **v0.8** | **En cours.** Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au coucher, PNJ qui se promènent | C-RES-09, C-JOU-02, C-JOU-05, C-JOU-10, C-SAU-01, C-SAU-03, C-SAU-04, C-VIL-08, C-IHM-15 |
 | v0.9 | La recherche : plans avancés, expérience et points de recherche | C-TEC-01 à C-TEC-05 |
 | v0.10 | Le Foyer, la Flétrissure et le premier monstre : lumière, énergie, sauge de l'aube, combat, mort | C-MON-04, C-JOU-06, C-MEN-08, C-CBT-01, C-SAU-02 |
 | v0.11 | Construire : établi, palissade, maison | C-CON-01, C-CON-02, C-ART-01 |
@@ -448,3 +453,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.8 | 2026-10-12 | Retours de test : barre d'actions à icônes plutôt que des touches à connaître (C-IHM-13). Quêtes détaillées (C-VIL-09) : la poupée est dans un coffre des ruines, on la rend avec un bouton « Donner », la récompense est de l'expérience. Expérience (C-JOU-09), niveaux plus tard. Le feu de camp passe en v0.7. |
 | v0.9 | 2026-10-12 | Retours de test : notifications au-dessus du héros avec une croix, quêtes jusqu'à fermeture, une seule notification par fouille, nom du lieu à chaque retour (C-IHM-10, C-MON-06) ; livres retirés du journal (C-IHM-09) ; journal parmi les fenêtres exclusives (C-IHM-12). |
 | v0.10 | 2026-10-12 | Réponse G3 (12 minutes de 6 h à 2 h). Périmètre de la v0.7 choisi : jour / nuit (C-MON-02, C-MON-11), horloge (C-IHM-14), feu de camp qui s'éteint et se ravive (C-ART-05, C-ART-07), repousse des arbres (C-RES-07). Faim, sommeil, sauvegarde et PNJ qui se déplacent passent en v0.8. |
+| v0.11 | 2026-10-12 | Périmètre de la v0.8 choisi : baies et champignons (C-RES-09), faim et PV sans énergie (C-JOU-10), dormir près d'un feu allumé dès 18:00 (C-SAU-03), s'évanouir sans perte (C-SAU-04), sauvegarde au coucher et reprise automatique (C-SAU-01 validé), PNJ qui se promènent (C-VIL-08), jauges et fenêtre « Partie » (C-IHM-15). |

@@ -33,3 +33,15 @@ export function inventoryEntries(inventory) {
 export function experienceEntry(experience) {
   return { id: 'experience', label: TEXTS.experienceLabel, amount: experience, icon: 'experience' };
 }
+
+/**
+ * R-IHM-HUD-003 : PV et faim, au début du bandeau.
+ * @param {{ health: number, hunger: number }} state
+ * @returns {InventoryEntry[]}
+ */
+export function vitalEntries({ health, hunger }) {
+  return [
+    { id: 'health', label: TEXTS.healthLabel, amount: health, icon: 'health' },
+    { id: 'hunger', label: TEXTS.hungerLabel, amount: hunger, icon: 'hunger' },
+  ];
+}

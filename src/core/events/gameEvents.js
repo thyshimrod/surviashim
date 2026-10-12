@@ -12,6 +12,9 @@
  * | ITEM_CRAFTED       | { recipeId, tool, placeable } — l'un des deux             |
  * | QUEST_STARTED      | { questId, npcId }                                        |
  * | CAMPFIRE_REKINDLED | { column, row }                                           |
+ * | ATE                | { resource }                                              |
+ * | SLEPT              | { day } — réveil au matin de ce jour, partie à sauvegarder |
+ * | FAINTED            | {} — réveil au prochain matin, au départ                  |
  * | QUEST_COMPLETED    | { questId, npcId, experience } — expérience gagnée        |
  * | DIALOGUE_STARTED   | { npcId }                                                 |
  * | DIALOGUE_ENDED     | { npcId }                                                 |
@@ -28,6 +31,9 @@ export const GAME_EVENTS = Object.freeze({
   ITEM_CRAFTED: 'item-crafted',
   QUEST_STARTED: 'quest-started',
   CAMPFIRE_REKINDLED: 'campfire-rekindled',
+  ATE: 'ate',
+  SLEPT: 'slept',
+  FAINTED: 'fainted',
   QUEST_COMPLETED: 'quest-completed',
   DIALOGUE_STARTED: 'dialogue-started',
   DIALOGUE_ENDED: 'dialogue-ended',

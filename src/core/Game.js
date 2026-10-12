@@ -1,6 +1,7 @@
 // @ts-check
 import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { lightSources, place, rekindle } from './commands/campfire.js';
+import { eat, sleep } from './commands/rest.js';
 import { COMMAND_TYPES } from './commands/commands.js';
 import { craft, inspectRecipe, readBook } from './commands/crafting.js';
 import { finishDialogue, inspectNpc, talk, talkRefusal, turnPage } from './commands/dialogue.js';
@@ -13,7 +14,9 @@ import { createInitialState } from './state/createInitialState.js';
 import { createGameRules } from './state/GameState.js';
 import { discoverPlaces } from './systems/discoverPlaces.js';
 import { movePlayer } from './systems/movePlayer.js';
+import { updateNeeds } from './systems/needs.js';
 import { regrowTrees } from './systems/regrowTrees.js';
+import { walkNpcs } from './systems/walkNpcs.js';
 import { advanceClock, timeOf } from './systems/time.js';
 
 /** @typedef {import('./state/GameState.js').GameState} GameState */
@@ -28,7 +31,7 @@ import { advanceClock, timeOf } from './systems/time.js';
 /**
  * Champs de toutes les commandes : chaque traitement ne lit que ceux de son type.
  * @typedef {{ type: string, dx: number, dy: number, column: number, row: number, npcId: string,
- *   bookId: string, recipeId: string, itemId: string }} CommandFields
+ *   bookId: string, recipeId: string, itemId: string, resource: string }} CommandFields
  */
 
 /**
@@ -52,6 +55,8 @@ const HANDLERS = Object.freeze({
   [COMMAND_TYPES.PLACE]: (game, { itemId }) => place(game.state, game.rules, game.events, itemId),
   [COMMAND_TYPES.REKINDLE]: (game, command) =>
     rekindle(game.state, game.rules, game.events, command),
+  [COMMAND_TYPES.EAT]: (game, { resource }) => eat(game.state, game.rules, game.events, resource),
+  [COMMAND_TYPES.SLEEP]: (game, command) => sleep(game.state, game.rules, game.events, command),
   [COMMAND_TYPES.GIVE]: (game, { npcId }) => {
     const refusal = talkRefusal(game.state, game.rules, npcId);
     return give(game.state, game.rules, game.events, { npcId, refusal });
@@ -145,6 +150,8 @@ export class Game {
     movePlayer(this.state, this.rules);
     discoverPlaces(this.state, this.rules, this.events);
     regrowTrees(this.state, this.rules, this.events);
+    updateNeeds(this.state, this.rules, this.events);
+    walkNpcs(this.state, this.rules);
   }
 
   /**

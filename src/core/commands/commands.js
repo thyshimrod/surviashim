@@ -13,6 +13,8 @@ export const COMMAND_TYPES = Object.freeze({
   GIVE: 'GIVE',
   PLACE: 'PLACE',
   REKINDLE: 'REKINDLE',
+  EAT: 'EAT',
+  SLEEP: 'SLEEP',
 });
 
 /** Motifs de refus d'une commande, dans l'ordre où ils sont vérifiés (spécification B.5). */
@@ -32,6 +34,11 @@ export const REJECTION_REASONS = Object.freeze({
   NOTHING_TO_PLACE: 'NOTHING_TO_PLACE',
   CANNOT_PLACE: 'CANNOT_PLACE',
   NOTHING_TO_REKINDLE: 'NOTHING_TO_REKINDLE',
+  NOT_EDIBLE: 'NOT_EDIBLE',
+  NOTHING_TO_EAT: 'NOTHING_TO_EAT',
+  ALREADY_FULL: 'ALREADY_FULL',
+  NOTHING_TO_SLEEP_BY: 'NOTHING_TO_SLEEP_BY',
+  TOO_EARLY: 'TOO_EARLY',
 });
 
 /**
@@ -46,9 +53,11 @@ export const REJECTION_REASONS = Object.freeze({
  * @typedef {{ type: 'GIVE', npcId: string }} GiveCommand
  * @typedef {{ type: 'PLACE', itemId: string }} PlaceCommand
  * @typedef {{ type: 'REKINDLE', column: number, row: number }} RekindleCommand
+ * @typedef {{ type: 'EAT', resource: string }} EatCommand
+ * @typedef {{ type: 'SLEEP', column: number, row: number }} SleepCommand
  * @typedef {SetMoveIntentCommand | HarvestCommand | SearchCommand | TalkCommand | NextPageCommand
  *   | EndDialogueCommand | ReadBookCommand | CraftCommand | GiveCommand | PlaceCommand
- *   | RekindleCommand} Command
+ *   | RekindleCommand | EatCommand | SleepCommand} Command
  */
 
 /**
@@ -165,4 +174,23 @@ export function placeItem(itemId) {
  */
 export function rekindle({ column, row }) {
   return { ...harvestTile({ column, row }), type: COMMAND_TYPES.REKINDLE };
+}
+
+/**
+ * Crée la commande « manger » (R-JOU-MAN-001).
+ * @param {string} resource
+ * @returns {EatCommand}
+ */
+export function eat(resource) {
+  return { type: COMMAND_TYPES.EAT, resource };
+}
+
+/**
+ * Crée la commande « dormir près d'un feu » (R-JOU-SOM-001).
+ * @param {{ column: number, row: number }} tile Le feu de camp.
+ * @returns {SleepCommand}
+ * @throws {TypeError} Si la colonne ou la ligne n'est pas un entier.
+ */
+export function sleepBy({ column, row }) {
+  return { ...harvestTile({ column, row }), type: COMMAND_TYPES.SLEEP };
 }

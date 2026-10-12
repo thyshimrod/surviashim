@@ -23,7 +23,7 @@ describe('R-RES-ELE-001 · Éléments récoltables', () => {
       resource: 'wood',
       amount: 3,
       becomes: 'stump',
-      regrows: true,
+      regrowDays: 3,
     });
   });
 
@@ -187,6 +187,8 @@ describe('R-INV-RES-001 · Inventaire de départ', () => {
       flint: 0,
       branch: 0,
       fiber: 0,
+      berry: 0,
+      mushroom: 0,
     });
   });
 });

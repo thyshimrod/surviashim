@@ -1,15 +1,18 @@
 // @ts-check
 import { nextPage } from '../../core/commands/commands.js';
+import { TEXTS } from '../i18n/fr.js';
 import { BookPanel } from './BookPanel.js';
 import { clockLabel } from './clockLabel.js';
 import { bookView } from './bookView.js';
 import { CraftPanel } from './CraftPanel.js';
 import { craftView } from './craftView.js';
 import { DialogueBox } from './DialogueBox.js';
+import { gameMenuView } from './gameMenuView.js';
+import { GamePanel } from './GamePanel.js';
 import { dialogueCommandForKey, dialogueView } from './dialogueView.js';
 import { NOTIFIED_EVENTS, notificationsFor } from './gameNotifications.js';
 import { InspectPanel } from './InspectPanel.js';
-import { experienceEntry, inventoryEntries } from './inventoryEntries.js';
+import { experienceEntry, inventoryEntries, vitalEntries } from './inventoryEntries.js';
 import { InventoryHud } from './InventoryHud.js';
 import { InventoryPanel } from './InventoryPanel.js';
 import { inventoryView } from './inventoryView.js';
@@ -37,16 +40,38 @@ export class GameInterface {
    * @param {HTMLElement} params.container
    * @param {Game} params.game
    * @param {number} params.notificationTicks Durée d'une notification (ticks).
+   * @param {() => number | undefined} [params.savedDay] Jour de la sauvegarde (R-IHM-SAU-001).
+   * @param {() => void} [params.onRestart] Efface la sauvegarde et relance une partie.
    */
-  constructor({ doc, container, game, notificationTicks }) {
+  constructor({ doc, container, game, notificationTicks, savedDay = () => undefined, onRestart }) {
     this.game = game;
+    this.savedDay = savedDay;
     this.windows = new WindowsController();
+    this.createWindows({ doc, container, onRestart });
+    this.hud = new InventoryHud({ doc, container });
+    this.toolbar = new Toolbar({ doc, container, onToggle: (id) => this.windows.toggle(id) });
+    this.dialogue = new DialogueBox({ doc, container, onNext: () => game.execute(nextPage()) });
+    this.notifications = new NotificationQueue(notificationTicks);
+    this.notificationList = new NotificationList({
+      doc,
+      container,
+      onDismiss: (id) => this.notifications.dismiss(id),
+    });
+    this.listenToGame();
+  }
+
+  /**
+   * Fenêtres : information, inventaire, lecture, artisanat, partie, journal (R-IHM-FEN-001).
+   * @param {{ doc: Document, container: HTMLElement, onRestart: (() => void) | undefined }} params
+   */
+  createWindows({ doc, container, onRestart }) {
+    const { game } = this;
     const onClose = () => this.windows.close();
     this.panel = new InspectPanel({
       doc,
       container,
       onConfirm: () => this.windows.inspection.confirm(game),
-      onGive: () => this.windows.inspection.give(game),
+      onSecondary: () => this.windows.inspection.secondary(game),
       onClose,
     });
     this.inventory = new InventoryPanel({
@@ -55,6 +80,7 @@ export class GameInterface {
       onClose,
       onRead: (bookId) => this.windows.read(bookId, game),
       onPlace: (itemId) => this.windows.place(itemId, game),
+      onEat: (resource) => this.windows.eat(resource, game),
     });
     this.book = new BookPanel({ doc, container, onClose });
     this.craft = new CraftPanel({
@@ -63,17 +89,13 @@ export class GameInterface {
       onClose,
       onCraft: (recipeId) => this.windows.craft(recipeId, game),
     });
-    this.hud = new InventoryHud({ doc, container });
-    this.toolbar = new Toolbar({ doc, container, onToggle: (id) => this.windows.toggle(id) });
-    this.dialogue = new DialogueBox({ doc, container, onNext: () => game.execute(nextPage()) });
-    this.journal = new JournalPanel({ doc, container, onClose: () => this.windows.closeJournal() });
-    this.notifications = new NotificationQueue(notificationTicks);
-    this.notificationList = new NotificationList({
+    this.gamePanel = new GamePanel({
       doc,
       container,
-      onDismiss: (id) => this.notifications.dismiss(id),
+      onClose,
+      onButton: (label) => this.onGameButton(label, onRestart),
     });
-    this.listenToGame();
+    this.journal = new JournalPanel({ doc, container, onClose: () => this.windows.closeJournal() });
   }
 
   /**
@@ -117,6 +139,21 @@ export class GameInterface {
   }
 
   /**
+   * R-IHM-SAU-001 : boutons de la fenêtre « Partie ».
+   * @param {string} label
+   * @param {(() => void) | undefined} onRestart
+   */
+  onGameButton(label, onRestart) {
+    if (label === TEXTS.newGameButton) {
+      this.windows.askNewGame();
+    } else if (label === TEXTS.restartButton) {
+      onRestart?.();
+    } else {
+      this.windows.cancelNewGame();
+    }
+  }
+
+  /**
    * Fenêtres centrales : seule la fenêtre ouverte reçoit un contenu (R-IHM-FEN-001).
    * @param {import('../../core/state/GameState.js').GameState} state
    */
@@ -126,6 +163,11 @@ export class GameInterface {
     this.inventory.render(windows.open === 'inventory' ? inventoryView(state) : undefined);
     this.book.render(windows.bookId === undefined ? undefined : bookView(windows.bookId));
     this.craft.render(windows.open === 'craft' ? craftView(this.game) : undefined);
+    this.gamePanel.render(
+      windows.open === 'game'
+        ? gameMenuView({ savedDay: this.savedDay(), confirming: windows.confirmingNewGame })
+        : undefined,
+    );
   }
 
   /** Met à jour l'interface, à chaque image. */
@@ -134,6 +176,7 @@ export class GameInterface {
     const { windows } = this;
     this.renderWindows(state);
     this.hud.render([
+      ...vitalEntries(state),
       ...inventoryEntries(state.inventory),
       experienceEntry(state.experience),
       { id: 'clock', label: clockLabel(this.game.time()), icon: 'hourglass' },

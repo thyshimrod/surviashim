@@ -16,11 +16,13 @@ export class InventoryPanel extends CenterWindow {
    * @param {() => void} params.onClose
    * @param {(bookId: string) => void} params.onRead Clic sur « Lire ».
    * @param {(itemId: string) => void} params.onPlace Clic sur « Poser ».
+   * @param {(resource: string) => void} params.onEat Clic sur « Manger ».
    */
-  constructor({ doc, container, onClose, onRead, onPlace }) {
+  constructor({ doc, container, onClose, onRead, onPlace, onEat }) {
     super({ doc, container, title: TEXTS.inventoryTitle, className: 'inventory-panel', onClose });
     this.onRead = onRead;
     this.onPlace = onPlace;
+    this.onEat = onEat;
   }
 
   /**
@@ -28,7 +30,13 @@ export class InventoryPanel extends CenterWindow {
    */
   fill(content) {
     const resources = content.resources.map((entry) =>
-      this.line(entry.icon, `${entry.label} ${entry.amount}`),
+      this.line(
+        entry.icon,
+        `${entry.label} ${entry.amount}`,
+        entry.eat === undefined
+          ? undefined
+          : this.button(entry.eat.button, () => this.onEat(entry.id), entry.eat.isEnabled),
+      ),
     );
     const tools = content.tools.map((tool) => this.line(tool.icon, tool.name));
     const books = content.books.map((book) =>

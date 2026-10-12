@@ -1,5 +1,12 @@
 // @ts-check
-import { giveTo, harvestTile, rekindle, searchTile, talkTo } from '../../core/commands/commands.js';
+import {
+  giveTo,
+  harvestTile,
+  rekindle,
+  searchTile,
+  sleepBy,
+  talkTo,
+} from '../../core/commands/commands.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
 import { campfireView } from './campfireView.js';
@@ -27,6 +34,8 @@ import { campfireView } from './campfireView.js';
  * @property {string | undefined} warning Message affiché quand le bouton est inactif.
  * @property {{ action: string, button: string, isEnabled: boolean }} [give] Second bouton :
  *   donner l'objet d'une quête à ce PNJ (R-IHM-INS-005).
+ * @property {{ button: string, isEnabled: boolean, warning?: string }} [sleep] Second bouton :
+ *   dormir près d'un feu de camp (R-IHM-INS-008).
  */
 
 const CLOSE_KEY = 'Escape';
@@ -90,6 +99,34 @@ export class InspectionController {
       this.close(); // L'élément a disparu (récolté) : rien à afficher.
     }
     return view;
+  }
+
+  /**
+   * R-IHM-INS-008 : bouton « Dormir » ; la fenêtre se ferme si le joueur s'est endormi.
+   * @param {InspectableGame} game
+   * @returns {CommandResult | undefined} `undefined` si aucune tuile n'est désignée.
+   */
+  sleep(game) {
+    const { selected } = this;
+    if (selected === undefined || 'npcId' in selected) {
+      return undefined;
+    }
+    const result = game.execute(sleepBy(selected));
+    if (result.ok) {
+      this.close();
+    }
+    return result;
+  }
+
+  /**
+   * Second bouton de la fenêtre : « Donner » pour un PNJ, « Dormir » pour un feu de camp.
+   * @param {InspectableGame} game
+   * @returns {CommandResult | undefined}
+   */
+  secondary(game) {
+    return this.selected !== undefined && 'npcId' in this.selected
+      ? this.give(game)
+      : this.sleep(game);
   }
 
   /**

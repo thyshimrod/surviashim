@@ -1,7 +1,9 @@
 // @ts-check
 import { BOOKS } from '../../../data/books.js';
 import { ITEMS } from '../../../data/items.js';
+import { GAME_PARAMETERS } from '../../../data/gameParameters.js';
 import { PLACEABLES } from '../../../data/placeables.js';
+import { RESOURCES } from '../../../data/resources.js';
 import { TOOLS } from '../../../data/tools.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
@@ -20,7 +22,8 @@ import { inventoryEntries } from './inventoryEntries.js';
 /**
  * Contenu de la fenêtre d'inventaire (R-IHM-INV-001).
  * @typedef {object} InventoryContent
- * @property {InventoryEntry[]} resources Dans l'ordre du bandeau.
+ * @property {Array<InventoryEntry & { eat?: { button: string, isEnabled: boolean } }>} resources
+ *   Dans l'ordre du bandeau ; la nourriture a un bouton « Manger ».
  * @property {NamedItem[]} tools Dans l'ordre d'obtention.
  * @property {string | undefined} noTool Message si aucun outil.
  * @property {Array<NamedItem & { title: string }>} books Dans l'ordre de la bibliothèque.
@@ -39,6 +42,7 @@ import { inventoryEntries } from './inventoryEntries.js';
  * @property {readonly string[]} tools
  * @property {readonly string[]} books
  * @property {readonly string[]} items
+ * @property {number} [hunger] Faim (100 si absente).
  * @property {Readonly<Record<string, number>>} placeables
  */
 
@@ -46,10 +50,20 @@ import { inventoryEntries } from './inventoryEntries.js';
  * @param {InventorySource} state
  * @returns {InventoryContent}
  */
-export function inventoryView({ inventory, tools, books, items, placeables }) {
+export function inventoryView({ inventory, tools, books, items, placeables, hunger = 100 }) {
   const toPlace = placeableEntries(placeables);
   return {
-    resources: inventoryEntries(inventory),
+    resources: inventoryEntries(inventory).map((entry) =>
+      RESOURCES[entry.id]?.food === undefined
+        ? entry
+        : {
+            ...entry,
+            eat: {
+              button: TEXTS.eatButton,
+              isEnabled: (entry.amount ?? 0) > 0 && hunger < GAME_PARAMETERS.HUNGER_MAX,
+            },
+          },
+    ),
     tools: tools.map((id) => ({
       id,
       name: TEXTS.toolNames[id] ?? id,

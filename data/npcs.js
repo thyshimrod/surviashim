@@ -22,6 +22,8 @@
  * @property {Readonly<{ column: number, row: number }>} tile Tuile où se tient le PNJ.
  * @property {'up' | 'down' | 'left' | 'right'} facing Orientation au repos.
  * @property {readonly Readonly<DialoguePage>[]} pages Dialogue, au moins une page.
+ * @property {readonly Readonly<{ column: number, row: number }>[]} route Promenade : tuiles à
+ *   visiter, en décalage par rapport à `tile` ; le PNJ repasse chez lui entre deux (R-PNJ-POS-003).
  */
 
 /** @type {Readonly<Record<string, Readonly<NpcDefinition>>>} */
@@ -31,6 +33,7 @@ export const NPCS = Object.freeze({
     sheet: 'vx-03e-0',
     tile: Object.freeze({ column: 38, row: 90 }),
     facing: 'down',
+    route: Object.freeze([Object.freeze({ column: 2, row: 0 })]),
     pages: Object.freeze([
       Object.freeze({ id: 'aldric-1' }),
       Object.freeze({ id: 'aldric-2', reveals: 'watchtower-ruins' }),
@@ -42,6 +45,7 @@ export const NPCS = Object.freeze({
     sheet: 'vx-03e-5',
     tile: Object.freeze({ column: 84, row: 78 }),
     facing: 'up',
+    route: Object.freeze([Object.freeze({ column: -2, row: 0 })]),
     pages: Object.freeze([
       Object.freeze({ id: 'elwyn-1' }),
       Object.freeze({ id: 'elwyn-2', reveals: 'sunken-chapel' }),
@@ -52,6 +56,7 @@ export const NPCS = Object.freeze({
     sheet: 'vx-03a-3',
     tile: Object.freeze({ column: 100, row: 88 }),
     facing: 'left',
+    route: Object.freeze([Object.freeze({ column: 0, row: -2 })]),
     pages: Object.freeze([
       Object.freeze({ id: 'maelle-1' }),
       Object.freeze({ id: 'maelle-2', reveals: 'abandoned-hamlet' }),

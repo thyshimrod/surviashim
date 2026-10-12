@@ -93,12 +93,12 @@ export function harvest(state, rules, events, tile) {
   if (!inspection.isInReach) {
     return { ok: false, reason: REJECTION_REASONS.OUT_OF_REACH };
   }
-  const { resource, amount, becomes, regrows } = inspection.harvest;
+  const { resource, amount, becomes, regrowDays } = inspection.harvest;
   state.inventory[resource] = (state.inventory[resource] ?? 0) + amount;
   state.map.setTile(tile.column, tile.row, rules.tiles[becomes]);
-  if (regrows && rules.time !== undefined) {
-    // R-RES-REC-005 : la souche redeviendra ce qu'elle était.
-    const days = rules.time.treeRegrowDays * MINUTES_PER_DAY;
+  if (regrowDays !== undefined && rules.time !== undefined) {
+    // R-RES-REC-005 : l'élément repoussera.
+    const days = regrowDays * MINUTES_PER_DAY;
     const at = state.clock + ticksFor(days, rules.time);
     state.regrowth.push({ ...tile, tile: /** @type {string} */ (inspection.tileId), at });
   }

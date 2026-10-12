@@ -13,10 +13,10 @@ export class InspectPanel {
    * @param {Document} params.doc
    * @param {HTMLElement} params.container Élément qui reçoit la fenêtre.
    * @param {() => void} params.onConfirm Clic sur le bouton d'action (« Récolter », « Parler »).
-   * @param {() => void} params.onGive Clic sur « Donner » (R-IHM-INS-005).
+   * @param {() => void} params.onSecondary Clic sur le second bouton (« Donner », « Dormir »).
    * @param {() => void} params.onClose Clic sur ×.
    */
-  constructor({ doc, container, onConfirm, onGive, onClose }) {
+  constructor({ doc, container, onConfirm, onSecondary, onClose }) {
     this.root = doc.createElement('section');
     this.root.className = 'rpg-window inspect-panel';
     this.root.hidden = true;
@@ -30,7 +30,7 @@ export class InspectPanel {
     this.giveAction = doc.createElement('p');
     this.giveButton = doc.createElement('button');
     this.giveButton.className = 'rpg-button';
-    this.giveButton.addEventListener('click', onGive);
+    this.giveButton.addEventListener('click', onSecondary);
     const closeButton = doc.createElement('button');
     closeButton.className = 'close';
     closeButton.textContent = '×';
@@ -64,18 +64,20 @@ export class InspectPanel {
     this.warning.hidden = view.warning === undefined;
     this.actionButton.textContent = view.button;
     this.actionButton.disabled = !view.isActionEnabled;
-    this.renderGive(view.give);
+    this.renderSecondary(view.give ?? view.sleep);
   }
 
   /**
-   * Bouton « Donner » (R-IHM-INS-005), caché s'il n'y a rien à donner.
-   * @param {InspectionView['give']} give
+   * Second bouton, « Donner » (R-IHM-INS-005) ou « Dormir » (R-IHM-INS-008), avec son texte ;
+   * caché s'il n'y en a pas.
+   * @param {{ action?: string, warning?: string, button: string, isEnabled: boolean } | undefined} secondary
    */
-  renderGive(give) {
-    this.giveAction.hidden = give === undefined;
-    this.giveButton.hidden = give === undefined;
-    this.giveAction.textContent = give?.action ?? '';
-    this.giveButton.textContent = give?.button ?? '';
-    this.giveButton.disabled = !(give?.isEnabled ?? false);
+  renderSecondary(secondary) {
+    const text = secondary?.action ?? secondary?.warning;
+    this.giveAction.hidden = text === undefined;
+    this.giveButton.hidden = secondary === undefined;
+    this.giveAction.textContent = text ?? '';
+    this.giveButton.textContent = secondary?.button ?? '';
+    this.giveButton.disabled = !(secondary?.isEnabled ?? false);
   }
 }

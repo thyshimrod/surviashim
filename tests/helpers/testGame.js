@@ -69,7 +69,8 @@ export function makeMap({ columns = 40, rows = 30, tileSize = 32, rocks = [], ti
  * aucun PNJ ni lieu, portée de parole 64 px, dialogues de data/npcs.js. Le joueur possède
  * tous les outils (convention des exemples, spécification B.8) et ne connaît aucune recette ;
  * un inventaire partiel est complété par des 0. L'horloge marque le jour 1 à 6:00 ; temps, nuit,
- * feu de camp et repousse suivent la partie C de la spécification.
+ * feu de camp, repousse, faim, santé et promenades suivent la partie C de la spécification
+ * (`needs: false` coupe la faim et la santé). Les PNJ commencent par une pause chez eux.
  * @example
  * const { game, state } = createTestGame({ player: { position: { x: 100, y: 100 } } });
  * walk(game, 'droite', 1);
@@ -98,12 +99,24 @@ export function createTestGame({
   clock = at(1, '6:00'),
   placeables = {},
   campfires = [],
+  health = 100,
+  hunger = 100,
+  needs = true,
 } = {}) {
+  const rules = createGameRules(GAME_PARAMETERS);
+  const pauseUntil = clock + rules.npcWalk.pauseMinutes * rules.time.ticksPerMinute;
   const state = createGameState({
     map: makeMap(map),
     player: new Player({ position: { x: 100, y: 100 }, ...player }),
     inventory: inventory === undefined ? undefined : { ...createEmptyInventory(), ...inventory },
-    npcs: npcs.map((npc) => ({ facing: 'down', ...npc })),
+    npcs: npcs.map((npc) => ({
+      facing: 'down',
+      home: { ...npc.position },
+      step: 0,
+      pauseUntil,
+      isWalking: false,
+      ...npc,
+    })),
     dialogue,
     journal,
     books,
@@ -115,6 +128,8 @@ export function createTestGame({
     clock,
     placeables,
     campfires,
+    health,
+    hunger,
   });
   const game = new Game(state, {
     rules: {
@@ -133,7 +148,10 @@ export function createTestGame({
       quests: QUESTS,
       items: ITEMS,
       placeables: PLACEABLES,
-      time: createGameRules(GAME_PARAMETERS).time,
+      time: rules.time,
+      resources: rules.resources,
+      npcWalk: rules.npcWalk,
+      ...(needs ? { vitals: rules.vitals } : {}),
     },
   });
   return { game, state };

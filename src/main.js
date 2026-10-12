@@ -7,9 +7,10 @@ import { CHARACTER_SHEETS } from '../data/sprites.js';
 import { ICON_SET } from '../data/icons.js';
 import { TILESETS } from '../data/tileset.js';
 import { GameLoop } from './app/GameLoop.js';
+import { createSaveStore } from './app/saveStore.js';
+import { startGame } from './app/startGame.js';
 import { setMoveIntent } from './core/commands/commands.js';
 import { GAME_EVENTS } from './core/events/gameEvents.js';
-import { Game } from './core/Game.js';
 import { DebugOverlay } from './debug/DebugOverlay.js';
 import { createLogger } from './debug/logger.js';
 import { walkAnimationFrom } from './presentation/animation/selectFrame.js';
@@ -26,6 +27,7 @@ import { NightRenderer } from './presentation/renderers/NightRenderer.js';
 import { nightView } from './presentation/ui/nightView.js';
 
 /** Minutes de jeu par heure (raccourci de debug « h »). */
+/** @typedef {import('./core/Game.js').Game} Game */
 const MINUTES_PER_HOUR = 60;
 const SPEED_FACTOR = 2;
 const MS_PER_SECOND = 1000;
@@ -57,15 +59,29 @@ try {
   screen.showMessage(TEXTS.loadError(error instanceof Error ? error.message : String(error)));
 }
 
-/** Crée la partie et lance la boucle, une fois les images chargées. */
+/**
+ * Stockage local du navigateur, s'il est accessible (il peut être interdit).
+ * @returns {Storage | undefined}
+ */
+function browserStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Reprend la partie sauvegardée, ou en crée une, et lance la boucle (R-SAU-SAV-001). */
 function start() {
-  const game = Game.create();
+  const store = createSaveStore(browserStorage());
+  const game = startGame({ store });
+  store.attach(game);
   game.events.onAny((type, payload) => logger.debug('game', type, payload));
-  logger.info('game', 'Nouvelle partie');
+  logger.info('game', store.savedDay() === undefined ? 'Nouvelle partie' : 'Partie reprise');
 
   const renderer = createRenderer(game);
   game.events.on(GAME_EVENTS.TILE_CHANGED, ({ column, row }) => renderer.refreshTile(column, row));
-  const ui = createInterface(game, renderer);
+  const ui = createInterface(game, renderer, store);
   const loop = createLoop(game, renderer, ui);
 
   new MovementInput({
@@ -106,14 +122,21 @@ function createRenderer(game) {
  * Interface branchée sur le clic et le clavier.
  * @param {Game} game
  * @param {GameRenderer} renderer
+ * @param {ReturnType<typeof createSaveStore>} store
  * @returns {GameInterface}
  */
-function createInterface(game, renderer) {
+function createInterface(game, renderer, store) {
   const ui = new GameInterface({
     doc: document,
     container: /** @type {HTMLElement} */ (document.getElementById('interface')),
     game,
     notificationTicks: GAME_PARAMETERS.NOTIFICATION_TICKS,
+    savedDay: () => store.savedDay(),
+    // R-IHM-SAU-001 : « Recommencer » efface la sauvegarde et relance le jeu.
+    onRestart: () => {
+      store.clear();
+      window.location.reload();
+    },
   });
   // R-IHM-INS-001, R-IHM-INS-005 : un clic désigne un PNJ, un élément ou une tuile.
   screen.canvas.addEventListener('click', (event) => {

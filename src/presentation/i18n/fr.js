@@ -28,6 +28,9 @@ export const TEXTS = Object.freeze({
     'ruin-crate': 'Caisse',
     'ruin-crate-empty': 'Caisse vide',
     campfire: 'Feu de camp',
+    'berry-bush': 'Buisson à baies',
+    bush: 'Buisson',
+    mushrooms: 'Champignons',
   }),
   /** Verbe de chaque action de récolte. */
   harvestActions: Object.freeze({ cut: 'Couper', mine: 'Piocher', pick: 'Ramasser' }),
@@ -39,6 +42,8 @@ export const TEXTS = Object.freeze({
     flint: Object.freeze({ one: 'silex', many: 'silex' }),
     branch: Object.freeze({ one: 'branche', many: 'branches' }),
     fiber: Object.freeze({ one: 'fibre', many: 'fibres' }),
+    berry: Object.freeze({ one: 'baie', many: 'baies' }),
+    mushroom: Object.freeze({ one: 'champignon', many: 'champignons' }),
   }),
   /** Libellés du bandeau d'inventaire (R-IHM-HUD-001). */
   hudLabels: Object.freeze({
@@ -48,6 +53,8 @@ export const TEXTS = Object.freeze({
     flint: 'Silex',
     branch: 'Branches',
     fiber: 'Fibres',
+    berry: 'Baies',
+    mushroom: 'Champignons',
   }),
   harvestButton: 'Récolter',
   closeButton: 'Fermer',
@@ -57,6 +64,25 @@ export const TEXTS = Object.freeze({
   campfireOut: 'Éteint',
   rekindleButton: 'Raviver : 1 bois',
   woodNeeded: 'Il faut 1 bois',
+  // Dormir (R-IHM-INS-008).
+  sleepButton: 'Dormir',
+  fireOut: 'Le feu est éteint',
+  tooEarlyToSleep: 'Trop tôt pour dormir (dès 18:00)',
+  // Jauges (R-IHM-HUD-003), manger (R-IHM-INV-001).
+  healthLabel: 'PV',
+  hungerLabel: 'Faim',
+  eatButton: 'Manger',
+  // Fenêtre « Partie » (R-IHM-SAU-001).
+  gameTitle: 'Partie',
+  savedOn: (/** @type {number} */ day) => 'Sauvegardée au réveil du jour ' + day,
+  notSavedYet: "Pas encore de sauvegarde : dormez près d'un feu.",
+  newGameButton: 'Nouvelle partie',
+  newGameQuestion: 'Tout recommencer ? La sauvegarde sera effacée.',
+  restartButton: 'Recommencer',
+  cancelButton: 'Annuler',
+  // Sommeil et évanouissement (R-IHM-NOT-001).
+  sleptMessage: 'Bonjour ! Partie sauvegardée.',
+  faintedMessage: 'Vous vous êtes évanoui… Vous vous réveillez dans le Vallon.',
   // Objets à poser (R-IHM-INV-001).
   placeButton: 'Poser',
   placeableCount: (/** @type {string} */ name, /** @type {number} */ count) => name + ' ×' + count,
@@ -110,6 +136,7 @@ export const TEXTS = Object.freeze({
     inventory: 'Inventaire (I)',
     craft: 'Artisanat (C)',
     journal: 'Journal (J)',
+    game: 'Partie',
   }),
   talkAction: 'Parler',
   searchAction: 'Fouiller',

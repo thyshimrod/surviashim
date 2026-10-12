@@ -1,15 +1,7 @@
 // @ts-check
-import { BOOKS } from '../../../data/books.js';
-import { ITEMS } from '../../../data/items.js';
-import { NPCS } from '../../../data/npcs.js';
-import { PLACEABLES } from '../../../data/placeables.js';
-import { PLACES } from '../../../data/places.js';
-import { QUESTS } from '../../../data/quests.js';
-import { RECIPES } from '../../../data/recipes.js';
 import { RESOURCES } from '../../../data/resources.js';
-import { SEARCH_SPOTS } from '../../../data/searchSpots.js';
-import { TILE_DEFINITIONS } from '../../../data/tilesets.js';
-import { TOOLS } from '../../../data/tools.js';
+
+export { createGameRules } from './rules.js';
 
 /** @typedef {import('../model/TileMap.js').TileMap} TileMap */
 /** @typedef {import('../model/Player.js').Player} Player */
@@ -30,6 +22,10 @@ import { TOOLS } from '../../../data/tools.js';
  * @property {string} id Clé de data/npcs.js.
  * @property {{ x: number, y: number }} position Milieu des pieds (px de monde).
  * @property {Facing} facing
+ * @property {{ x: number, y: number }} [home] Centre de sa tuile (R-PNJ-POS-001).
+ * @property {number} [step] Étape de sa promenade vers laquelle il va (R-PNJ-POS-003).
+ * @property {number} [pauseUntil] Horloge (ticks) jusqu'à laquelle il attend.
+ * @property {boolean} [isWalking]
  */
 
 /**
@@ -95,7 +91,9 @@ import { TOOLS } from '../../../data/tools.js';
  * @property {number} clock Horloge : ticks écoulés depuis le jour 1 à 0:00 (R-MON-TPS-001).
  * @property {Record<string, number>} placeables Objets à poser, par sorte (R-INV-POS-001).
  * @property {Campfire[]} campfires Feux de camp posés (R-ART-FEU-001).
- * @property {Regrowth[]} regrowth Souches qui repousseront (R-RES-REC-005).
+ * @property {Regrowth[]} regrowth Éléments qui repousseront (R-RES-REC-005).
+ * @property {number} health PV (R-JOU-VIE-001).
+ * @property {number} hunger Faim, de 0 à HUNGER_MAX (R-JOU-VIE-002).
  */
 
 /**
@@ -125,6 +123,10 @@ import { TOOLS } from '../../../data/tools.js';
  * @property {Readonly<Record<string, Readonly<import('../../../data/placeables.js').PlaceableDefinition>>>}
  *   [placeables] Objets à poser (R-ART-POS-001).
  * @property {import('../systems/time.js').TimeRules} [time] Temps, nuit, feu de camp, repousse.
+ * @property {Readonly<Record<string, Readonly<import('../../../data/resources.js').ResourceDefinition>>>}
+ *   [resources] Ressources, et ce qu'elles rendent de faim (R-JOU-MAN-001).
+ * @property {import('../systems/needs.js').VitalRules} [vitals] Faim, santé, sommeil.
+ * @property {{ speed: number, pauseMinutes: number }} [npcWalk] Promenades (R-PNJ-POS-003).
  */
 
 /**
@@ -154,15 +156,20 @@ export function createEmptyInventory() {
  * @param {Record<string, number>} [params.placeables]
  * @param {Campfire[]} [params.campfires]
  * @param {Regrowth[]} [params.regrowth]
+ * @param {number} [params.health]
+ * @param {number} [params.hunger]
  * @param {number} [params.tick]
  * @returns {GameState}
  */
 export function createGameState(params) {
   const { map, player, inventory = createEmptyInventory(), dialogue, tick = 0 } = params;
+  const { health = 100, hunger = 100 } = params;
   return {
     tick,
     map,
     player,
+    health,
+    hunger,
     inventory: { ...inventory },
     dialogue: dialogue === undefined ? undefined : copyDialogue(dialogue),
     ...copyWorld(params),
@@ -178,7 +185,11 @@ export function createGameState(params) {
  */
 function copyWorld({ npcs = [], journal = [], currentPlaces = [] }) {
   return {
-    npcs: npcs.map((npc) => ({ ...npc, position: { ...npc.position } })),
+    npcs: npcs.map((npc) => ({
+      ...npc,
+      position: { ...npc.position },
+      ...(npc.home === undefined ? {} : { home: { ...npc.home } }),
+    })),
     journal: journal.map((entry) => ({ ...entry })),
     currentPlaces: [...currentPlaces],
   };
@@ -225,47 +236,27 @@ function copyProgress({
 }
 
 /**
- * @param {Readonly<import('../../../data/gameParameters.js').GameParameters>} parameters
- * @returns {GameRules}
+ * R-PNJ-POS-001 : PNJ au centre de sa tuile, orienté comme dans les données ; il commence sa
+ * promenade par une pause (R-PNJ-POS-003).
+ * @param {Readonly<NpcDefinition>} definition
+ * @param {number} tileSize
+ * @param {number} [pauseUntil] Horloge (ticks) de fin de la première pause.
+ * @returns {Npc}
  */
-export function createGameRules(parameters) {
-  return {
-    walkSpeed: parameters.PLAYER_WALK_SPEED,
-    hitbox: { width: parameters.PLAYER_HITBOX_WIDTH, height: parameters.PLAYER_HITBOX_HEIGHT },
-    harvestReach: parameters.HARVEST_REACH,
-    talkReach: parameters.TALK_REACH,
-    tiles: TILE_DEFINITIONS,
-    npcs: NPCS,
-    places: PLACES,
-    searchSpots: SEARCH_SPOTS,
-    searchMaxBooks: parameters.SEARCH_MAX_BOOKS,
-    tools: TOOLS,
-    recipes: RECIPES,
-    books: BOOKS,
-    quests: QUESTS,
-    items: ITEMS,
-    placeables: PLACEABLES,
-    time: createTimeRules(parameters),
+export function createNpc(definition, tileSize, pauseUntil = 0) {
+  const half = tileSize / 2;
+  const home = {
+    x: definition.tile.column * tileSize + half,
+    y: definition.tile.row * tileSize + half,
   };
-}
-
-/**
- * @param {Readonly<import('../../../data/gameParameters.js').GameParameters>} parameters
- * @returns {import('../systems/time.js').TimeRules}
- */
-function createTimeRules(parameters) {
   return {
-    ticksPerMinute: parameters.TICK_PER_GAME_MINUTE,
-    dayStart: parameters.DAY_START,
-    duskStart: parameters.DUSK_START,
-    nightStart: parameters.NIGHT_START,
-    dawnStart: parameters.DAWN_START,
-    nightDarkness: parameters.NIGHT_DARKNESS,
-    heroLightRadius: parameters.HERO_LIGHT_RADIUS,
-    campfireLightRadius: parameters.CAMPFIRE_LIGHT_RADIUS,
-    campfireBurnMinutes: parameters.CAMPFIRE_BURN_MINUTES,
-    campfireRekindleWood: parameters.CAMPFIRE_REKINDLE_WOOD,
-    treeRegrowDays: parameters.TREE_REGROW_DAYS,
+    id: definition.id,
+    position: { ...home },
+    facing: definition.facing,
+    home,
+    step: 0,
+    pauseUntil,
+    isWalking: false,
   };
 }
 
@@ -277,22 +268,4 @@ function copyDialogue(dialogue) {
   return dialogue.pages === undefined
     ? { ...dialogue }
     : { ...dialogue, pages: [...dialogue.pages] };
-}
-
-/**
- * R-PNJ-POS-001 : PNJ au centre de sa tuile, orienté comme dans les données.
- * @param {Readonly<NpcDefinition>} definition
- * @param {number} tileSize
- * @returns {Npc}
- */
-export function createNpc(definition, tileSize) {
-  const half = tileSize / 2;
-  return {
-    id: definition.id,
-    position: {
-      x: definition.tile.column * tileSize + half,
-      y: definition.tile.row * tileSize + half,
-    },
-    facing: definition.facing,
-  };
 }

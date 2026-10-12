@@ -15,7 +15,7 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  * @property {string} resource Ressource obtenue (clé de data/resources.js).
  * @property {number} amount Rendement.
  * @property {string} becomes Type de tuile laissé après la récolte (R-RES-REC-003).
- * @property {boolean} [regrows] `true` si l'élément repousse (R-RES-REC-005).
+ * @property {number} [regrowDays] Jours de jeu avant que l'élément repousse (R-RES-REC-005).
  * @property {import('./tools.js').ToolKind} [tool] Sorte d'outil exigée (R-RES-OUT-001) ;
  *   absente, la récolte se fait à la main.
  */
@@ -79,7 +79,7 @@ export const TILE_DEFINITIONS = Object.freeze({
       resource: 'wood',
       amount: GAME_PARAMETERS.TREE_WOOD_YIELD,
       becomes: 'stump',
-      regrows: true,
+      regrowDays: GAME_PARAMETERS.TREE_REGROW_DAYS,
     },
   }),
   rock: tile('rock', 'o', {
@@ -94,6 +94,28 @@ export const TILE_DEFINITIONS = Object.freeze({
     },
   }),
   stump: tile('stump', 's'),
+  // Cueillette (C-RES-09) : un buisson à baies, puis sans baies ; des champignons.
+  'berry-bush': tile('berry-bush', 'u', {
+    isBlocking: true,
+    isStanding: true,
+    harvest: {
+      action: 'pick',
+      resource: 'berry',
+      amount: GAME_PARAMETERS.BERRY_YIELD,
+      becomes: 'bush',
+      regrowDays: GAME_PARAMETERS.BUSH_REGROW_DAYS,
+    },
+  }),
+  bush: tile('bush', 'v', { isBlocking: true, isStanding: true }),
+  mushrooms: tile('mushrooms', 'm', {
+    harvest: {
+      action: 'pick',
+      resource: 'mushroom',
+      amount: GAME_PARAMETERS.MUSHROOM_YIELD,
+      becomes: 'grass',
+      regrowDays: GAME_PARAMETERS.MUSHROOM_REGROW_DAYS,
+    },
+  }),
   // Objet posé (R-ART-POS-001) : un feu de camp, allumé ou éteint selon l'horloge (R-ART-FEU-001).
   campfire: tile('campfire', 'F', { isBlocking: true, isCampfire: true }),
   // Ruines (C-MON-07) : un dallage franchissable et des vestiges debout (piliers, gravats).

@@ -157,7 +157,7 @@ describe("R-PNJ-POS-001 · Position d'un PNJ", () => {
       .getState()
       .npcs.find((npc) => npc.id === 'aldric');
 
-    assert.deepEqual(aldric, { id: 'aldric', position: { x: 1232, y: 2896 }, facing: 'down' });
+    assert.deepEqual([aldric.position, aldric.facing], [{ x: 1232, y: 2896 }, 'down']);
   });
 
   it("ex.2 — 600 ticks plus tard, Aldric n'a pas bougé", () => {

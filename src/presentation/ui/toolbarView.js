@@ -4,7 +4,7 @@ import { TEXTS } from '../i18n/fr.js';
 /**
  * Bouton de la barre d'actions.
  * @typedef {object} ToolbarButton
- * @property {'inventory' | 'craft' | 'journal'} id Fenêtre ouverte par le bouton.
+ * @property {'inventory' | 'craft' | 'journal' | 'game'} id Fenêtre ouverte par le bouton.
  * @property {string} icon Icône (clé de ICONS).
  * @property {string} label Nom et touche, affichés au survol (« Inventaire (I) »).
  * @property {boolean} isActive `true` si la fenêtre est ouverte.
@@ -15,6 +15,7 @@ const BUTTONS = Object.freeze([
   Object.freeze({ id: 'inventory', icon: 'sack' }),
   Object.freeze({ id: 'craft', icon: 'hammer' }),
   Object.freeze({ id: 'journal', icon: 'book-open' }),
+  Object.freeze({ id: 'game', icon: 'hourglass' }),
 ]);
 
 /**

@@ -1,6 +1,7 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
 import { hitboxAt, overlaps } from '../utils/box.js';
+import { isBedtime } from '../systems/needs.js';
 import { ticksFor } from '../systems/time.js';
 import { REJECTION_REASONS } from './commands.js';
 
@@ -16,6 +17,8 @@ import { REJECTION_REASONS } from './commands.js';
  * @property {boolean} isLit
  * @property {number} minutesLeft Minutes de jeu avant qu'il s'éteigne (0 s'il est éteint).
  * @property {boolean} hasFuel `true` si le joueur a assez de bois pour le raviver.
+ * @property {boolean} isInReach `true` si le feu est à portée du joueur (`HARVEST_REACH`).
+ * @property {boolean} isBedtime `true` si l'heure permet de dormir (R-JOU-SOM-001).
  */
 
 /** Décalage de la tuile devant le joueur, selon son orientation. */
@@ -67,6 +70,8 @@ export function inspectCampfire(state, rules, tile) {
     isLit: ticksLeft > 0,
     minutesLeft: Math.ceil(ticksLeft / rules.time.ticksPerMinute),
     hasFuel: (state.inventory.wood ?? 0) >= rules.time.campfireRekindleWood,
+    isInReach: isInReach(state, rules, tile),
+    isBedtime: isBedtime(state, rules),
   };
 }
 
@@ -131,13 +136,7 @@ export function rekindle(state, rules, events, tile) {
   if ((state.inventory.wood ?? 0) < cost) {
     return { ok: false, reason: REJECTION_REASONS.MISSING_INGREDIENTS };
   }
-  const bounds = state.map.boundsOf(tile.column, tile.row);
-  const { x, y } = state.player.position;
-  const distance = Math.hypot(
-    x - (bounds.left + bounds.right) / 2,
-    y - (bounds.top + bounds.bottom) / 2,
-  );
-  if (distance > rules.harvestReach) {
+  if (!isInReach(state, rules, tile)) {
     return { ok: false, reason: REJECTION_REASONS.OUT_OF_REACH };
   }
   state.inventory.wood -= cost;
@@ -169,4 +168,19 @@ export function lightSources(state, rules) {
         radius: campfireLightRadius,
       })),
   ];
+}
+
+/**
+ * Le centre de la tuile est-il à portée du joueur (`HARVEST_REACH`) ?
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {TileCoordinates} tile
+ * @returns {boolean}
+ */
+function isInReach(state, rules, { column, row }) {
+  const bounds = state.map.boundsOf(column, row);
+  const { x, y } = state.player.position;
+  const centerX = (bounds.left + bounds.right) / 2;
+  const centerY = (bounds.top + bounds.bottom) / 2;
+  return Math.hypot(x - centerX, y - centerY) <= rules.harvestReach;
 }

@@ -61,6 +61,8 @@ const BY_EVENT = Object.freeze({
   // R-IHM-LIV-001, R-IHM-ART-001
   [GAME_EVENTS.BOOK_READ]: ({ recipes = [] }) => brief(learnedMessages(recipes)),
   [GAME_EVENTS.ITEM_CRAFTED]: ({ recipeId = '' }) => brief([craftedMessage(recipeId)]),
+  [GAME_EVENTS.SLEPT]: () => brief([TEXTS.sleptMessage]),
+  [GAME_EVENTS.FAINTED]: () => sticky([TEXTS.faintedMessage]),
   // R-IHM-NOT-003
   [GAME_EVENTS.QUEST_STARTED]: ({ questId = '' }) => sticky([questStartedMessage(questId)]),
   [GAME_EVENTS.QUEST_COMPLETED]: ({ questId = '', experience = 0 }) =>

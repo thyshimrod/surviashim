@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.7** | 2026-10-12 | Validée — prête pour l'implémentation |
+| **v0.8** | 2026-10-12 | Validée — prête pour l'implémentation |
 
 La vision du jeu et ses concepts sont décrits dans la [spécification globale](GAME_DESIGN.md). Ce document-ci contient les **règles précises et testables**, version par version.
 
@@ -217,6 +217,12 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 | **Outil** | Objet qui permet une action de récolte : la **hache** pour couper, la **pioche** pour piocher. Le joueur en possède au plus un de chaque (R-INV-OUT-001). |
 | **Fabriquer** | Transformer des ingrédients en objet, à la main, en suivant une recette connue (R-ART-FAB-001). |
 | **Fenêtre d'information** | Fenêtre qui décrit l'élément désigné et permet de le récolter (R-IHM-INS-002). |
+| **PV** | Points de vie (santé) du joueur, de 0 à `HEALTH_MAX` (R-JOU-VIE-001). |
+| **Faim** | Jauge de 0 (affamé) à `HUNGER_MAX` (rassasié) ; elle baisse avec le temps et remonte en mangeant (R-JOU-VIE-002, R-JOU-MAN-001). |
+| **Nourriture** | Ressource qui se mange : baies, champignons (B.10). |
+| **S'évanouir** | À 0 PV, le joueur se réveille au matin suivant dans le Vallon (R-JOU-VIE-004). |
+| **Prochain matin** | La prochaine fois que l'horloge marque `DAY_START` (6:00) : le jour même avant 6:00, le lendemain après. |
+| **Sauvegarde** | Copie de l'état de la partie, faite au coucher et gardée par le navigateur (R-SAU-SAV-001). |
 | **Horloge** | Jour et heure du monde, en minutes de jeu (R-MON-TPS-001). Une partie commence le jour 1 à 6:00. |
 | **Obscurité** | Opacité du voile de nuit, de 0 (plein jour) à `NIGHT_DARKNESS` (R-MON-TPS-002). |
 | **Objet à poser** | Objet fabriqué qu'on garde dans l'inventaire puis qu'on pose sur la tuile devant le héros : le feu de camp (R-ART-POS-001). |
@@ -249,7 +255,7 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 
 ## B.4 Ordre d'exécution d'un tick
 
-Un tick exécute, dans l'ordre : 0. l'avance de l'horloge (R-MON-TPS-001) ; 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003) ; 3. la repousse des arbres (R-RES-REC-005). Un feu de camp s'éteint de lui-même quand l'horloge atteint sa fin de combustion (R-ART-FEU-001).
+Un tick exécute, dans l'ordre : 0. l'avance de l'horloge (R-MON-TPS-001) ; 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003) ; 3. la repousse (R-RES-REC-005) ; 4. la faim et la santé (R-JOU-VIE-002, 003), puis l'évanouissement (R-JOU-VIE-004) ; 5. la promenade des PNJ (R-PNJ-POS-003). Un feu de camp s'éteint de lui-même quand l'horloge atteint sa fin de combustion (R-ART-FEU-001).
 
 ## B.5 Commandes du joueur
 
@@ -266,6 +272,8 @@ Les commandes sont traitées immédiatement, entre deux ticks.
 | Donner à un PNJ | Donne l'objet d'une quête en cours (R-PNJ-QUE-002) | `NOBODY_TO_TALK_TO` : ce PNJ n'existe pas ; `ALREADY_TALKING` : un dialogue est en cours ; `OUT_OF_REACH` : le PNJ est trop loin ; `NOTHING_TO_GIVE` : aucune quête en cours de ce PNJ dont le joueur a l'objet |
 | Poser un objet | Pose un objet de l'inventaire sur la tuile devant le joueur (R-ART-POS-001) | `NOTHING_TO_PLACE` : le joueur n'en a pas ; `CANNOT_PLACE` : la tuile devant lui ne l'accepte pas |
 | Raviver un feu | Rallume un feu de camp avec du bois (R-ART-FEU-001) | `NOTHING_TO_REKINDLE` : la tuile n'est pas un feu de camp ; `MISSING_INGREDIENTS` : pas assez de bois ; `OUT_OF_REACH` : le feu est hors de portée |
+| Manger | Mange une ressource (R-JOU-MAN-001) | `NOT_EDIBLE` : elle ne se mange pas ; `NOTHING_TO_EAT` : le joueur n'en a pas ; `ALREADY_FULL` : la faim est déjà au maximum |
+| Dormir | Dort près d'un feu de camp jusqu'au prochain matin (R-JOU-SOM-001) | `NOTHING_TO_SLEEP_BY` : la tuile n'est pas un feu de camp allumé ; `TOO_EARLY` : il n'est pas encore `SLEEP_START` ; `OUT_OF_REACH` : le feu est hors de portée |
 | Lire un livre | Apprend les plans du livre (R-INV-LIV-002) | `BOOK_NOT_OWNED` : le livre n'est pas dans la bibliothèque |
 | Fabriquer | Fabrique l'objet d'une recette (R-ART-FAB-001, 002) | `UNKNOWN_RECIPE` : la recette n'existe pas ou n'a pas été apprise ; `ALREADY_OWNED` : l'outil est déjà possédé (un objet à poser se fabrique autant de fois qu'on veut) ; `MISSING_INGREDIENTS` : il manque des ingrédients |
 
@@ -323,6 +331,17 @@ Contenu défini dans `data/quests.js`, `data/items.js` et `data/npcs.js` (textes
 |---|---|---|---|---|---|---|---|
 | La poupée de Maëlle | Maëlle, l'ancienne meunière (sa page 3 dit où chercher : le coffre de sa maison, au nord-est du hameau) | `maelle-3` | Poupée de chiffon bleue | Coffre du Hameau abandonné, tuile (127, 96) | 50 expérience | `maelle-thanks` | `maelle-4` (remplace `maelle-3`) |
 
+## B.10 Nourriture et promenades (v0.8)
+
+Contenu défini dans `data/resources.js`, `data/tilesets.js`, `data/npcs.js` et la carte (`tools/maps/generateValley.js`) ; c'est une donnée, pas une règle.
+
+| Nourriture | Où | Rendement | Rassasie de | Repousse |
+|---|---|---|---|---|
+| Baies | buissons à baies (le Vallon en compte plusieurs) | `BERRY_YIELD` | `BERRY_FOOD` | `BUSH_REGROW_DAYS` jours |
+| Champignons | en lisière des bois | `MUSHROOM_YIELD` | `MUSHROOM_FOOD` | `MUSHROOM_REGROW_DAYS` jours |
+
+Chaque PNJ a une **promenade** : une liste de tuiles (décalages par rapport à sa tuile) qu'il visite en boucle, en revenant chez lui entre deux. Aldric : 2 tuiles à l'est ; Elwyn : 2 tuiles à l'ouest ; Maëlle : 2 tuiles au nord.
+
 ---
 
 # Partie C — Paramètres
@@ -351,17 +370,34 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | `TALK_REACH` | 64 | px (2 tuiles) | EN VIGUEUR | v0.3 | R-PNJ-DIA-001, R-IHM-INS-005 |
 | `NOTIFICATION_TICKS` | 240 | ticks (= 4 s) | EN VIGUEUR | v0.3 | R-IHM-NOT-001, R-IHM-NOT-002 |
 | `SEARCH_MAX_BOOKS` | 2 | livres par cachette | EN VIGUEUR | v0.4 | R-RES-FOU-003 |
-| `TICK_PER_GAME_MINUTE` | 36 | ticks par minute de jeu (= 0,6 s) | NOUVEAU | v0.7 | B.2, R-MON-TPS-001 — 20 h de jeu (6:00 → 2:00) en 12 minutes réelles |
-| `DAY_START` | 360 | minute du jour (= 6:00) | NOUVEAU | v0.7 | R-MON-TPS-001, R-MON-TPS-002 — début d'une partie, fin de l'aube |
-| `DUSK_START` | 1080 | minute du jour (= 18:00) | NOUVEAU | v0.7 | R-MON-TPS-002 |
-| `NIGHT_START` | 1260 | minute du jour (= 21:00) | NOUVEAU | v0.7 | R-MON-TPS-002 |
-| `DAWN_START` | 240 | minute du jour (= 4:00) | NOUVEAU | v0.7 | R-MON-TPS-002 |
-| `NIGHT_DARKNESS` | 0.8 | opacité du voile (0 à 1) | NOUVEAU | v0.7 | R-MON-TPS-002, R-IHM-NUI-001 |
-| `HERO_LIGHT_RADIUS` | 96 | px (3 tuiles) | NOUVEAU | v0.7 | R-IHM-NUI-001 |
-| `CAMPFIRE_LIGHT_RADIUS` | 192 | px (6 tuiles) | NOUVEAU | v0.7 | R-IHM-NUI-001 |
-| `CAMPFIRE_BURN_MINUTES` | 600 | minutes de jeu (= 10 h, 6 minutes réelles) | NOUVEAU | v0.7 | R-ART-FEU-001 |
-| `CAMPFIRE_REKINDLE_WOOD` | 1 | bois | NOUVEAU | v0.7 | R-ART-FEU-001, R-IHM-INS-008 |
-| `TREE_REGROW_DAYS` | 3 | jours de jeu (= 4 320 minutes de jeu) | NOUVEAU | v0.7 | R-RES-REC-005 |
+| `TICK_PER_GAME_MINUTE` | 36 | ticks par minute de jeu (= 0,6 s) | EN VIGUEUR | v0.7 | B.2, R-MON-TPS-001 — 20 h de jeu (6:00 → 2:00) en 12 minutes réelles |
+| `DAY_START` | 360 | minute du jour (= 6:00) | EN VIGUEUR | v0.7 | R-MON-TPS-001, R-MON-TPS-002 — début d'une partie, fin de l'aube |
+| `DUSK_START` | 1080 | minute du jour (= 18:00) | EN VIGUEUR | v0.7 | R-MON-TPS-002 |
+| `NIGHT_START` | 1260 | minute du jour (= 21:00) | EN VIGUEUR | v0.7 | R-MON-TPS-002 |
+| `DAWN_START` | 240 | minute du jour (= 4:00) | EN VIGUEUR | v0.7 | R-MON-TPS-002 |
+| `NIGHT_DARKNESS` | 0.8 | opacité du voile (0 à 1) | EN VIGUEUR | v0.7 | R-MON-TPS-002, R-IHM-NUI-001 |
+| `HERO_LIGHT_RADIUS` | 96 | px (3 tuiles) | EN VIGUEUR | v0.7 | R-IHM-NUI-001 |
+| `CAMPFIRE_LIGHT_RADIUS` | 192 | px (6 tuiles) | EN VIGUEUR | v0.7 | R-IHM-NUI-001 |
+| `CAMPFIRE_BURN_MINUTES` | 600 | minutes de jeu (= 10 h, 6 minutes réelles) | EN VIGUEUR | v0.7 | R-ART-FEU-001 |
+| `CAMPFIRE_REKINDLE_WOOD` | 1 | bois | EN VIGUEUR | v0.7 | R-ART-FEU-001, R-IHM-INS-008 |
+| `TREE_REGROW_DAYS` | 3 | jours de jeu (= 4 320 minutes de jeu) | EN VIGUEUR | v0.7 | R-RES-REC-005 |
+| `HEALTH_MAX` | 100 | PV | NOUVEAU | v0.8 | R-JOU-VIE-001, 003, R-JOU-SOM-001 |
+| `HUNGER_MAX` | 100 | points de faim | NOUVEAU | v0.8 | R-JOU-VIE-001, R-JOU-MAN-001 |
+| `HUNGER_MINUTES_PER_POINT` | 30 | minutes de jeu (= 40 points de 6:00 à 2:00) | NOUVEAU | v0.8 | R-JOU-VIE-002 |
+| `HEALTH_MINUTES_PER_POINT` | 10 | minutes de jeu | NOUVEAU | v0.8 | R-JOU-VIE-003 |
+| `WELL_FED` | 50 | points de faim | NOUVEAU | v0.8 | R-JOU-VIE-003 — au-dessus, les PV remontent |
+| `FAINT_HEALTH` | 50 | PV | NOUVEAU | v0.8 | R-JOU-VIE-004 |
+| `FAINT_HUNGER` | 50 | points de faim | NOUVEAU | v0.8 | R-JOU-VIE-004 |
+| `SLEEP_START` | 1080 | minute du jour (= 18:00) | NOUVEAU | v0.8 | R-JOU-SOM-001 |
+| `SLEEP_HUNGER` | 10 | points de faim | NOUVEAU | v0.8 | R-JOU-SOM-001 |
+| `BERRY_YIELD` | 3 | baies | NOUVEAU | v0.8 | R-RES-ELE-001 |
+| `MUSHROOM_YIELD` | 1 | champignon | NOUVEAU | v0.8 | R-RES-ELE-001 |
+| `BERRY_FOOD` | 10 | points de faim | NOUVEAU | v0.8 | R-JOU-MAN-001 |
+| `MUSHROOM_FOOD` | 20 | points de faim | NOUVEAU | v0.8 | R-JOU-MAN-001 |
+| `BUSH_REGROW_DAYS` | 2 | jours de jeu | NOUVEAU | v0.8 | R-RES-REC-005 |
+| `MUSHROOM_REGROW_DAYS` | 2 | jours de jeu | NOUVEAU | v0.8 | R-RES-REC-005 |
+| `NPC_WALK_SPEED` | 1 | px/tick | NOUVEAU | v0.8 | R-PNJ-POS-003 |
+| `NPC_PAUSE_MINUTES` | 20 | minutes de jeu | NOUVEAU | v0.8 | R-PNJ-POS-003 |
 
 ---
 
@@ -476,6 +512,132 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-JOU-09. Les niveaux viendront plus tard.
 
 **Historique** — v0.6 : création.
+
+### 1.4 VIE — Santé et faim
+
+#### R-JOU-VIE-001 · Santé et faim de départ
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `HEALTH_MAX`, `HUNGER_MAX` |
+
+**Règle** — Une nouvelle partie commence avec `HEALTH_MAX` PV et une faim de `HUNGER_MAX`.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | — | une nouvelle partie commence | 100 PV, faim 100 |
+
+**Notes** — Concepts C-JOU-02, C-JOU-10.
+
+**Historique** — v0.8 : création.
+
+#### R-JOU-VIE-002 · La faim baisse
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `HUNGER_MINUTES_PER_POINT` |
+
+**Règle** — Chaque fois que l'horloge franchit un multiple de `HUNGER_MINUTES_PER_POINT` minutes de jeu, la faim baisse de 1, sans descendre sous 0.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | faim 80, il est 6:00 | l'horloge atteint 6:29 | faim 80 |
+| 2 | idem | l'horloge atteint 6:30 | faim 79 |
+| 3 | faim 0, il est 6:00 | l'horloge atteint 6:30 | faim 0 |
+
+**Notes** — Concepts C-JOU-05, C-JOU-10. 40 points de 6:00 à 2:00 : deux à trois repas par jour.
+
+**Historique** — v0.8 : création.
+
+#### R-JOU-VIE-003 · Santé selon la faim
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `HEALTH_MINUTES_PER_POINT`, `WELL_FED`, `HEALTH_MAX` |
+
+**Règle** — Chaque fois que l'horloge franchit un multiple de `HEALTH_MINUTES_PER_POINT` minutes de jeu : si la faim dépasse `WELL_FED`, le joueur regagne 1 PV (sans dépasser `HEALTH_MAX`) ; si la faim vaut 0, il perd 1 PV.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | 80 PV, faim 60, il est 6:00 | l'horloge atteint 6:10 | 81 PV |
+| 2 | 80 PV, faim 50 | 10 minutes de jeu passent | 80 PV |
+| 3 | 80 PV, faim 0 | 10 minutes de jeu passent | 79 PV |
+| 4 | 100 PV, faim 90 | 10 minutes de jeu passent | 100 PV |
+
+**Notes** — Concepts C-JOU-05, C-JOU-10.
+
+**Historique** — v0.8 : création.
+
+#### R-JOU-VIE-004 · S'évanouir
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `FAINT_HEALTH`, `FAINT_HUNGER`, `PLAYER_START_TILE` |
+
+**Règle** — Quand les PV tombent à 0, le joueur s'évanouit : un éventuel dialogue se termine, il se réveille au prochain matin (6:00) au centre de la tuile de départ, avec `FAINT_HEALTH` PV et une faim d'au moins `FAINT_HUNGER`. Il ne perd rien.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | 1 PV, faim 0, le jour 2 à 23:55, 5 bois | l'horloge atteint 0:00 | le jour 3 à 6:00, au départ, 50 PV, faim 50, toujours 5 bois |
+
+**Notes** — Concept C-SAU-04. Le Foyer remplacera le Vallon quand il existera.
+
+**Historique** — v0.8 : création.
+
+### 1.5 MAN — Manger
+
+#### R-JOU-MAN-001 · Manger
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `BERRY_FOOD`, `MUSHROOM_FOOD`, `HUNGER_MAX` |
+
+**Règle** — Manger retire 1 nourriture de l'inventaire et ajoute sa valeur à la faim, sans dépasser `HUNGER_MAX`. Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOT_EDIBLE` (cette ressource ne se mange pas), `NOTHING_TO_EAT` (le joueur n'en a pas), `ALREADY_FULL` (la faim est déjà à `HUNGER_MAX`).
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | faim 50, 2 baies | le joueur mange une baie | faim 60, 1 baie |
+| 2 | faim 95, 1 champignon | il mange le champignon | faim 100, 0 champignon |
+| 3 | faim 50, 3 bois | il mange du bois | refus `NOT_EDIBLE` |
+| 4 | faim 50, 0 baie | il mange une baie | refus `NOTHING_TO_EAT` |
+| 5 | faim 100, 2 baies | il mange une baie | refus `ALREADY_FULL` ; toujours 2 baies |
+
+**Notes** — Concepts C-RES-09, C-JOU-05.
+
+**Historique** — v0.8 : création.
+
+### 1.6 SOM — Sommeil
+
+#### R-JOU-SOM-001 · Dormir
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `SLEEP_START`, `SLEEP_HUNGER`, `HEALTH_MAX`, `HARVEST_REACH` |
+
+**Règle** — Le joueur peut dormir près d'un feu de camp allumé, de `SLEEP_START` (18:00) jusqu'avant `DAY_START` (6:00). Il se réveille au prochain matin (6:00) : PV au maximum, faim diminuée de `SLEEP_HUNGER` (sans descendre sous 0), et la partie est sauvegardée (R-SAU-SAV-001). Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOTHING_TO_SLEEP_BY` (pas de feu de camp allumé sur cette tuile), `TOO_EARLY` (entre 6:00 et 18:00), `OUT_OF_REACH` (le feu est à plus de `HARVEST_REACH`).
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | un feu allumé à portée, le jour 1 à 22:00, 40 PV, faim 60 | le joueur dort | le jour 2 à 6:00, 100 PV, faim 50 |
+| 2 | idem, le jour 2 à 1:00 | le joueur dort | le jour 2 à 6:00 |
+| 3 | un feu allumé à portée, le jour 1 à 17:59 | le joueur dort | refus `TOO_EARLY` |
+| 4 | un feu éteint à portée, 22:00 | le joueur dort | refus `NOTHING_TO_SLEEP_BY` |
+
+**Notes** — Concepts C-SAU-03, C-SAU-01. Le feu continue de brûler (ou s'éteint) pendant la nuit.
+
+**Historique** — v0.8 : création.
 
 ## 2. MON — Monde
 
@@ -653,7 +815,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | `TICK_PER_GAME_MINUTE`, `DAY_START` |
+| EN VIGUEUR | v0.7 | `TICK_PER_GAME_MINUTE`, `DAY_START` |
 
 **Règle** — Une partie commence le jour 1 à `DAY_START` (6:00). L'horloge avance d'une minute de jeu tous les `TICK_PER_GAME_MINUTE` ticks. Après 23:59 vient 0:00 du jour suivant.
 
@@ -674,7 +836,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | `DAY_START`, `DUSK_START`, `NIGHT_START`, `DAWN_START`, `NIGHT_DARKNESS` |
+| EN VIGUEUR | v0.7 | `DAY_START`, `DUSK_START`, `NIGHT_START`, `DAWN_START`, `NIGHT_DARKNESS` |
 
 **Règle** — L'obscurité vaut 0 de `DAY_START` (6:00) à `DUSK_START` (18:00), croît linéairement jusqu'à `NIGHT_DARKNESS` à `NIGHT_START` (21:00), y reste jusqu'à `DAWN_START` (4:00), puis décroît linéairement jusqu'à 0 à `DAY_START`.
 
@@ -991,9 +1153,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH` |
+| MODIFIÉ | v0.8 | `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH`, `SLEEP_START` |
 
-**Règle** — Désigner un feu de camp ouvre la fenêtre d'information : « Feu de camp », son état (« Allumé, encore <h> h » en heures entières arrondies au-dessus, ou « Éteint ») et un bouton « Raviver : 1 bois ». Le bouton est actif si le joueur a assez de bois et que le feu est à portée ; sinon il est inactif avec « Il faut 1 bois » (en priorité) ou « Trop loin : approchez-vous ». Un clic sur le bouton actif ravive le feu (R-ART-FEU-001) ; la fenêtre reste ouverte.
+**Règle** — Désigner un feu de camp ouvre la fenêtre d'information : « Feu de camp », son état (« Allumé, encore <h> h » en heures entières arrondies au-dessus, ou « Éteint ») et un bouton « Raviver : 1 bois ». Le bouton est actif si le joueur a assez de bois et que le feu est à portée ; sinon il est inactif avec « Il faut 1 bois » (en priorité) ou « Trop loin : approchez-vous ». Un clic sur le bouton actif ravive le feu (R-ART-FEU-001) ; la fenêtre reste ouverte. Un second bouton « Dormir » est actif si le feu est allumé, à portée, et qu'il est au moins `SLEEP_START` (avant 6:00) ; sinon il est inactif avec « Le feu est éteint », « Trop tôt pour dormir (dès 18:00) » ou « Trop loin : approchez-vous », dans cet ordre. Un clic sur « Dormir » actif fait dormir le joueur (R-JOU-SOM-001) et ferme la fenêtre.
 
 **Exemples**
 
@@ -1002,10 +1164,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | un feu allumé il y a 2 h (8 h restantes), 3 bois, à portée | on le désigne | « Feu de camp », « Allumé, encore 8 h », bouton « Raviver : 1 bois » actif |
 | 2 | un feu éteint, 0 bois, à portée | on le désigne | « Éteint », bouton inactif, « Il faut 1 bois » |
 | 3 | un feu éteint, 1 bois, à portée | clic sur « Raviver : 1 bois » | le feu est allumé, « Allumé, encore 10 h », 0 bois |
+| 4 | un feu allumé à portée, 12:00 | on le désigne | bouton « Dormir » inactif, « Trop tôt pour dormir (dès 18:00) » |
+| 5 | un feu allumé à portée, 22:00 | clic sur « Dormir » | le joueur se réveille le lendemain à 6:00, la fenêtre est fermée |
 
 **Notes** — Concepts C-IHM-05, C-ART-05.
 
-**Historique** — v0.7 : création.
+**Historique** — v0.7 : création. v0.8 : bouton « Dormir ».
 
 ### 3.6 HUD — Bandeau d'informations
 
@@ -1013,20 +1177,20 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.4 | — |
+| MODIFIÉ | v0.8 | — |
 
-**Règle** — En haut à gauche de l'écran, le bandeau d'inventaire affiche en permanence chaque ressource avec son icône (planche d'icônes) et sa quantité, dans l'ordre : bois, pierre, fleurs, silex, branches, fibres.
+**Règle** — En haut à gauche de l'écran, le bandeau d'inventaire affiche en permanence chaque ressource avec son icône (planche d'icônes) et sa quantité, dans l'ordre : bois, pierre, fleurs, silex, branches, fibres, baies, champignons.
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | un inventaire de 3 bois, 0 pierre, 1 fleur, 2 silex, 0 branche, 4 fibres | l'écran est affiché | le bandeau affiche « Bois 3 », « Pierre 0 », « Fleurs 1 », « Silex 2 », « Branches 0 », « Fibres 4 » |
-| 2 | une nouvelle partie | l'écran est affiché | le bandeau affiche les six ressources à 0 |
+| 1 | un inventaire de 3 bois, 0 pierre, 1 fleur, 2 silex, 0 branche, 4 fibres, 5 baies, 1 champignon | l'écran est affiché | le bandeau affiche « Bois 3 », « Pierre 0 », « Fleurs 1 », « Silex 2 », « Branches 0 », « Fibres 4 », « Baies 5 », « Champignons 1 » |
+| 2 | une nouvelle partie | l'écran est affiché | le bandeau affiche les huit ressources à 0 |
 
 **Notes** — Concepts C-IHM-06, C-IHM-11.
 
-**Historique** — v0.2 : création, « bois, pierre, fleurs », icônes tirées de la planche de tuiles. v0.4 : silex, branches et fibres ajoutés ; icônes tirées de la planche d'icônes.
+**Historique** — v0.2 : création, « bois, pierre, fleurs », icônes tirées de la planche de tuiles. v0.4 : silex, branches et fibres ajoutés ; icônes tirées de la planche d'icônes. v0.8 : baies et champignons.
 
 #### R-IHM-HUD-002 · Expérience au bandeau
 
@@ -1051,7 +1215,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | — |
+| EN VIGUEUR | v0.7 | — |
 
 **Règle** — Au bout du bandeau d'inventaire, l'horloge affiche le jour et l'heure, les minutes arrondies à la dizaine inférieure : « Jour <n> · <h>:<mm> ».
 
@@ -1071,7 +1235,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | `NIGHT_DARKNESS`, `HERO_LIGHT_RADIUS`, `CAMPFIRE_LIGHT_RADIUS` |
+| EN VIGUEUR | v0.7 | `NIGHT_DARKNESS`, `HERO_LIGHT_RADIUS`, `CAMPFIRE_LIGHT_RADIUS` |
 
 **Règle** — Un voile sombre, d'opacité égale à l'obscurité (R-MON-TPS-002), couvre la vue, sauf des halos de lumière : un halo de rayon `HERO_LIGHT_RADIUS` autour du héros, et un halo de rayon `CAMPFIRE_LIGHT_RADIUS` autour de chaque feu de camp allumé (centre de sa tuile).
 
@@ -1087,6 +1251,25 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concepts C-MON-11, C-ART-05. Les flammes d'un feu allumé sont animées.
 
 **Historique** — v0.7 : création.
+
+#### R-IHM-HUD-003 · Santé et faim au bandeau
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | — |
+
+**Règle** — Au début du bandeau d'inventaire, avant les ressources, s'affichent les PV et la faim avec leur icône : « PV <n> », « Faim <n> ».
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | une nouvelle partie | l'écran est affiché | « PV 100 », « Faim 100 » |
+| 2 | 45 PV, faim 12 | l'écran est affiché | « PV 45 », « Faim 12 » |
+
+**Notes** — Concepts C-IHM-15, C-JOU-02.
+
+**Historique** — v0.8 : création.
 
 ### 3.7 DIA — Dialogues
 
@@ -1160,9 +1343,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.6 | `NOTIFICATION_TICKS` |
+| MODIFIÉ | v0.8 | `NOTIFICATION_TICKS` |
 
-**Règle** — Les notifications s'affichent au-dessus du héros, au milieu de l'écran, chacune avec un bouton × qui la ferme. Découvrir un lieu affiche « Lieu découvert : <nom> » ; revenir dans un lieu (R-MON-LIE-003) affiche son nom ; recevoir un indice affiche « Nouvel indice : <nom> ». Chaque notification reste affichée `NOTIFICATION_TICKS` ticks, sauf celles des quêtes (R-IHM-NOT-003), qui restent jusqu'à ce qu'on les ferme. Plusieurs notifications s'empilent, la plus récente en bas, près du héros.
+**Règle** — Les notifications s'affichent au-dessus du héros, au milieu de l'écran, chacune avec un bouton × qui la ferme. Découvrir un lieu affiche « Lieu découvert : <nom> » ; revenir dans un lieu (R-MON-LIE-003) affiche son nom ; recevoir un indice affiche « Nouvel indice : <nom> » ; se réveiller après avoir dormi affiche « Bonjour ! Partie sauvegardée. » ; s'évanouir affiche « Vous vous êtes évanoui… Vous vous réveillez dans le Vallon. », qui reste jusqu'à ce qu'on la ferme. Chaque notification reste affichée `NOTIFICATION_TICKS` ticks, sauf celles des quêtes (R-IHM-NOT-003), qui restent jusqu'à ce qu'on les ferme. Plusieurs notifications s'empilent, la plus récente en bas, près du héros.
 
 **Exemples**
 
@@ -1173,10 +1356,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 3 | « Lieu découvert : Le Vallon » affichée | clic sur son × | elle a disparu |
 | 4 | durée 240 ticks, « Quête terminée : La poupée de Maëlle » affichée au tick 100 | tick 400 | elle est toujours affichée |
 | 5 | les Ruines du Guet découvertes, le joueur en dehors | il y revient | « Les Ruines du Guet » est affiché |
+| 6 | un feu allumé, 22:00 | le joueur dort | « Bonjour ! Partie sauvegardée. » |
+| 7 | 1 PV, faim 0 | le joueur s'évanouit | « Vous vous êtes évanoui… Vous vous réveillez dans le Vallon. », jusqu'à ce qu'on la ferme |
 
 **Notes** — Concept C-IHM-10.
 
-**Historique** — v0.3 : création. v0.6 : « en haut de l'écran, pendant `NOTIFICATION_TICKS` » → au-dessus du héros, avec un ×, les quêtes jusqu'à fermeture ; nom du lieu à chaque retour (retours de test : les notifications du haut se superposaient au bandeau et passaient inaperçues).
+**Historique** — v0.3 : création. v0.6 : « en haut de l'écran, pendant `NOTIFICATION_TICKS` » → au-dessus du héros, avec un ×, les quêtes jusqu'à fermeture ; nom du lieu à chaque retour (retours de test : les notifications du haut se superposaient au bandeau et passaient inaperçues). v0.8 : réveil et évanouissement.
 
 #### R-IHM-NOT-002 · Trouvailles
 
@@ -1236,22 +1421,45 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.6 | — |
+| MODIFIÉ | v0.8 | — |
 
-**Règle** — À gauche de l'écran, sous le bandeau d'inventaire, une barre verticale d'icônes ouvre et ferme les fenêtres : « Inventaire » (sac), « Artisanat » (marteau) et « Journal » (livre ouvert). Survoler une icône affiche son nom et sa touche : « Inventaire (I) », « Artisanat (C) », « Journal (J) ». Un clic fait comme la touche. L'icône d'une fenêtre ouverte est mise en valeur. Les touches restent actives.
+**Règle** — À gauche de l'écran, sous le bandeau d'inventaire, une barre verticale d'icônes ouvre et ferme les fenêtres : « Inventaire » (sac), « Artisanat » (marteau), « Journal » (livre ouvert) et « Partie » (sablier). Survoler une icône affiche son nom et sa touche : « Inventaire (I) », « Artisanat (C) », « Journal (J) », « Partie ». Un clic fait comme la touche. L'icône d'une fenêtre ouverte est mise en valeur. Les touches restent actives.
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | — | on survole l'icône « Inventaire » | « Inventaire (I) » est affiché |
+| 1 | — | on survole les icônes, de haut en bas | « Inventaire (I) », « Artisanat (C) », « Journal (J) », « Partie » |
 | 2 | aucune fenêtre ouverte | clic sur l'icône « Inventaire » | la fenêtre d'inventaire est ouverte et son icône est mise en valeur |
 | 3 | la fenêtre d'inventaire ouverte | clic sur l'icône « Inventaire » | la fenêtre est fermée |
 | 4 | le journal fermé | clic sur l'icône « Journal » | le journal est ouvert |
 
 **Notes** — Concepts C-IHM-13, C-IHM-12. On n'a plus à connaître les touches. La section porte le numéro 3.14 pour garder les numéros existants.
 
-**Historique** — v0.6 : création.
+**Historique** — v0.6 : création. v0.8 : icône « Partie » (R-IHM-SAU-001).
+
+### 3.15 SAU — Partie
+
+#### R-IHM-SAU-001 · Fenêtre « Partie »
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | — |
+
+**Règle** — L'icône « Partie » de la barre d'actions ouvre une fenêtre centrale qui dit où en est la sauvegarde (« Sauvegardée au réveil du jour <n> » ou « Pas encore de sauvegarde : dormez près d'un feu. ») et propose « Nouvelle partie ». Ce bouton demande une confirmation (« Tout recommencer ? La sauvegarde sera effacée. », boutons « Recommencer » et « Annuler ») ; « Recommencer » efface la sauvegarde et lance une nouvelle partie.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | aucune sauvegarde | la fenêtre « Partie » est ouverte | « Pas encore de sauvegarde : dormez près d'un feu. » |
+| 2 | une sauvegarde faite au réveil du jour 3 | la fenêtre est ouverte | « Sauvegardée au réveil du jour 3 » |
+| 3 | la fenêtre ouverte | clic sur « Nouvelle partie » | la confirmation est affichée ; rien n'est effacé |
+| 4 | la confirmation affichée | clic sur « Annuler » | la fenêtre revient à son premier état |
+
+**Notes** — Concepts C-SAU-01, C-IHM-15.
+
+**Historique** — v0.8 : création.
 
 ### 3.10 FEN — Fenêtres centrales
 
@@ -1284,9 +1492,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.7 | — |
+| MODIFIÉ | v0.8 | — |
 
-**Règle** — La touche I ouvre et ferme la fenêtre d'inventaire. Elle a trois parties : « Ressources » (chaque ressource avec son icône et sa quantité, dans l'ordre du bandeau), « Outils » (les outils possédés, avec icône et nom, ou « Aucun outil. ») « Livres » (les livres de la bibliothèque, avec icône, titre et un bouton « Lire », ou « Aucun livre pour l'instant. ») et « Objets » (les objets possédés, avec icône et nom, puis les objets à poser, avec icône, nom, quantité « ×<n> » et un bouton « Poser » ; ou « Aucun objet. »). Un clic sur « Poser » pose l'objet (R-ART-POS-001) et ferme la fenêtre s'il a été posé. Elle s'ouvre aussi par la barre d'actions (R-IHM-BAR-001).
+**Règle** — La touche I ouvre et ferme la fenêtre d'inventaire. Elle a trois parties : « Ressources » (chaque ressource avec son icône et sa quantité, dans l'ordre du bandeau ; la nourriture a un bouton « Manger », actif si le joueur en a et que sa faim n'est pas au maximum), « Outils » (les outils possédés, avec icône et nom, ou « Aucun outil. ») « Livres » (les livres de la bibliothèque, avec icône, titre et un bouton « Lire », ou « Aucun livre pour l'instant. ») et « Objets » (les objets possédés, avec icône et nom, puis les objets à poser, avec icône, nom, quantité « ×<n> » et un bouton « Poser » ; ou « Aucun objet. »). Un clic sur « Poser » pose l'objet (R-ART-POS-001) et ferme la fenêtre s'il a été posé. Elle s'ouvre aussi par la barre d'actions (R-IHM-BAR-001).
 
 **Exemples**
 
@@ -1299,10 +1507,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 5 | la poupée de chiffon bleue possédée | la fenêtre est ouverte | « Objets » affiche « Poupée de chiffon bleue » |
 | 6 | 2 feux de camp à poser | la fenêtre est ouverte | « Objets » affiche « Feu de camp ×2 » avec un bouton « Poser » |
 | 7 | 1 feu de camp, de l'herbe devant le joueur | clic sur « Poser » | le feu est posé, la fenêtre est fermée |
+| 8 | 2 baies, faim 50 | clic sur « Manger » à côté de « Baies 2 » | faim 60, « Baies 1 » ; la fenêtre reste ouverte |
+| 9 | 2 baies, faim 100 | la fenêtre est ouverte | le bouton « Manger » des baies est inactif |
 
 **Notes** — Concepts C-INV-03, C-IHM-11, C-IHM-12. Pas de limite de place pour l'instant (C-INV-01).
 
-**Historique** — v0.5 : création. v0.6 : partie « Objets » ajoutée (objets de quête). v0.7 : objets à poser, avec « Poser ».
+**Historique** — v0.5 : création. v0.6 : partie « Objets » ajoutée (objets de quête). v0.7 : objets à poser, avec « Poser ». v0.8 : « Manger » sur la nourriture.
 
 ### 3.12 LIV — Lecture
 
@@ -1332,7 +1542,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.7 | `NOTIFICATION_TICKS` |
+| EN VIGUEUR | v0.7 | `NOTIFICATION_TICKS` |
 
 **Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet, ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients : la fenêtre dit alors lesquels, dans l'ordre de la recette (« Il manque : 1 branche, 1 fibre »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
 
@@ -1358,9 +1568,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.2 | `TREE_WOOD_YIELD`, `ROCK_STONE_YIELD`, `FLOWERS_YIELD` |
+| MODIFIÉ | v0.8 | `TREE_WOOD_YIELD`, `ROCK_STONE_YIELD`, `FLOWERS_YIELD`, `BERRY_YIELD`, `MUSHROOM_YIELD` |
 
-**Règle** — Trois types de tuiles sont récoltables : un **arbre** se coupe et donne `TREE_WOOD_YIELD` bois ; un **rocher** se pioche et donne `ROCK_STONE_YIELD` pierres ; des **fleurs** se ramassent et donnent `FLOWERS_YIELD` fleurs. Les autres tuiles (herbe, chemin, eau, souche) ne sont pas récoltables.
+**Règle** — Cinq types de tuiles sont récoltables : un **arbre** se coupe et donne `TREE_WOOD_YIELD` bois ; un **rocher** se pioche et donne `ROCK_STONE_YIELD` pierres ; des **fleurs** se ramassent et donnent `FLOWERS_YIELD` fleurs ; un **buisson à baies** se cueille et donne `BERRY_YIELD` baies ; des **champignons** se ramassent et donnent `MUSHROOM_YIELD` champignon. Les autres tuiles (herbe, chemin, eau, souche) ne sont pas récoltables.
 
 **Exemples**
 
@@ -1371,10 +1581,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 3 | des fleurs, rendement 1 | on cherche ce qu'elles donnent | elles se ramassent et donnent 1 fleur |
 | 4 | de l'herbe | on cherche ce qu'elle donne | rien à récolter |
 | 5 | de l'eau | on cherche ce qu'elle donne | rien à récolter |
+| 6 | un buisson à baies, rendement 3 | on cherche ce qu'il donne | il se ramasse et donne 3 baies |
+| 7 | des champignons, rendement 1 | on cherche ce qu'ils donnent | ils se ramassent et donnent 1 champignon |
 
 **Notes** — Concepts C-RES-01, C-RES-04. Depuis la v0.5, couper et piocher demandent un outil (R-RES-OUT-001).
 
-**Historique** — v0.2 : création. v0.5 : note mise à jour (outils), règle inchangée.
+**Historique** — v0.2 : création. v0.5 : note mise à jour (outils), règle inchangée. v0.8 : buisson à baies et champignons, la première nourriture (C-RES-09).
 
 ### 4.2 REC — Récolte
 
@@ -1423,9 +1635,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.2 | — |
+| MODIFIÉ | v0.8 | — |
 
-**Règle** — Après une récolte, un arbre devient une souche ; un rocher et des fleurs laissent place à de l'herbe. La souche est franchissable et n'est pas récoltable.
+**Règle** — Après une récolte, un arbre devient une souche ; un buisson à baies devient un buisson sans baies, infranchissable ; un rocher, des fleurs et des champignons laissent place à de l'herbe. La souche est franchissable ; ni elle ni le buisson sans baies ne sont récoltables.
 
 **Exemples**
 
@@ -1435,10 +1647,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 2 | un rocher à portée | le joueur le récolte | la tuile est de l'herbe, franchissable |
 | 3 | des fleurs à portée | le joueur les récolte | la tuile est de l'herbe |
 | 4 | une souche à portée | le joueur la récolte | la récolte est refusée (`NOTHING_TO_HARVEST`) |
+| 5 | un buisson à baies à portée | le joueur le récolte | la tuile est un buisson sans baies, infranchissable |
 
 **Notes** — Concept C-RES-04. La souche redevient un arbre au bout de quelques jours (R-RES-REC-005).
 
-**Historique** — v0.2 : création.
+**Historique** — v0.2 : création. v0.8 : buissons à baies et champignons.
 
 #### R-RES-REC-004 · Refus d'une récolte
 
@@ -1490,9 +1703,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | `TREE_REGROW_DAYS` |
+| MODIFIÉ | v0.8 | `TREE_REGROW_DAYS`, `BUSH_REGROW_DAYS`, `MUSHROOM_REGROW_DAYS` |
 
-**Règle** — Un arbre coupé repousse : `TREE_REGROW_DAYS` jours de jeu après la coupe (même heure), sa souche redevient un arbre, sauf si le joueur ou un PNJ se tient dessus ; elle repousse alors dès que la tuile est libre.
+**Règle** — Un élément récolté repousse au bout d'un nombre de jours de jeu (même heure) : `TREE_REGROW_DAYS` pour un arbre, `BUSH_REGROW_DAYS` pour un buisson à baies, `MUSHROOM_REGROW_DAYS` pour des champignons. La tuile redevient l'élément d'origine, sauf si le joueur ou un PNJ se tient dessus ; elle repousse alors dès que la tuile est libre.
 
 **Exemples**
 
@@ -1501,10 +1714,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | 3 jours de repousse, un arbre coupé le jour 1 à 10:00 | l'horloge atteint le jour 4 à 9:59 | la tuile est toujours une souche |
 | 2 | idem | l'horloge atteint le jour 4 à 10:00 | la tuile est de nouveau un arbre |
 | 3 | idem, le joueur debout sur la souche le jour 4 à 10:00 | il en descend | la souche redevient un arbre au tick suivant |
+| 4 | 2 jours de repousse, un buisson à baies cueilli le jour 1 à 8:00 | l'horloge atteint le jour 3 à 8:00 | le buisson a de nouveau des baies |
 
 **Notes** — Concepts C-RES-07, C-RES-02. Les rochers ne réapparaissent pas encore.
 
-**Historique** — v0.7 : création.
+**Historique** — v0.7 : création (les arbres). v0.8 : buissons à baies et champignons.
 
 ### 4.3 FOU — Fouille
 
@@ -1598,19 +1812,19 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.4 | — |
+| MODIFIÉ | v0.8 | — |
 
-**Règle** — Au début d'une nouvelle partie, l'inventaire contient 0 de chaque ressource : bois, pierre, fleur, silex, branche, fibre.
+**Règle** — Au début d'une nouvelle partie, l'inventaire contient 0 de chaque ressource : bois, pierre, fleur, silex, branche, fibre, baie, champignon.
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | — | une nouvelle partie commence | l'inventaire contient 0 bois, 0 pierre, 0 fleur, 0 silex, 0 branche et 0 fibre |
+| 1 | — | une nouvelle partie commence | l'inventaire contient 0 bois, 0 pierre, 0 fleur, 0 silex, 0 branche, 0 fibre, 0 baie et 0 champignon |
 
 **Notes** — Concepts C-IHM-06, C-RES-06.
 
-**Historique** — v0.2 : création, « 0 bois, 0 pierre et 0 fleur ». v0.4 : trois ressources ajoutées (silex, branche, fibre), trouvées en fouillant.
+**Historique** — v0.2 : création, « 0 bois, 0 pierre et 0 fleur ». v0.4 : trois ressources ajoutées (silex, branche, fibre), trouvées en fouillant. v0.8 : baie et champignon (nourriture).
 
 ### 5.2 LIV — Livres
 
@@ -1703,7 +1917,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | — |
+| EN VIGUEUR | v0.7 | — |
 
 **Règle** — L'inventaire compte les objets à poser de chaque sorte (le feu de camp). Une nouvelle partie commence sans objet à poser. Fabriquer en ajoute un (R-ART-FAB-001), en poser un le retire (R-ART-POS-001).
 
@@ -1759,6 +1973,27 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-VIL-07.
 
 **Historique** — v0.3 : création.
+
+#### R-PNJ-POS-003 · Promenade
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | `NPC_WALK_SPEED`, `NPC_PAUSE_MINUTES` |
+
+**Règle** — Chaque PNJ suit sa promenade (B.10) : il attend `NPC_PAUSE_MINUTES` minutes de jeu, puis marche à `NPC_WALK_SPEED` px par tick, en ligne droite, jusqu'au centre de la tuile suivante de sa promenade, en se tournant dans le sens de la marche ; il y attend de nouveau, et ainsi de suite, en boucle, en repassant chez lui. Il ne bouge pas pendant un dialogue avec le joueur, ni quand le joueur lui barre la route.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | Aldric chez lui en (1232, 2896), promenade : 2 tuiles à l'est, la partie à 6:00 | 20 minutes de jeu passent | Aldric se met en marche vers (1296, 2896), tourné vers la droite |
+| 2 | Aldric en marche depuis (1232, 2896) | 64 ticks passent | Aldric est en (1296, 2896) et attend |
+| 3 | Aldric en marche, un dialogue avec lui commence | des ticks passent | Aldric ne bouge pas |
+| 4 | Aldric en marche, le joueur debout sur son chemin | des ticks passent | Aldric s'arrête devant le joueur |
+
+**Notes** — Concept C-VIL-08. Une routine selon l'heure viendra plus tard.
+
+**Historique** — v0.8 : création.
 
 ### 6.2 DIA — Dialogues
 
@@ -1918,7 +2153,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.7 | — |
+| EN VIGUEUR | v0.7 | — |
 
 **Règle** — Fabriquer une recette connue retire ses ingrédients de l'inventaire et donne l'objet au joueur (B.8) : un outil, ou un objet à poser, ajouté aux objets à poser de l'inventaire (R-INV-POS-001). La fabrication est immédiate, à la main, n'importe où.
 
@@ -1938,7 +2173,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.7 | — |
+| EN VIGUEUR | v0.7 | — |
 
 **Règle** — Une fabrication refusée n'a aucun effet. Le motif est le premier qui s'applique, dans l'ordre : `UNKNOWN_RECIPE` (la recette n'existe pas ou n'a pas été apprise), puis `ALREADY_OWNED` (l'outil est déjà possédé ; jamais pour un objet à poser), puis `MISSING_INGREDIENTS` (il manque au moins un ingrédient).
 
@@ -1963,7 +2198,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | — |
+| EN VIGUEUR | v0.7 | — |
 
 **Règle** — Poser un objet le retire des objets à poser et le place sur la tuile devant le joueur, qui devient infranchissable. Un feu de camp posé est allumé (R-ART-FEU-001). Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOTHING_TO_PLACE` (le joueur n'a pas cet objet), puis `CANNOT_PLACE` (la tuile devant lui est hors de la carte, n'est ni de l'herbe, ni un chemin, ni un dallage, ou touche la boîte de collision du joueur ou d'un PNJ).
 
@@ -1986,7 +2221,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.7 | `CAMPFIRE_BURN_MINUTES`, `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH` |
+| EN VIGUEUR | v0.7 | `CAMPFIRE_BURN_MINUTES`, `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH` |
 
 **Règle** — Un feu de camp posé ou ravivé brûle `CAMPFIRE_BURN_MINUTES` minutes de jeu, puis s'éteint. Raviver un feu, allumé ou éteint, coûte `CAMPFIRE_REKINDLE_WOOD` bois et le fait brûler `CAMPFIRE_BURN_MINUTES` minutes à partir de cet instant. Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOTHING_TO_REKINDLE` (la tuile n'est pas un feu de camp), `MISSING_INGREDIENTS` (pas assez de bois), `OUT_OF_REACH` (le feu est à plus de `HARVEST_REACH`).
 
@@ -2003,6 +2238,32 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-ART-05. Plus tard : protection contre la Flétrissure, cuisson.
 
 **Historique** — v0.7 : création.
+
+## 8. SAU — Sauvegarde
+
+### 8.1 SAV — Sauvegarde
+
+#### R-SAU-SAV-001 · Sauvegarde au réveil
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.8 | — |
+
+**Règle** — Au réveil après avoir dormi (R-JOU-SOM-001), la partie est sauvegardée dans le navigateur, en entier : carte, joueur, inventaire, journal, quêtes, horloge, feux, repousses, PNJ. Au lancement du jeu, s'il y a une sauvegarde, la partie reprend telle qu'elle était ; sinon une nouvelle partie commence.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | une partie au jour 2, 5 bois, un feu posé, une souche | le joueur dort, puis on relance le jeu | la partie reprend le jour 3 à 6:00, avec 5 bois, le feu, la souche et sa repousse |
+| 2 | aucune sauvegarde | on lance le jeu | une nouvelle partie commence |
+| 3 | une sauvegarde illisible | on lance le jeu | une nouvelle partie commence |
+
+**Notes** — Concept C-SAU-01. La sauvegarde est gardée par le navigateur (stockage local) : elle ne suit pas d'un ordinateur à l'autre.
+
+**Historique** — v0.8 : création.
+
+---
 
 # Partie E — Questions
 
@@ -2044,6 +2305,7 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | Q22 | Détails de la v0.5 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : touches I (inventaire) et C (artisanat) ; une seule fenêtre centrale à la fois ; fabrication immédiate ; un seul outil de chaque sorte, sans usure ; `MISSING_TOOL` vérifié avant `OUT_OF_REACH` ; 4 branches dans le coffre des Ruines du Guet. | B.5, B.7, B.8, R-IHM-FEN-001, R-INV-OUT-001, R-ART-FAB-002 |
 | Q23 | Détails de la v0.6 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : la quête est confiée par la page 3 de Maëlle ; la poupée se trouve dans le coffre du Hameau (127, 96), même avant d'avoir reçu la quête ; on ne peut la donner qu'une fois la quête reçue ; récompense de 50 expérience ; après la quête, Maëlle a une nouvelle réplique ; icônes de la barre : sac, marteau, livre ouvert. | B.9, R-PNJ-QUE-001 à 003, R-IHM-BAR-001 |
 | Q24 | Détails de la v0.7 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : horloge continue sur 24 h (pas encore de sommeil) ; aube de 4:00 à 6:00, crépuscule de 18:00 à 21:00, voile de nuit à 0,8 ; halos de 3 tuiles (héros) et 6 tuiles (feu) ; feu de camp : 3 pierres + 2 bois, brûle 10 h, se ravive avec 1 bois, posé devant le héros sur herbe, chemin ou dallage, non récupérable ; repousse des arbres en 3 jours. | B.2, B.8, partie C, R-MON-TPS-001, 002, R-ART-POS-001, R-ART-FEU-001, R-RES-REC-005 |
+| Q25 | Détails de la v0.8 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : faim −1 toutes les 30 minutes de jeu, +1 PV toutes les 10 minutes si faim > 50, −1 PV si faim nulle ; baie 10, champignon 20 ; réveil après évanouissement avec 50 PV et au moins 50 de faim ; dormir dès 18:00, réveil 6:00 PV pleins, faim −10 ; repousse des buissons et champignons en 2 jours ; promenades de 2 tuiles, pauses de 20 minutes ; icône « Partie » dans la barre. | B.10, partie C, R-JOU-VIE-002 à 004, R-JOU-SOM-001, R-PNJ-POS-003, R-IHM-SAU-001 |
 | Q11 | Origine et licence des assets ? | **Ressources de RPG Maker, pour un jeu personnel non publié** : utilisables tant que le jeu n'est pas diffusé. | — (assets/ASSETS.md) |
 
 ---
@@ -2058,4 +2320,5 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | v0.4 | 2026-10-12 | **Livrée.** Fouiller : bibliothèques, coffres et caisses des ruines, deux livres (plans de la hache et de la pioche en silex, du feu de camp), silex, branches, fibres ; livres au journal ; atlas d'icônes ; tilesets MV réduits à 32 px. | Clôture de la v0.3 : 14 règles passées `EN VIGUEUR`. v0.4 : 8 NOUVEAU (R-RES-FOU-001 à 004, R-INV-LIV-001, R-IHM-INS-006, R-IHM-NOT-002, R-IHM-JRN-002), 3 MODIFIÉ (R-INV-RES-001, R-IHM-HUD-001, R-IHM-INS-002 : fenêtre au milieu de l'écran). Paramètre ajouté : `SEARCH_MAX_BOOKS`. Q20 et Q21 tranchées. |
 | v0.5 | 2026-10-12 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres, recettes apprises, fenêtre d'artisanat, hache et pioche en silex ; couper et piocher demandent un outil. | Clôture de la v0.4 : 12 règles passées `EN VIGUEUR`, `SEARCH_MAX_BOOKS` aussi. v0.5 : 10 NOUVEAU (R-IHM-INS-007, R-IHM-FEN-001, R-IHM-INV-001, R-IHM-LIV-001, R-IHM-ART-001, R-RES-OUT-001, R-INV-LIV-002, R-INV-OUT-001, R-ART-FAB-001, R-ART-FAB-002), 2 MODIFIÉ (R-IHM-INS-003, R-RES-REC-004). Aucun paramètre : outils et recettes sont des données (B.8). Q22 tranchée par défaut. |
 | v0.6 | 2026-10-12 | **Livrée.** Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprites de la bibliothèque en ruine et du coffre ancien (illisibles), caisse du hameau masquée. Retours de test : notifications au-dessus du héros avec ×, une notification par fouille, nom du lieu à chaque retour, livres retirés du journal, journal dans les fenêtres exclusives. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 10 NOUVEAU (R-MON-LIE-003, R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 8 MODIFIÉ (R-IHM-NOT-001, R-IHM-FEN-001, R-IHM-JRN-001, R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003), 1 SUPPRIMÉ (R-IHM-JRN-002). Q23 tranchée par défaut. |
-| v0.7 | 2026-10-12 | *En cours.* Le temps passe : horloge (12 minutes réelles de 6:00 à 2:00), nuit sombre avec halos de lumière, feu de camp à fabriquer, poser et raviver, repousse des arbres. | Clôture de la v0.6 : 18 règles passées `EN VIGUEUR`. v0.7 : 9 NOUVEAU (R-MON-TPS-001, 002, R-IHM-HOR-001, R-IHM-NUI-001, R-IHM-INS-008, R-INV-POS-001, R-RES-REC-005, R-ART-POS-001, R-ART-FEU-001), 4 MODIFIÉ (R-IHM-INV-001, R-IHM-ART-001, R-ART-FAB-001, 002). 11 paramètres ajoutés. Q24 tranchée par défaut. |
+| v0.7 | 2026-10-12 | **Livrée.** Le temps passe : horloge (12 minutes réelles de 6:00 à 2:00), nuit sombre avec halos de lumière, feu de camp à fabriquer, poser et raviver, repousse des arbres. | Clôture de la v0.6 : 18 règles passées `EN VIGUEUR`. v0.7 : 9 NOUVEAU (R-MON-TPS-001, 002, R-IHM-HOR-001, R-IHM-NUI-001, R-IHM-INS-008, R-INV-POS-001, R-RES-REC-005, R-ART-POS-001, R-ART-FEU-001), 4 MODIFIÉ (R-IHM-INV-001, R-IHM-ART-001, R-ART-FAB-001, 002). 11 paramètres ajoutés. Q24 tranchée par défaut. |
+| v0.8 | 2026-10-12 | *En cours.* Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au réveil, PNJ qui se promènent. | Clôture de la v0.7 : 24 règles passées `EN VIGUEUR`. v0.8 : 10 NOUVEAU (R-JOU-VIE-001 à 004, R-JOU-MAN-001, R-JOU-SOM-001, R-IHM-HUD-003, R-IHM-SAU-001, R-SAU-SAV-001, R-PNJ-POS-003), 9 MODIFIÉ (R-IHM-NOT-001, R-RES-ELE-001, R-RES-REC-003, R-RES-REC-005, R-INV-RES-001, R-IHM-HUD-001, R-IHM-INV-001, R-IHM-INS-008, R-IHM-BAR-001). 17 paramètres ajoutés. Q25 tranchée par défaut. |

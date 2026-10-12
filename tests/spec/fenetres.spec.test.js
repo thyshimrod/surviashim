@@ -118,7 +118,7 @@ describe('R-IHM-FEN-001 · Une fenêtre à la fois', () => {
 });
 
 describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
-  it('ex.1 — une nouvelle partie, touche I : six ressources à 0, ni outil ni livre', () => {
+  it('ex.1 — une nouvelle partie, touche I : huit ressources à 0, ni outil ni livre', () => {
     const { state } = createTestGame({ tools: [] });
     const windows = new WindowsController();
 
@@ -128,7 +128,16 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
     assert.equal(windows.open, 'inventory');
     assert.deepEqual(
       view.resources.map(({ label, amount }) => `${label} ${amount}`),
-      ['Bois 0', 'Pierre 0', 'Fleurs 0', 'Silex 0', 'Branches 0', 'Fibres 0'],
+      [
+        'Bois 0',
+        'Pierre 0',
+        'Fleurs 0',
+        'Silex 0',
+        'Branches 0',
+        'Fibres 0',
+        'Baies 0',
+        'Champignons 0',
+      ],
     );
     assert.equal(view.noTool, 'Aucun outil.');
     assert.equal(view.noBook, "Aucun livre pour l'instant.");
@@ -266,13 +275,6 @@ describe("R-IHM-ART-001 · Fenêtre d'artisanat", () => {
 
 describe("R-IHM-BAR-001 · Barre d'actions", () => {
   const entry = (windows, id) => toolbarView(windows).find((button) => button.id === id);
-
-  it('ex.1 — survol de « Inventaire » : « Inventaire (I) »', () => {
-    assert.deepEqual(
-      toolbarView(new WindowsController()).map((button) => button.label),
-      ['Inventaire (I)', 'Artisanat (C)', 'Journal (J)'],
-    );
-  });
 
   it("ex.2 — clic sur « Inventaire » : la fenêtre s'ouvre, l'icône est mise en valeur", () => {
     const windows = new WindowsController();

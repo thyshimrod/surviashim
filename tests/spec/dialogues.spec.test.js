@@ -204,4 +204,16 @@ describe('R-IHM-NOT-001 · Notifications', () => {
       { text: 'Les Ruines du Guet', sticky: false },
     ]);
   });
+
+  it('ex.6 — le joueur dort : « Bonjour ! Partie sauvegardée. »', () => {
+    assert.deepEqual(notificationsFor(GAME_EVENTS.SLEPT, { day: 2 }), [
+      { text: 'Bonjour ! Partie sauvegardée.', sticky: false },
+    ]);
+  });
+
+  it("ex.7 — le joueur s'évanouit : message qui reste jusqu'à ce qu'on le ferme", () => {
+    assert.deepEqual(notificationsFor(GAME_EVENTS.FAINTED, {}), [
+      { text: 'Vous vous êtes évanoui… Vous vous réveillez dans le Vallon.', sticky: true },
+    ]);
+  });
 });

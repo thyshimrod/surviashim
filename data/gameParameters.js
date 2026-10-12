@@ -43,6 +43,23 @@
  * @property {number} CAMPFIRE_BURN_MINUTES Durée de combustion d'un feu de camp (minutes de jeu).
  * @property {number} CAMPFIRE_REKINDLE_WOOD Bois pour raviver un feu de camp.
  * @property {number} TREE_REGROW_DAYS Jours de jeu avant qu'une souche redevienne un arbre.
+ * @property {number} HEALTH_MAX PV maximum.
+ * @property {number} HUNGER_MAX Faim maximale (rassasié).
+ * @property {number} HUNGER_MINUTES_PER_POINT Minutes de jeu pour perdre 1 point de faim.
+ * @property {number} HEALTH_MINUTES_PER_POINT Minutes de jeu entre deux variations de PV.
+ * @property {number} WELL_FED Faim au-dessus de laquelle les PV remontent.
+ * @property {number} FAINT_HEALTH PV au réveil après un évanouissement.
+ * @property {number} FAINT_HUNGER Faim minimale au réveil après un évanouissement.
+ * @property {number} SLEEP_START Minute du jour à partir de laquelle on peut dormir (18:00).
+ * @property {number} SLEEP_HUNGER Faim perdue pendant une nuit de sommeil.
+ * @property {number} BERRY_YIELD Baies cueillies sur un buisson.
+ * @property {number} MUSHROOM_YIELD Champignons ramassés.
+ * @property {number} BERRY_FOOD Faim rendue par une baie.
+ * @property {number} MUSHROOM_FOOD Faim rendue par un champignon.
+ * @property {number} BUSH_REGROW_DAYS Jours avant que les baies repoussent.
+ * @property {number} MUSHROOM_REGROW_DAYS Jours avant que les champignons repoussent.
+ * @property {number} NPC_WALK_SPEED Vitesse de marche des PNJ (px/tick).
+ * @property {number} NPC_PAUSE_MINUTES Pause d'un PNJ à chaque étape de sa promenade (minutes de jeu).
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -76,4 +93,21 @@ export const GAME_PARAMETERS = Object.freeze({
   CAMPFIRE_BURN_MINUTES: 600,
   CAMPFIRE_REKINDLE_WOOD: 1,
   TREE_REGROW_DAYS: 3,
+  HEALTH_MAX: 100,
+  HUNGER_MAX: 100,
+  HUNGER_MINUTES_PER_POINT: 30,
+  HEALTH_MINUTES_PER_POINT: 10,
+  WELL_FED: 50,
+  FAINT_HEALTH: 50,
+  FAINT_HUNGER: 50,
+  SLEEP_START: 1080,
+  SLEEP_HUNGER: 10,
+  BERRY_YIELD: 3,
+  MUSHROOM_YIELD: 1,
+  BERRY_FOOD: 10,
+  MUSHROOM_FOOD: 20,
+  BUSH_REGROW_DAYS: 2,
+  MUSHROOM_REGROW_DAYS: 2,
+  NPC_WALK_SPEED: 1,
+  NPC_PAUSE_MINUTES: 20,
 });

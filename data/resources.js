@@ -1,4 +1,5 @@
 // @ts-check
+import { GAME_PARAMETERS } from './gameParameters.js';
 
 /**
  * Ressources que le joueur accumule dans son inventaire, dans l'ordre d'affichage
@@ -9,6 +10,8 @@
  * @typedef {object} ResourceDefinition
  * @property {string} id Identifiant unique, kebab-case.
  * @property {string} icon Icône (clé de ICONS, data/icons.js).
+ * @property {number} [food] Faim rendue en la mangeant (R-JOU-MAN-001) ; absente, elle ne se
+ *   mange pas.
  */
 
 /** @type {Readonly<Record<string, Readonly<ResourceDefinition>>>} */
@@ -19,4 +22,10 @@ export const RESOURCES = Object.freeze({
   flint: Object.freeze({ id: 'flint', icon: 'flint' }),
   branch: Object.freeze({ id: 'branch', icon: 'branch' }),
   fiber: Object.freeze({ id: 'fiber', icon: 'fiber' }),
+  berry: Object.freeze({ id: 'berry', icon: 'berries', food: GAME_PARAMETERS.BERRY_FOOD }),
+  mushroom: Object.freeze({
+    id: 'mushroom',
+    icon: 'mushroom',
+    food: GAME_PARAMETERS.MUSHROOM_FOOD,
+  }),
 });

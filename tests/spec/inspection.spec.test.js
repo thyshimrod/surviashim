@@ -171,15 +171,29 @@ describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
   const labels = (inventory) =>
     inventoryEntries(inventory).map((entry) => `${entry.label} ${entry.amount}`);
 
-  it('ex.1 — 3 bois, 0 pierre, 1 fleur, 2 silex, 0 branche, 4 fibres', () => {
-    assert.deepEqual(labels({ wood: 3, stone: 0, flower: 1, flint: 2, branch: 0, fiber: 4 }), [
-      'Bois 3',
-      'Pierre 0',
-      'Fleurs 1',
-      'Silex 2',
-      'Branches 0',
-      'Fibres 4',
-    ]);
+  it('ex.1 — 3 bois, 0 pierre, 1 fleur, 2 silex, 0 branche, 4 fibres, 5 baies, 1 champignon', () => {
+    assert.deepEqual(
+      labels({
+        wood: 3,
+        stone: 0,
+        flower: 1,
+        flint: 2,
+        branch: 0,
+        fiber: 4,
+        berry: 5,
+        mushroom: 1,
+      }),
+      [
+        'Bois 3',
+        'Pierre 0',
+        'Fleurs 1',
+        'Silex 2',
+        'Branches 0',
+        'Fibres 4',
+        'Baies 5',
+        'Champignons 1',
+      ],
+    );
   });
 
   it('ex.2 — nouvelle partie : tout à 0', () => {
@@ -192,6 +206,8 @@ describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
       'Silex 0',
       'Branches 0',
       'Fibres 0',
+      'Baies 0',
+      'Champignons 0',
     ]);
   });
 });

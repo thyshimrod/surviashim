@@ -199,9 +199,38 @@ function clearInFront(grid, { column, row }) {
   }
 }
 
-// Le départ et les abords des PNJ restent dégagés.
+// Cueillette (B.10) : quelques buissons à baies dans le Vallon, d'autres épars dans la vallée ;
+// des champignons en lisière des bois. Tirage à part, pour ne pas changer le reste de la carte.
+function addFood(grid) {
+  const random = createRng(SEED + 1);
+  grid.forEach((column, row) => {
+    if (
+      grid.get(column, row) !== S.grass ||
+      Math.hypot(column - START.column, row - START.row) < 4
+    ) {
+      return;
+    }
+    const inVale = isIn(PLACES.vale.area, column, row);
+    const nearTrees = around({ column, row }, 1).some(
+      (tile) => grid.get(tile.column, tile.row) === S.tree,
+    );
+    if (random() < (inVale ? 0.02 : 0.003)) {
+      grid.set(column, row, S['berry-bush']);
+    } else if (nearTrees && random() < 0.04) {
+      grid.set(column, row, S.mushrooms);
+    }
+  });
+}
+
+// Le départ, les abords des PNJ et leurs promenades (R-PNJ-POS-003) restent dégagés.
 function clearPeople(grid) {
-  const centers = [START, ...Object.values(NPCS).map((npc) => npc.tile)];
+  const walks = Object.values(NPCS).flatMap((npc) =>
+    npc.route.map((step) => ({
+      column: npc.tile.column + step.column,
+      row: npc.tile.row + step.row,
+    })),
+  );
+  const centers = [START, ...Object.values(NPCS).map((npc) => npc.tile), ...walks];
   for (const { column, row } of centers.flatMap((center) => around(center, 1))) {
     if (grid.get(column, row) !== S.path) {
       grid.set(column, row, S.grass);
@@ -218,6 +247,7 @@ function generate() {
   addPaths(grid);
   addRuins(grid, random);
   addPaths(grid);
+  addFood(grid);
   for (const { column, row, tile } of SEARCH_SPOTS) {
     grid.set(column, row, S[tile]); // cachettes des ruines (B.7)
     clearInFront(grid, { column, row });

@@ -135,7 +135,7 @@ export class GameRenderer {
           footY: npc.position.y,
           isCharacter: true,
           draw: (context, origin) =>
-            renderer.render(context, idleCharacter(npc), toView(npc.position, origin)),
+            renderer.render(context, npcCharacter(npc, state.tick), toView(npc.position, origin)),
         });
       }
     }
@@ -222,10 +222,11 @@ function toView(world, origin) {
 /**
  * Un PNJ immobile, vu par le dessin d'un personnage (pose immobile, R-IHM-ANI-002).
  * @param {import('../core/state/GameState.js').Npc} npc
+ * @param {number} tick Compteur d'animation de la marche (R-PNJ-POS-003).
  * @returns {{ facing: import('../core/config/directions.js').Facing, isWalking: boolean, walkingTicks: number }}
  */
-function idleCharacter(npc) {
-  return { facing: npc.facing, isWalking: false, walkingTicks: 0 };
+function npcCharacter(npc, tick) {
+  return { facing: npc.facing, isWalking: npc.isWalking ?? false, walkingTicks: tick };
 }
 
 /**

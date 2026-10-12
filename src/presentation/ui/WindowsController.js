@@ -1,5 +1,5 @@
 // @ts-check
-import { craftItem, placeItem, readBook } from '../../core/commands/commands.js';
+import { craftItem, eat, placeItem, readBook } from '../../core/commands/commands.js';
 import { InspectionController } from './InspectionController.js';
 
 /** @typedef {import('../input/designateTile.js').Target} Target */
@@ -8,7 +8,7 @@ import { InspectionController } from './InspectionController.js';
 
 /**
  * Fenêtre centrale ouverte (R-IHM-FEN-001).
- * @typedef {'inspection' | 'inventory' | 'book' | 'craft' | 'journal'} WindowName
+ * @typedef {'inspection' | 'inventory' | 'book' | 'craft' | 'journal' | 'game'} WindowName
  */
 
 /** Touches qui ouvrent et ferment une fenêtre (R-IHM-INV-001, R-IHM-ART-001, R-IHM-JRN-001). */
@@ -23,8 +23,10 @@ export class WindowsController {
   /** Crée un contrôleur sans fenêtre ouverte. */
   constructor() {
     this.inspection = new InspectionController();
-    /** @type {'inventory' | 'book' | 'craft' | 'journal' | undefined} */
+    /** @type {'inventory' | 'book' | 'craft' | 'journal' | 'game' | undefined} */
     this.panel = undefined;
+    /** La fenêtre « Partie » demande confirmation d'une nouvelle partie (R-IHM-SAU-001). */
+    this.confirmingNewGame = false;
     /** @type {string | undefined} Livre affiché par la fenêtre de lecture. */
     this.bookId = undefined;
   }
@@ -75,7 +77,7 @@ export class WindowsController {
 
   /**
    * Ouvre ou ferme une fenêtre : touche ou clic sur la barre d'actions (R-IHM-BAR-001).
-   * @param {'inventory' | 'craft' | 'journal'} name
+   * @param {'inventory' | 'craft' | 'journal' | 'game'} name
    */
   toggle(name) {
     this.show(this.panel === name ? undefined : name);
@@ -127,17 +129,38 @@ export class WindowsController {
     return result;
   }
 
+  /**
+   * R-IHM-INV-001 : mange une ressource ; la fenêtre reste ouverte.
+   * @param {string} resource
+   * @param {InspectableGame} game
+   * @returns {CommandResult}
+   */
+  eat(resource, game) {
+    return game.execute(eat(resource));
+  }
+
+  /** R-IHM-SAU-001 : « Nouvelle partie » demande confirmation. */
+  askNewGame() {
+    this.confirmingNewGame = true;
+  }
+
+  /** R-IHM-SAU-001 : « Annuler » revient au premier état de la fenêtre. */
+  cancelNewGame() {
+    this.confirmingNewGame = false;
+  }
+
   /** Ferme la fenêtre ouverte (× ou Échap). */
   close() {
     this.show(undefined);
   }
 
   /**
-   * @param {'inventory' | 'book' | 'craft' | 'journal' | undefined} panel
+   * @param {'inventory' | 'book' | 'craft' | 'journal' | 'game' | undefined} panel
    */
   show(panel) {
     this.inspection.close();
     this.panel = panel;
     this.bookId = undefined;
+    this.confirmingNewGame = false;
   }
 }

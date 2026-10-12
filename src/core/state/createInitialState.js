@@ -50,10 +50,14 @@ export function createInitialState(
     },
     facing: FACINGS.DOWN,
   });
+  const clock = parameters.DAY_START * parameters.TICK_PER_GAME_MINUTE;
+  const firstPause = clock + parameters.NPC_PAUSE_MINUTES * parameters.TICK_PER_GAME_MINUTE;
   return createGameState({
     map,
     player,
-    npcs: Object.values(npcs).map((npc) => createNpc(npc, parameters.TILE_SIZE)),
-    clock: parameters.DAY_START * parameters.TICK_PER_GAME_MINUTE, // R-MON-TPS-001 : jour 1, 6:00
+    npcs: Object.values(npcs).map((npc) => createNpc(npc, parameters.TILE_SIZE, firstPause)),
+    clock, // R-MON-TPS-001 : jour 1, 6:00
+    health: parameters.HEALTH_MAX, // R-JOU-VIE-001
+    hunger: parameters.HUNGER_MAX,
   });
 }

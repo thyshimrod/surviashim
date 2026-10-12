@@ -328,7 +328,8 @@ describe('R-ART-FEU-001 · Feu de camp', () => {
 describe('R-RES-REC-005 · Repousse des arbres', () => {
   /** Arbre en (11, 10) coupé le jour 1 à 10:00 par le joueur, juste à côté. */
   const cutAt10 = () => {
-    const result = standing({ tiles: [[11, 10, 'tree']], clock: at(1, '10:00') });
+    // Sans faim ni santé : trois jours sans manger feraient s'évanouir le héros.
+    const result = standing({ tiles: [[11, 10, 'tree']], clock: at(1, '10:00'), needs: false });
     result.game.execute(harvestTile({ column: 11, row: 10 }));
     return result;
   };

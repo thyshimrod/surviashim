@@ -55,6 +55,9 @@ export const ICONS = Object.freeze({
   doll: misc(8, 9),
   // Flamme des feux de camp allumés (R-IHM-NUI-001).
   flame: misc(6, 8),
+  // Jauges du bandeau (R-IHM-HUD-003).
+  health: potion(4, 0),
+  hunger: food(10, 3),
 
   // Matériaux.
   log: material(12, 0),
