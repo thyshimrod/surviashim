@@ -19,6 +19,7 @@ import { REJECTION_REASONS } from './commands.js';
  * @property {boolean} hasFuel `true` si le joueur a assez de bois pour le raviver.
  * @property {boolean} isInReach `true` si le feu est à portée du joueur (`HARVEST_REACH`).
  * @property {boolean} isBedtime `true` si l'heure permet de dormir (R-JOU-SOM-001).
+ * @property {boolean} isHearth `true` pour le Foyer (R-MON-FOY-001), toujours allumé.
  */
 
 /** Décalage de la tuile devant le joueur, selon son orientation. */
@@ -61,17 +62,19 @@ function findCampfire(state, { column, row }) {
  * @returns {CampfireInspection | undefined}
  */
 export function inspectCampfire(state, rules, tile) {
+  const isHearth = isHearthTile(state, rules, tile);
   const fire = findCampfire(state, tile);
-  if (fire === undefined || rules.time === undefined) {
+  if ((fire === undefined && !isHearth) || rules.time === undefined) {
     return undefined;
   }
-  const ticksLeft = Math.max(0, fire.burnsUntil - state.clock);
+  const ticksLeft = isHearth ? Infinity : Math.max(0, (fire?.burnsUntil ?? 0) - state.clock);
   return {
     isLit: ticksLeft > 0,
     minutesLeft: Math.ceil(ticksLeft / rules.time.ticksPerMinute),
     hasFuel: (state.inventory.wood ?? 0) >= rules.time.campfireRekindleWood,
     isInReach: isInReach(state, rules, tile),
     isBedtime: isBedtime(state, rules),
+    isHearth,
   };
 }
 
@@ -158,8 +161,20 @@ export function lightSources(state, rules) {
   }
   const { heroLightRadius, campfireLightRadius } = rules.time;
   const half = state.map.tileSize / 2;
+  const { hearth } = rules;
+  const hearthLight =
+    hearth !== undefined && isHearthTile(state, rules, hearth)
+      ? [
+          {
+            x: hearth.column * state.map.tileSize + half,
+            y: hearth.row * state.map.tileSize + half,
+            radius: hearth.lightRadius,
+          },
+        ]
+      : [];
   return [
     { ...state.player.position, radius: heroLightRadius },
+    ...hearthLight,
     ...state.campfires
       .filter((fire) => fire.burnsUntil > state.clock)
       .map((fire) => ({
@@ -195,4 +210,35 @@ export function hasLitFireInReach(state, rules) {
   return state.campfires.some(
     (fire) => fire.burnsUntil > state.clock && isInReach(state, rules, fire),
   );
+}
+
+/**
+ * La tuile est-elle le Foyer (R-MON-FOY-001) ?
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {TileCoordinates} tile
+ * @returns {boolean}
+ */
+function isHearthTile(state, rules, { column, row }) {
+  return (
+    state.map.contains(column, row) &&
+    rules.tiles[state.map.tileIdAt(column, row)]?.isHearth === true
+  );
+}
+
+/**
+ * Un feu allumé (feu de camp ou Foyer) à portée du joueur, s'il y en a un (R-MEN-SAU-002).
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @returns {TileCoordinates | undefined}
+ */
+export function litFireInReach(state, rules) {
+  const fires = [
+    ...state.campfires.filter((fire) => fire.burnsUntil > state.clock),
+    ...(rules.hearth !== undefined && isHearthTile(state, rules, rules.hearth)
+      ? [rules.hearth]
+      : []),
+  ];
+  const fire = fires.find((candidate) => isInReach(state, rules, candidate));
+  return fire === undefined ? undefined : { column: fire.column, row: fire.row };
 }

@@ -192,6 +192,7 @@ describe('R-INV-RES-001 · Inventaire de départ', () => {
       berry: 0,
       mushroom: 0,
       'grilled-mushroom': 0,
+      sage: 0,
     });
   });
 });

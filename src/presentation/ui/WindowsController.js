@@ -1,5 +1,12 @@
 // @ts-check
-import { craftItem, eat, placeItem, readBook, researchPlan } from '../../core/commands/commands.js';
+import {
+  burnSage,
+  craftItem,
+  eat,
+  placeItem,
+  readBook,
+  researchPlan,
+} from '../../core/commands/commands.js';
 import { InspectionController } from './InspectionController.js';
 
 /** @typedef {import('../input/designateTile.js').Target} Target */
@@ -147,6 +154,16 @@ export class WindowsController {
    */
   research(planId, game) {
     return game.execute(researchPlan(planId));
+  }
+
+  /**
+   * R-IHM-INV-001 : « Brûler » la sauge dans un feu à portée ; la fenêtre reste ouverte.
+   * @param {string} _resource La sauge.
+   * @param {InspectableGame} game
+   * @returns {CommandResult}
+   */
+  use(_resource, game) {
+    return game.execute(burnSage());
   }
 
   /** R-IHM-SAU-001 : « Nouvelle partie » demande confirmation. */

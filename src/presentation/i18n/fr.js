@@ -31,6 +31,8 @@ export const TEXTS = Object.freeze({
     'berry-bush': 'Buisson à baies',
     bush: 'Buisson',
     mushrooms: 'Champignons',
+    hearth: 'Le Foyer',
+    'dawn-sage': "Sauge de l'aube",
   }),
   /** Verbe de chaque action de récolte. */
   harvestActions: Object.freeze({ cut: 'Couper', mine: 'Piocher', pick: 'Ramasser' }),
@@ -45,6 +47,7 @@ export const TEXTS = Object.freeze({
     berry: Object.freeze({ one: 'baie', many: 'baies' }),
     mushroom: Object.freeze({ one: 'champignon', many: 'champignons' }),
     'grilled-mushroom': Object.freeze({ one: 'champignon grillé', many: 'champignons grillés' }),
+    sage: Object.freeze({ one: 'sauge', many: 'sauges' }),
   }),
   /** Libellés du bandeau d'inventaire (R-IHM-HUD-001). */
   hudLabels: Object.freeze({
@@ -57,6 +60,7 @@ export const TEXTS = Object.freeze({
     berry: 'Baies',
     mushroom: 'Champignons',
     'grilled-mushroom': 'Champignons grillés',
+    sage: 'Sauge',
   }),
   harvestButton: 'Récolter',
   closeButton: 'Fermer',
@@ -87,6 +91,12 @@ export const TEXTS = Object.freeze({
     'Niveau ' + level + ' · ' + xp + '/' + next,
   levelUp: (/** @type {number} */ level) => 'Niveau ' + level + ' ! +1 point de recherche',
   needsFire: 'Il faut un feu de camp allumé à portée',
+  // Foyer, énergie, Flétrissure (R-IHM-INS-009, R-IHM-HUD-003, R-IHM-NOT-005).
+  hearthDescription: "Un feu ancien, qui ne s'éteint jamais.",
+  energyLabel: 'Énergie',
+  burnButton: 'Brûler',
+  blightEntered: 'La Flétrissure ronge votre énergie…',
+  purified: 'La fumée de la sauge purifie la terre.',
   // Fenêtre « Partie » (R-IHM-SAU-001).
   gameTitle: 'Partie',
   savedOn: (/** @type {number} */ day) => 'Sauvegardée au réveil du jour ' + day,

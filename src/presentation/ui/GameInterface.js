@@ -83,6 +83,7 @@ export class GameInterface {
       onRead: (bookId) => this.windows.read(bookId, game),
       onPlace: (itemId) => this.windows.place(itemId, game),
       onEat: (resource) => this.windows.eat(resource, game),
+      onUse: (resource) => this.windows.use(resource, game),
     });
     this.book = new BookPanel({ doc, container, onClose });
     this.craft = new CraftPanel({
@@ -168,7 +169,9 @@ export class GameInterface {
   renderWindows(state) {
     const { windows } = this;
     this.panel.render(windows.inspection.view(this.game));
-    this.inventory.render(windows.open === 'inventory' ? inventoryView(state) : undefined);
+    this.inventory.render(
+      windows.open === 'inventory' ? inventoryView(state, this.game.rules) : undefined,
+    );
     this.book.render(windows.bookId === undefined ? undefined : bookView(windows.bookId));
     this.craft.render(windows.open === 'craft' ? craftView(this.game) : undefined);
     this.research.render(windows.open === 'research' ? researchView(this.game) : undefined);

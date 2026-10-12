@@ -16,6 +16,8 @@
  * | SLEPT              | { day } — réveil au matin de ce jour, partie à sauvegarder |
  * | FAINTED            | {} — réveil au prochain matin, au départ                  |
  * | LEVEL_UP           | { level } — niveau atteint                                |
+ * | BLIGHT_ENTERED     | {} — le joueur entre sur une tuile flétrie                |
+ * | PURIFIED           | { column, row, count } — tuiles purifiées autour du feu   |
  * | RESEARCHED         | { planId, recipes } — recettes apprises                   |
  * | QUEST_COMPLETED    | { questId, npcId, experience } — expérience gagnée        |
  * | DIALOGUE_STARTED   | { npcId }                                                 |
@@ -37,6 +39,8 @@ export const GAME_EVENTS = Object.freeze({
   SLEPT: 'slept',
   FAINTED: 'fainted',
   LEVEL_UP: 'level-up',
+  BLIGHT_ENTERED: 'blight-entered',
+  PURIFIED: 'purified',
   RESEARCHED: 'researched',
   QUEST_COMPLETED: 'quest-completed',
   DIALOGUE_STARTED: 'dialogue-started',

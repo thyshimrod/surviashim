@@ -34,13 +34,15 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  *   (R-RES-FOU-001) : type de tuile laissé après la fouille (R-RES-FOU-004).
  * @property {boolean} [canPlace] `true` si l'on peut y poser un objet (R-ART-POS-001).
  * @property {boolean} [isCampfire] `true` pour un feu de camp posé (R-ART-FEU-001).
+ * @property {boolean} [isHearth] `true` pour le Foyer (R-MON-FOY-001).
  */
 
 /**
  * @param {string} id
  * @param {string} symbol
  * @param {{ isBlocking?: boolean, isStanding?: boolean, harvest?: HarvestDefinition,
- *   search?: { becomes: string }, canPlace?: boolean, isCampfire?: boolean }} [options]
+ *   search?: { becomes: string }, canPlace?: boolean, isCampfire?: boolean,
+ *   isHearth?: boolean }} [options]
  * @returns {Readonly<TileDefinition>}
  */
 function tile(id, symbol, options = {}) {
@@ -124,6 +126,18 @@ export const TILE_DEFINITIONS = Object.freeze({
   }),
   // Objet posé (R-ART-POS-001) : un feu de camp, allumé ou éteint selon l'horloge (R-ART-FEU-001).
   campfire: tile('campfire', 'F', { isBlocking: true, isCampfire: true }),
+  // Le Foyer du Vallon (R-MON-FOY-001), toujours allumé.
+  hearth: tile('hearth', 'H', { isBlocking: true, isHearth: true }),
+  // Sauge de l'aube (C-MEN-08), en lisière des zones flétries.
+  'dawn-sage': tile('dawn-sage', 'w', {
+    harvest: {
+      action: 'pick',
+      resource: 'sage',
+      amount: GAME_PARAMETERS.SAGE_YIELD,
+      becomes: 'grass',
+      regrowDays: GAME_PARAMETERS.SAGE_REGROW_DAYS,
+    },
+  }),
   // Ruines (C-MON-07) : un dallage franchissable et des vestiges debout (piliers, gravats).
   'ruin-floor': tile('ruin-floor', '_', { canPlace: true }),
   ruin: tile('ruin', '#', { isBlocking: true, isStanding: true }),

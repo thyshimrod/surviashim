@@ -16,6 +16,7 @@ export const COMMAND_TYPES = Object.freeze({
   EAT: 'EAT',
   SLEEP: 'SLEEP',
   RESEARCH: 'RESEARCH',
+  BURN_SAGE: 'BURN_SAGE',
 });
 
 /** Motifs de refus d'une commande, dans l'ordre où ils sont vérifiés (spécification B.5). */
@@ -45,6 +46,7 @@ export const REJECTION_REASONS = Object.freeze({
   ALREADY_RESEARCHED: 'ALREADY_RESEARCHED',
   MISSING_PREREQUISITE: 'MISSING_PREREQUISITE',
   NOT_ENOUGH_POINTS: 'NOT_ENOUGH_POINTS',
+  NOTHING_TO_BURN: 'NOTHING_TO_BURN',
 });
 
 /**
@@ -62,9 +64,10 @@ export const REJECTION_REASONS = Object.freeze({
  * @typedef {{ type: 'EAT', resource: string }} EatCommand
  * @typedef {{ type: 'SLEEP', column: number, row: number }} SleepCommand
  * @typedef {{ type: 'RESEARCH', planId: string }} ResearchCommand
+ * @typedef {{ type: 'BURN_SAGE' }} BurnSageCommand
  * @typedef {SetMoveIntentCommand | HarvestCommand | SearchCommand | TalkCommand | NextPageCommand
  *   | EndDialogueCommand | ReadBookCommand | CraftCommand | GiveCommand | PlaceCommand
- *   | RekindleCommand | EatCommand | SleepCommand | ResearchCommand} Command
+ *   | RekindleCommand | EatCommand | SleepCommand | ResearchCommand | BurnSageCommand} Command
  */
 
 /**
@@ -209,4 +212,12 @@ export function sleepBy({ column, row }) {
  */
 export function researchPlan(planId) {
   return { type: COMMAND_TYPES.RESEARCH, planId };
+}
+
+/**
+ * Crée la commande « brûler la sauge » dans un feu à portée (R-MEN-SAU-002).
+ * @returns {BurnSageCommand}
+ */
+export function burnSage() {
+  return { type: COMMAND_TYPES.BURN_SAGE };
 }

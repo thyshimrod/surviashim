@@ -63,6 +63,9 @@ const BY_EVENT = Object.freeze({
   [GAME_EVENTS.BOOK_READ]: ({ recipes = [] }) => brief(learnedMessages(recipes)),
   [GAME_EVENTS.ITEM_CRAFTED]: ({ recipeId = '' }) => brief([craftedMessage(recipeId)]),
   [GAME_EVENTS.SLEPT]: () => brief([TEXTS.sleptMessage]),
+  // R-IHM-NOT-005
+  [GAME_EVENTS.BLIGHT_ENTERED]: () => brief([TEXTS.blightEntered]),
+  [GAME_EVENTS.PURIFIED]: () => brief([TEXTS.purified]),
   // R-IHM-NOT-004, R-IHM-REC-001
   [GAME_EVENTS.LEVEL_UP]: ({ level = 0 }) => sticky([TEXTS.levelUp(level)]),
   [GAME_EVENTS.RESEARCHED]: ({ recipes = [] }) => brief(learnedMessages(recipes)),

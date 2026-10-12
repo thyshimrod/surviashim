@@ -193,6 +193,7 @@ describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
         'Baies 5',
         'Champignons 1',
         'Champignons grillés 0',
+        'Sauge 0',
       ],
     );
   });
@@ -210,6 +211,7 @@ describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
       'Baies 0',
       'Champignons 0',
       'Champignons grillés 0',
+      'Sauge 0',
     ]);
   });
 });

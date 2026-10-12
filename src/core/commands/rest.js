@@ -59,6 +59,7 @@ export function sleep(state, rules, events, tile) {
   state.player.moveIntent = { dx: 0, dy: 0 };
   state.clock = nextMorning(state.clock, time);
   state.health = vitals.healthMax;
+  state.energy = vitals.energyMax; // R-JOU-ENE-004
   state.hunger = Math.max(0, state.hunger - vitals.sleepHunger);
   events.emit(GAME_EVENTS.SLEPT, { day: timeOf(state.clock, time.ticksPerMinute).day });
   return { ok: true };

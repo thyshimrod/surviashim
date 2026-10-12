@@ -33,4 +33,6 @@ export const RESOURCES = Object.freeze({
     icon: 'mushroom-green',
     food: GAME_PARAMETERS.GRILLED_MUSHROOM_FOOD,
   }),
+  // Sauge de l'aube : ne se mange pas, se brûle (R-MEN-SAU-002).
+  sage: Object.freeze({ id: 'sage', icon: 'lavender' }),
 });

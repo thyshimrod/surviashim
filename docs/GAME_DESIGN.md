@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.12** | 2026-10-12 | Brouillon — la recherche : expérience, niveaux, livres de recherche, premiers plans |
+| **v0.13** | 2026-10-12 | Brouillon — le Foyer, la Flétrissure, l'énergie et la sauge de l'aube |
 
 > *Surshim* est un nom de travail.
 
@@ -115,7 +115,7 @@ Tout concept doit servir au moins un pilier et n'en contredire aucun.
 |---|---|---|
 | `C-UNI-01` | La vallée de **Shimrod**, jadis prospère, a été submergée par **la Horde** : orques, gobelins, bêtes corrompues et pire encore. | PROPOSÉ |
 | `C-UNI-02` | La Horde répand **la Flétrissure** : une corruption qui assombrit la terre, tue les cultures et rend les animaux hostiles. | PROPOSÉ |
-| `C-UNI-03` | Le héros (ou l'héroïne, au choix) arrive seul dans une clairière où brûle encore un **Foyer** ancien : un feu que la Flétrissure ne peut éteindre. C'est le point de départ du village. | PROPOSÉ |
+| `C-UNI-03` | Le héros (ou l'héroïne, au choix) arrive seul dans une clairière où brûle encore un **Foyer** ancien : un feu que la Flétrissure ne peut éteindre. C'est le point de départ du village. | VALIDÉ pour le Foyer (au Vallon, à côté du départ) ; le choix du héros reste ouvert (G9) |
 | `C-UNI-04` | Les survivants dispersés (fermière, forgeron, cuisinière, garde, érudit…) apportent chacun une compétence, un fragment d'histoire et une quête. | PROPOSÉ |
 | `C-UNI-05` | Un **mystère** se dévoile au fil de la reconquête : d'où vient la Horde, et que garde-t-elle au cœur de la vallée ? | PROPOSÉ |
 | `C-UNI-06` | **Un début cosy** : le joueur s'éveille dans **le Vallon**, un coin de la vallée resté préservé, loin des monstres. Les premières heures sont calmes : marcher, récolter, rencontrer quelques habitants, explorer. La menace se découvre peu à peu, en s'éloignant. | VALIDÉ |
@@ -188,7 +188,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-MON-02` | **Cycle jour / nuit** : de 6 h à 2 h du matin, une journée de jeu dure 12 minutes réelles ; l'heure s'affiche par tranches de 10 minutes de jeu ; la lumière baisse le soir. Tant qu'on ne dort pas (v0.8), l'horloge tourne en continu sur 24 h. | VALIDÉ (G3) — v0.7 |
 | `C-MON-11` | **La nuit, sans danger pour l'instant** : on y voit moins loin, un halo de lumière entoure le héros et les feux. Les dangers de la nuit (Flétrissure, monstres) viendront plus tard. | VALIDÉ — v0.7 |
 | `C-MON-03` | **Saisons** qui changent les cultures possibles, l'apparence de la carte et les monstres. | PROPOSÉ — cf. G4 |
-| `C-MON-04` | Le **Foyer** éclaire un rayon autour de lui. Dans la lumière, les monstres ordinaires n'entrent pas ; les raids, eux, viennent l'attaquer. Le rayon grandit avec le niveau du village. | PROPOSÉ |
+| `C-MON-04` | Le **Foyer** éclaire un rayon autour de lui. Dans la lumière, les monstres ordinaires n'entrent pas ; les raids, eux, viennent l'attaquer. Le rayon grandit avec le niveau du village. | VALIDÉ — v0.10 : un feu ancien au Vallon, qui ne s'éteint jamais, grand halo, recharge l'énergie, on y dort, on s'y réveille ; monstres et raids plus tard |
 | `C-MON-05` | Météo (pluie qui arrose les cultures, orage, brouillard qui réduit la vue). | REPORTÉ |
 | `C-MON-06` | **Exploration** : la vallée est une grande carte d'un seul tenant, avec des **lieux nommés** à découvrir (vallon, lac, collines, ruines…). Entrer dans un lieu le **découvre** : son nom s'affiche et il entre au journal. | VALIDÉ |
 | `C-MON-07` | **Ruines** : vestiges de l'ancienne civilisation (tour de guet, chapelle, hameau). On y trouvera des **livres** (plans de recherche, C-TEC-03), des fragments d'histoire et des ressources rares. | VALIDÉ — les ruines existent en v0.3, leur contenu vient ensuite |
@@ -295,7 +295,8 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-MEN-05` | Un raid perdu **abîme** le village (bâtiments endommagés, cultures piétinées, une partie des stocks volés) mais ne le détruit pas ; le Foyer ne s'éteint jamais. | PROPOSÉ — pilier P1 |
 | `C-MEN-06` | Les totems non détruits **se renforcent** avec le temps (camps plus gardés, monstres plus forts) : on peut prendre son temps, mais pas indéfiniment. | VALIDÉ (G6) |
 | `C-MEN-07` | En mode Survie uniquement, la Flétrissure **reprend** une zone purifiée si un raid réussit. | VALIDÉ (G6) |
-| `C-MEN-08` | **La sauge de l'aube** (nom provisoire) : une plante rare, qui pousse en lisière des zones flétries. Jetée dans un feu, elle dégage une fumée claire qui **purifie définitivement** les tuiles flétries autour du feu. On en cultive plus tard au village. | VALIDÉ (G17) |
+| `C-MEN-09` | **Zones flétries en v0.10** : le Bois des Murmures et les Collines rocheuses, aux couleurs ternies d'une brume violette. Dedans, l'énergie s'épuise ; à zéro, les PV baissent. Hors des zones, la nuit n'est pas dangereuse. Les tuiles purifiées par la sauge le restent. | VALIDÉ — v0.10 (précise C-JOU-06) |
+| `C-MEN-08` | **La sauge de l'aube** (nom provisoire) : une plante rare, qui pousse en lisière des zones flétries. Jetée dans un feu, elle dégage une fumée claire qui **purifie définitivement** les tuiles flétries autour du feu. On en cultive plus tard au village. | VALIDÉ (G17) — v0.10 : on la cueille à la main et on la brûle depuis l'inventaire, près d'un feu allumé (rayon de 5 tuiles) |
 
 ### 6.12 PRO — Progression
 
@@ -401,10 +402,11 @@ Chaque version est **jouable** de bout en bout et ajoute une brique. Les version
 | v0.6 | **Livrée.** Barre d'actions ; la première quête (la poupée de Maëlle) ; l'expérience | C-IHM-13, C-VIL-09, C-JOU-09 |
 | v0.7 | **Livrée.** Le temps passe : jour / nuit et horloge, nuit sombre avec halos de lumière, feu de camp à poser et à raviver, repousse des arbres | C-MON-02, C-MON-11, C-IHM-14, C-ART-05, C-ART-07, C-RES-07 |
 | v0.8 | **Livrée.** Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au coucher, PNJ qui se promènent | C-RES-09, C-JOU-02, C-JOU-05, C-JOU-10, C-SAU-01, C-SAU-03, C-SAU-04, C-VIL-08, C-IHM-15 |
-| **v0.9** | **En cours.** La recherche : expérience gagnée en jouant, niveaux et points de recherche, livres de recherche, fenêtre « Recherche », outils en pierre, sac du cueilleur, champignons grillés au feu | C-JOU-09, C-TEC-01, C-TEC-03, C-TEC-04, C-TEC-05, C-TEC-08, C-TEC-09, C-ART-08 |
-| v0.10 | Le Foyer, la Flétrissure et le premier monstre : lumière, énergie, sauge de l'aube, combat, mort | C-MON-04, C-JOU-06, C-MEN-08, C-CBT-01, C-SAU-02 |
-| v0.11 | Construire : établi, palissade, maison | C-CON-01, C-CON-02, C-ART-01 |
-| v0.12 | Cultiver ; le premier raid annoncé ; un PNJ rejoint le village ; la première zone reprise | C-AGR-01, C-MEN-02, C-MEN-04, C-VIL-01, C-MEN-01 |
+| v0.9 | **Livrée.** La recherche : expérience gagnée en jouant, niveaux et points de recherche, livres de recherche, fenêtre « Recherche », outils en pierre, sac du cueilleur, champignons grillés au feu | C-JOU-09, C-TEC-01, C-TEC-03, C-TEC-04, C-TEC-05, C-TEC-08, C-TEC-09, C-ART-08 |
+| **v0.10** | **En cours.** Le Foyer, la Flétrissure et l'énergie : le Foyer du Vallon, deux zones flétries, l'énergie qui s'y épuise, la sauge de l'aube qui purifie | C-MON-04, C-UNI-03, C-JOU-06, C-JOU-08, C-MEN-08, C-MEN-09 |
+| v0.11 | Le premier monstre : combat d'action, esquive, mort | C-CBT-01, C-CBT-03, C-CBT-04, C-ENN-01, C-SAU-02 |
+| v0.12 | Construire : établi, palissade, maison | C-CON-01, C-CON-02, C-ART-01 |
+| v0.13 | Cultiver ; le premier raid annoncé ; un PNJ rejoint le village ; la première zone reprise | C-AGR-01, C-MEN-02, C-MEN-04, C-VIL-01, C-MEN-01 |
 | v1.0 | Une saison complète, 3 zones, 5 villageois, 1 chef, les branches Survie, Armes, Habitat et Magie de la recherche | — |
 
 ---
@@ -458,3 +460,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.10 | 2026-10-12 | Réponse G3 (12 minutes de 6 h à 2 h). Périmètre de la v0.7 choisi : jour / nuit (C-MON-02, C-MON-11), horloge (C-IHM-14), feu de camp qui s'éteint et se ravive (C-ART-05, C-ART-07), repousse des arbres (C-RES-07). Faim, sommeil, sauvegarde et PNJ qui se déplacent passent en v0.8. |
 | v0.11 | 2026-10-12 | Périmètre de la v0.8 choisi : baies et champignons (C-RES-09), faim et PV sans énergie (C-JOU-10), dormir près d'un feu allumé dès 18:00 (C-SAU-03), s'évanouir sans perte (C-SAU-04), sauvegarde au coucher et reprise automatique (C-SAU-01 validé), PNJ qui se promènent (C-VIL-08), jauges et fenêtre « Partie » (C-IHM-15). |
 | v0.12 | 2026-10-12 | Périmètre de la v0.9 choisi : expérience gagnée en jouant (C-JOU-09), niveaux croissants à 1 point de recherche, livres de recherche dans les cachettes (C-TEC-08), plans à 1 point, prérequis « plan précédent » (C-TEC-04), outils en pierre, sac du cueilleur, champignons grillés au feu (C-TEC-09, C-ART-08). |
+| v0.13 | 2026-10-12 | La v0.10 est découpée : Foyer, Flétrissure, énergie et sauge d'abord (C-MON-04 et C-UNI-03 validés pour le Foyer, C-MEN-09), le monstre, le combat et la mort en v0.11. Feuille de route décalée d'une version. |

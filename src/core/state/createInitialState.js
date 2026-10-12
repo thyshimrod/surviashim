@@ -59,5 +59,6 @@ export function createInitialState(
     clock, // R-MON-TPS-001 : jour 1, 6:00
     health: parameters.HEALTH_MAX, // R-JOU-VIE-001
     hunger: parameters.HUNGER_MAX,
+    energy: parameters.ENERGY_MAX, // R-JOU-ENE-001
   });
 }

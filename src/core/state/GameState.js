@@ -96,6 +96,9 @@ export { createGameRules } from './rules.js';
  * @property {number} hunger Faim, de 0 à HUNGER_MAX (R-JOU-VIE-002).
  * @property {string[]} discoveredPlans Plans des livres de recherche lus (R-INV-LIV-002).
  * @property {string[]} researched Plans recherchés, dans l'ordre (R-TEC-REC-002).
+ * @property {number} energy Énergie, de 0 à ENERGY_MAX (R-JOU-ENE-001).
+ * @property {number[]} purified Tuiles purifiées (indices ligne × colonnes + colonne).
+ * @property {boolean} inBlight `true` si le joueur était sur une tuile flétrie au tick précédent.
  */
 
 /**
@@ -132,6 +135,8 @@ export { createGameRules } from './rules.js';
  * @property {import('../systems/experience.js').ExperienceRules} [experience] Expérience, niveaux.
  * @property {Readonly<Record<string, Readonly<import('../../../data/research.js').ResearchPlan>>>}
  *   [research] Plans de recherche (R-TEC-REC-002).
+ * @property {import('../systems/blight.js').BlightRules} [blight] Lieux flétris, sauge.
+ * @property {{ column: number, row: number, reach: number, lightRadius: number }} [hearth] Foyer.
  */
 
 /**
@@ -163,18 +168,24 @@ export function createEmptyInventory() {
  * @param {Regrowth[]} [params.regrowth]
  * @param {number} [params.health]
  * @param {number} [params.hunger]
+ * @param {number} [params.energy]
+ * @param {number[]} [params.purified]
+ * @param {boolean} [params.inBlight]
  * @param {number} [params.tick]
  * @returns {GameState}
  */
 export function createGameState(params) {
   const { map, player, inventory = createEmptyInventory(), dialogue, tick = 0 } = params;
-  const { health = 100, hunger = 100 } = params;
+  const { health = 100, hunger = 100, energy = 100, purified = [], inBlight = false } = params;
   return {
     tick,
     map,
     player,
     health,
     hunger,
+    energy,
+    purified: [...purified],
+    inBlight,
     inventory: { ...inventory },
     dialogue: dialogue === undefined ? undefined : copyDialogue(dialogue),
     ...copyWorld(params),

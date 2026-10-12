@@ -198,7 +198,7 @@ function commandFor(target, game) {
   }
   const inspection = game.inspect(target);
   if (inspection.campfire !== undefined) {
-    return rekindle(target);
+    return inspection.campfire.isHearth ? sleepBy(target) : rekindle(target);
   }
   return inspection.search === undefined ? harvestTile(target) : searchTile(target);
 }

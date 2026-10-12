@@ -23,6 +23,7 @@ import { bindKeyboard } from './presentation/input/keyboard.js';
 import { MovementInput } from './presentation/input/MovementInput.js';
 import { CharacterRenderer } from './presentation/renderers/CharacterRenderer.js';
 import { GameInterface } from './presentation/ui/GameInterface.js';
+import { drawBlight } from './presentation/renderers/BlightRenderer.js';
 import { NightRenderer } from './presentation/renderers/NightRenderer.js';
 import { nightView } from './presentation/ui/nightView.js';
 
@@ -166,6 +167,7 @@ function createLoop(game, renderer, ui) {
     update: () => game.update(),
     render: (frameTime) => {
       renderer.render(game.getState());
+      drawBlight(screen.context, renderer.origin, game);
       night.render(screen.context, renderer.origin, nightView(game), game.getState().tick);
       ui.render();
       if (debugOverlay !== undefined) {

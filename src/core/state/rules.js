@@ -1,4 +1,5 @@
 // @ts-check
+import { BLIGHTED_PLACES } from '../../../data/blight.js';
 import { BOOKS } from '../../../data/books.js';
 import { ITEMS } from '../../../data/items.js';
 import { NPCS } from '../../../data/npcs.js';
@@ -48,6 +49,18 @@ export function createGameRules(parameters) {
       speed: parameters.NPC_WALK_SPEED,
       pauseMinutes: parameters.NPC_PAUSE_MINUTES,
     },
+    research: RESEARCH_PLANS,
+    ...createProgressRules(parameters),
+  };
+}
+
+/**
+ * Expérience (R-JOU-EXP-*), Flétrissure (R-MEN-*) et Foyer (R-MON-FOY-001).
+ * @param {Readonly<GameParameters>} parameters
+ * @returns {Pick<GameRules, 'experience' | 'blight' | 'hearth'>}
+ */
+function createProgressRules(parameters) {
+  return {
     experience: {
       harvest: parameters.XP_HARVEST,
       search: parameters.XP_SEARCH,
@@ -56,7 +69,16 @@ export function createGameRules(parameters) {
       firstLevel: parameters.LEVEL_FIRST_XP,
       step: parameters.LEVEL_XP_STEP,
     },
-    research: RESEARCH_PLANS,
+    blight: {
+      areas: BLIGHTED_PLACES.map((id) => PLACES[id].area),
+      sageRadius: parameters.SAGE_RADIUS,
+    },
+    hearth: {
+      column: parameters.HEARTH_TILE.x,
+      row: parameters.HEARTH_TILE.y,
+      reach: parameters.HEARTH_REACH,
+      lightRadius: parameters.HEARTH_LIGHT_RADIUS,
+    },
   };
 }
 
@@ -96,6 +118,11 @@ function createVitalRules(parameters) {
     faintHunger: parameters.FAINT_HUNGER,
     sleepStart: parameters.SLEEP_START,
     sleepHunger: parameters.SLEEP_HUNGER,
+    energyMax: parameters.ENERGY_MAX,
+    energyDrainMinutes: parameters.ENERGY_DRAIN_MINUTES,
+    blightHealthMinutes: parameters.BLIGHT_HEALTH_MINUTES,
+    energyRegenMinutes: parameters.ENERGY_REGEN_MINUTES,
+    faintEnergy: parameters.FAINT_ENERGY,
     startPosition: {
       x: parameters.PLAYER_START_TILE.x * parameters.TILE_SIZE + half,
       y: parameters.PLAYER_START_TILE.y * parameters.TILE_SIZE + half,

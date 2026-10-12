@@ -70,6 +70,17 @@
  * @property {number} STONE_TOOL_BONUS Rendement en plus d'un outil en pierre.
  * @property {number} BAG_BONUS Baies et champignons en plus avec le sac du cueilleur.
  * @property {number} GRILLED_MUSHROOM_FOOD Faim rendue par un champignon grillé.
+ * @property {number} ENERGY_MAX Énergie maximale.
+ * @property {number} ENERGY_DRAIN_MINUTES Minutes de jeu pour perdre 1 point d'énergie en zone flétrie.
+ * @property {number} BLIGHT_HEALTH_MINUTES Minutes de jeu entre deux PV perdus sans énergie en zone flétrie.
+ * @property {number} ENERGY_REGEN_MINUTES Minutes de jeu pour regagner 1 point d'énergie près du Foyer.
+ * @property {number} FAINT_ENERGY Énergie minimale au réveil après un évanouissement.
+ * @property {FrozenPoint} HEARTH_TILE Tuile du Foyer (x = colonne, y = ligne).
+ * @property {number} HEARTH_REACH Distance au Foyer pour recharger l'énergie (px).
+ * @property {number} HEARTH_LIGHT_RADIUS Rayon du halo du Foyer (px).
+ * @property {number} SAGE_YIELD Sauge ramassée par plant.
+ * @property {number} SAGE_REGROW_DAYS Jours avant que la sauge repousse.
+ * @property {number} SAGE_RADIUS Rayon de purification de la sauge (tuiles).
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -130,4 +141,15 @@ export const GAME_PARAMETERS = Object.freeze({
   STONE_TOOL_BONUS: 1,
   BAG_BONUS: 1,
   GRILLED_MUSHROOM_FOOD: 35,
+  ENERGY_MAX: 100,
+  ENERGY_DRAIN_MINUTES: 3,
+  BLIGHT_HEALTH_MINUTES: 10,
+  ENERGY_REGEN_MINUTES: 2,
+  FAINT_ENERGY: 50,
+  HEARTH_TILE: Object.freeze({ x: 32, y: 91 }),
+  HEARTH_REACH: 160,
+  HEARTH_LIGHT_RADIUS: 320,
+  SAGE_YIELD: 1,
+  SAGE_REGROW_DAYS: 3,
+  SAGE_RADIUS: 5,
 });

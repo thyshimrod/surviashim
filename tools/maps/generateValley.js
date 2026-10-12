@@ -9,6 +9,7 @@ import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { NPCS } from '../../data/npcs.js';
 import { PLACES } from '../../data/places.js';
 import { SEARCH_SPOTS } from '../../data/searchSpots.js';
+import { BLIGHTED_PLACES } from '../../data/blight.js';
 import { TILE_DEFINITIONS } from '../../data/tilesets.js';
 import {
   around,
@@ -19,9 +20,12 @@ import {
   inEllipse,
   isIn,
   line,
+  distanceOutside,
 } from './mapGrid.js';
 import { findUnreachable } from './reachability.js';
 
+/** Le Foyer (B.12). */
+const HEARTH = { column: GAME_PARAMETERS.HEARTH_TILE.x, row: GAME_PARAMETERS.HEARTH_TILE.y };
 const SEED = 20261012;
 const WIDTH = GAME_PARAMETERS.MAP_WIDTH;
 const HEIGHT = GAME_PARAMETERS.MAP_HEIGHT;
@@ -222,6 +226,21 @@ function addFood(grid) {
   });
 }
 
+// Sauge de l'aube (B.12) : sur l'herbe, à 1 ou 2 tuiles des lieux flétris, à l'extérieur. Tirage à
+// part, pour ne pas changer le reste de la carte.
+function addSage(grid) {
+  const random = createRng(SEED + 2);
+  const areas = BLIGHTED_PLACES.map((id) => PLACES[id].area);
+  grid.forEach((column, row) => {
+    const gaps = areas.map((area) => distanceOutside(area, column, row));
+    const nearEdge =
+      gaps.some((value) => value >= 1 && value <= 2) && gaps.every((value) => value >= 1);
+    if (grid.get(column, row) === S.grass && nearEdge && random() < 0.08) {
+      grid.set(column, row, S['dawn-sage']);
+    }
+  });
+}
+
 // Le départ, les abords des PNJ et leurs promenades (R-PNJ-POS-003) restent dégagés.
 function clearPeople(grid) {
   const walks = Object.values(NPCS).flatMap((npc) =>
@@ -230,7 +249,7 @@ function clearPeople(grid) {
       row: npc.tile.row + step.row,
     })),
   );
-  const centers = [START, ...Object.values(NPCS).map((npc) => npc.tile), ...walks];
+  const centers = [START, HEARTH, ...Object.values(NPCS).map((npc) => npc.tile), ...walks];
   for (const { column, row } of centers.flatMap((center) => around(center, 1))) {
     if (grid.get(column, row) !== S.path) {
       grid.set(column, row, S.grass);
@@ -248,11 +267,14 @@ function generate() {
   addRuins(grid, random);
   addPaths(grid);
   addFood(grid);
+  addSage(grid);
+  grid.set(HEARTH.column, HEARTH.row, S.hearth); // le Foyer (R-MON-FOY-001)
   for (const { column, row, tile } of SEARCH_SPOTS) {
     grid.set(column, row, S[tile]); // cachettes des ruines (B.7)
     clearInFront(grid, { column, row });
   }
   clearPeople(grid);
+  grid.set(HEARTH.column, HEARTH.row, S.hearth);
   return grid.rows();
 }
 

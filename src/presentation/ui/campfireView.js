@@ -13,6 +13,17 @@ const MINUTES_PER_HOUR = 60;
  * @returns {InspectionView}
  */
 export function campfireView({ campfire, isInReach }) {
+  if (campfire.isHearth) {
+    // R-IHM-INS-009 : le Foyer ne se ravive pas ; son bouton fait dormir.
+    const sleep = sleepButton(campfire, isInReach);
+    return {
+      title: TEXTS.tileNames.hearth,
+      action: TEXTS.hearthDescription,
+      button: sleep.button,
+      isActionEnabled: sleep.isEnabled,
+      warning: sleep.warning,
+    };
+  }
   const hours = Math.ceil(campfire.minutesLeft / MINUTES_PER_HOUR);
   let warning;
   if (!campfire.hasFuel) {

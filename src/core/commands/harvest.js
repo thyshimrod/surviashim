@@ -56,7 +56,7 @@ export function inspectTile(state, rules, { column, row }) {
     search: rules.tiles[tileId]?.search,
     isInReach: distance <= rules.harvestReach, // R-RES-REC-001
     hasTool: hasToolKind(state, rules, harvestDefinition?.tool),
-    ...(rules.tiles[tileId]?.isCampfire
+    ...(rules.tiles[tileId]?.isCampfire || rules.tiles[tileId]?.isHearth
       ? { campfire: inspectCampfire(state, rules, { column, row }) }
       : {}),
   };

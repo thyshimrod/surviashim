@@ -51,13 +51,14 @@ export function experienceEntry(experience) {
 }
 
 /**
- * R-IHM-HUD-003 : PV et faim, au début du bandeau.
- * @param {{ health: number, hunger: number }} state
+ * R-IHM-HUD-003 : PV, faim et énergie, au début du bandeau.
+ * @param {{ health: number, hunger: number, energy: number }} state
  * @returns {InventoryEntry[]}
  */
-export function vitalEntries({ health, hunger }) {
+export function vitalEntries({ health, hunger, energy }) {
   return [
     { id: 'health', label: TEXTS.healthLabel, amount: health, icon: 'health' },
     { id: 'hunger', label: TEXTS.hungerLabel, amount: hunger, icon: 'hunger' },
+    { id: 'energy', label: TEXTS.energyLabel, amount: energy, icon: 'experience' },
   ];
 }

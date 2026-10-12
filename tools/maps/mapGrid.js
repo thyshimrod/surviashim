@@ -156,3 +156,19 @@ export function around({ column, row }, radius) {
   }
   return tiles;
 }
+
+/**
+ * Distance (en tuiles, au sens de Tchebychev) d'une tuile au bord d'une zone ; 0 ou moins dedans.
+ * @param {{ column: number, row: number, width: number, height: number }} area
+ * @param {number} column
+ * @param {number} row
+ * @returns {number}
+ */
+export function distanceOutside(area, column, row) {
+  return Math.max(
+    area.column - column,
+    column - (area.column + area.width - 1),
+    area.row - row,
+    row - (area.row + area.height - 1),
+  );
+}

@@ -37,12 +37,16 @@ function fakeStorage(initial = {}) {
 describe('R-IHM-HUD-003 · Santé et faim au bandeau', () => {
   const labels = (state) => vitalEntries(state).map(({ label, amount }) => `${label} ${amount}`);
 
-  it('ex.1 — une nouvelle partie : « PV 100 », « Faim 100 »', () => {
-    assert.deepEqual(labels(Game.create().getState()), ['PV 100', 'Faim 100']);
+  it('ex.1 — une nouvelle partie : « PV 100 », « Faim 100 », « Énergie 100 »', () => {
+    assert.deepEqual(labels(Game.create().getState()), ['PV 100', 'Faim 100', 'Énergie 100']);
   });
 
-  it('ex.2 — 45 PV, faim 12 : « PV 45 », « Faim 12 »', () => {
-    assert.deepEqual(labels({ health: 45, hunger: 12 }), ['PV 45', 'Faim 12']);
+  it('ex.2 — 45 PV, faim 12, énergie 7 : « PV 45 », « Faim 12 », « Énergie 7 »', () => {
+    assert.deepEqual(labels({ health: 45, hunger: 12, energy: 7 }), [
+      'PV 45',
+      'Faim 12',
+      'Énergie 7',
+    ]);
   });
 });
 

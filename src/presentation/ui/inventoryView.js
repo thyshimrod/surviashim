@@ -4,6 +4,7 @@ import { ITEMS } from '../../../data/items.js';
 import { GAME_PARAMETERS } from '../../../data/gameParameters.js';
 import { PLACEABLES } from '../../../data/placeables.js';
 import { RESOURCES } from '../../../data/resources.js';
+import { litFireInReach } from '../../core/commands/campfire.js';
 import { TOOLS } from '../../../data/tools.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
@@ -22,7 +23,7 @@ import { inventoryEntries } from './inventoryEntries.js';
 /**
  * Contenu de la fenêtre d'inventaire (R-IHM-INV-001).
  * @typedef {object} InventoryContent
- * @property {Array<InventoryEntry & { eat?: { button: string, isEnabled: boolean } }>} resources
+ * @property {Array<InventoryEntry & { eat?: ResourceAction, use?: ResourceAction }>} resources
  *   Dans l'ordre du bandeau ; la nourriture a un bouton « Manger ».
  * @property {NamedItem[]} tools Dans l'ordre d'obtention.
  * @property {string | undefined} noTool Message si aucun outil.
@@ -47,23 +48,27 @@ import { inventoryEntries } from './inventoryEntries.js';
  */
 
 /**
+ * Bouton d'une ressource : « Manger » ou « Brûler ».
+ * @typedef {{ button: string, isEnabled: boolean }} ResourceAction
+ */
+
+/**
  * @param {InventorySource} state
+ * @param {import('../../core/state/GameState.js').GameRules} [rules] Pour savoir si un feu est à
+ *   portée (« Brûler » la sauge).
  * @returns {InventoryContent}
  */
-export function inventoryView({ inventory, tools, books, items, placeables, hunger = 100 }) {
+export function inventoryView(state, rules) {
+  const { inventory, tools, books, items, placeables, hunger = 100 } = state;
   const toPlace = placeableEntries(placeables);
+  const nearFire =
+    rules !== undefined &&
+    litFireInReach(
+      /** @type {import('../../core/state/GameState.js').GameState} */ (state),
+      rules,
+    ) !== undefined;
   return {
-    resources: inventoryEntries(inventory).map((entry) =>
-      RESOURCES[entry.id]?.food === undefined
-        ? entry
-        : {
-            ...entry,
-            eat: {
-              button: TEXTS.eatButton,
-              isEnabled: (entry.amount ?? 0) > 0 && hunger < GAME_PARAMETERS.HUNGER_MAX,
-            },
-          },
-    ),
+    resources: inventoryEntries(inventory).map((entry) => withAction(entry, { hunger, nearFire })),
     tools: tools.map((id) => ({
       id,
       name: TEXTS.toolNames[id] ?? id,
@@ -107,4 +112,24 @@ function placeableEntries(placeables) {
         button: TEXTS.placeButton,
       };
     });
+}
+
+/**
+ * R-IHM-INV-001 : la nourriture se mange, la sauge se brûle.
+ * @param {InventoryEntry} entry
+ * @param {{ hunger: number, nearFire: boolean }} context
+ * @returns {InventoryEntry & { eat?: ResourceAction, use?: ResourceAction }}
+ */
+function withAction(entry, { hunger, nearFire }) {
+  const hasSome = (entry.amount ?? 0) > 0;
+  if (entry.id === 'sage') {
+    return { ...entry, use: { button: TEXTS.burnButton, isEnabled: hasSome && nearFire } };
+  }
+  if (RESOURCES[entry.id]?.food === undefined) {
+    return entry;
+  }
+  return {
+    ...entry,
+    eat: { button: TEXTS.eatButton, isEnabled: hasSome && hunger < GAME_PARAMETERS.HUNGER_MAX },
+  };
 }

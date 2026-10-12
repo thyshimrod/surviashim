@@ -3,6 +3,7 @@ import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { lightSources, place, rekindle } from './commands/campfire.js';
 import { research } from './commands/research.js';
 import { eat, sleep } from './commands/rest.js';
+import { burnSage } from './commands/sage.js';
 import { COMMAND_TYPES } from './commands/commands.js';
 import { craft, inspectRecipe, readBook } from './commands/crafting.js';
 import { finishDialogue, inspectNpc, talk, talkRefusal, turnPage } from './commands/dialogue.js';
@@ -15,6 +16,7 @@ import { createInitialState } from './state/createInitialState.js';
 import { createGameRules } from './state/GameState.js';
 import { discoverPlaces } from './systems/discoverPlaces.js';
 import { movePlayer } from './systems/movePlayer.js';
+import { trackBlight } from './systems/blight.js';
 import { updateNeeds } from './systems/needs.js';
 import { regrowTrees } from './systems/regrowTrees.js';
 import { walkNpcs } from './systems/walkNpcs.js';
@@ -57,6 +59,7 @@ const HANDLERS = Object.freeze({
   [COMMAND_TYPES.REKINDLE]: (game, command) =>
     rekindle(game.state, game.rules, game.events, command),
   [COMMAND_TYPES.EAT]: (game, { resource }) => eat(game.state, game.rules, game.events, resource),
+  [COMMAND_TYPES.BURN_SAGE]: (game) => burnSage(game.state, game.rules, game.events),
   [COMMAND_TYPES.RESEARCH]: (game, { planId }) =>
     research(game.state, game.rules, game.events, planId),
   [COMMAND_TYPES.SLEEP]: (game, command) => sleep(game.state, game.rules, game.events, command),
@@ -153,6 +156,7 @@ export class Game {
     movePlayer(this.state, this.rules);
     discoverPlaces(this.state, this.rules, this.events);
     regrowTrees(this.state, this.rules, this.events);
+    trackBlight(this.state, this.rules, this.events);
     updateNeeds(this.state, this.rules, this.events);
     walkNpcs(this.state, this.rules);
   }
