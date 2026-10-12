@@ -15,39 +15,37 @@ export class InventoryPanel extends CenterWindow {
    * @param {HTMLElement} params.container
    * @param {() => void} params.onClose
    * @param {(bookId: string) => void} params.onRead Clic sur « Lire ».
+   * @param {(itemId: string) => void} params.onPlace Clic sur « Poser ».
    */
-  constructor({ doc, container, onClose, onRead }) {
+  constructor({ doc, container, onClose, onRead, onPlace }) {
     super({ doc, container, title: TEXTS.inventoryTitle, className: 'inventory-panel', onClose });
     this.onRead = onRead;
+    this.onPlace = onPlace;
   }
 
   /**
    * @param {InventoryContent} content
    */
   fill(content) {
-    const resources = content.resources.map((entry) => {
-      const item = this.element('li');
-      item.append(this.iconLabel(entry.icon, `${entry.label} ${entry.amount}`));
-      return item;
-    });
-    const tools = content.tools.map((tool) => {
-      const item = this.element('li');
-      item.append(this.iconLabel(tool.icon, tool.name));
-      return item;
-    });
-    const books = content.books.map((book) => {
-      const item = this.element('li', undefined, 'book');
-      item.append(
-        this.iconLabel(book.icon, book.title),
+    const resources = content.resources.map((entry) =>
+      this.line(entry.icon, `${entry.label} ${entry.amount}`),
+    );
+    const tools = content.tools.map((tool) => this.line(tool.icon, tool.name));
+    const books = content.books.map((book) =>
+      this.line(
+        book.icon,
+        book.title,
         this.button(content.readButton, () => this.onRead(book.id)),
-      );
-      return item;
-    });
-    const items = content.items.map((entry) => {
-      const item = this.element('li');
-      item.append(this.iconLabel(entry.icon, entry.name));
-      return item;
-    });
+      ),
+    );
+    const items = content.items.map((entry) => this.line(entry.icon, entry.name));
+    const placeables = content.placeables.map((entry) =>
+      this.line(
+        entry.icon,
+        entry.label,
+        this.button(entry.button, () => this.onPlace(entry.id)),
+      ),
+    );
     const resourceList = this.list(resources, undefined);
     resourceList.className = 'resources';
     this.body.replaceChildren(
@@ -58,7 +56,20 @@ export class InventoryPanel extends CenterWindow {
       this.element('h3', TEXTS.booksTitle),
       this.list(books, content.noBook),
       this.element('h3', TEXTS.itemsTitle),
-      this.list(items, content.noItem),
+      this.list([...items, ...placeables], content.noItem),
     );
+  }
+
+  /**
+   * Ligne « icône + libellé », avec un bouton éventuel.
+   * @param {string} icon
+   * @param {string} label
+   * @param {HTMLButtonElement} [button]
+   * @returns {HTMLElement}
+   */
+  line(icon, label, button) {
+    const item = this.element('li', undefined, button === undefined ? undefined : 'book');
+    item.append(this.iconLabel(icon, label), ...(button === undefined ? [] : [button]));
+    return item;
   }
 }

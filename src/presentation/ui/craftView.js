@@ -1,4 +1,5 @@
 // @ts-check
+import { PLACEABLES } from '../../../data/placeables.js';
 import { TOOLS } from '../../../data/tools.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
@@ -47,24 +48,12 @@ export function craftView(game) {
  * @returns {CraftEntry}
  */
 function toEntry(id, inspection) {
-  if (inspection.tool === undefined) {
-    // Plan connu sans recette (le feu de camp) : affiché, inactif.
-    const plan = CONTENT_TEXTS.plans[id] ?? id;
-    return {
-      id,
-      name: plan.charAt(0).toUpperCase() + plan.slice(1),
-      icon: 'log-burning',
-      ingredients: '',
-      button: TEXTS.craftButton,
-      isEnabled: false,
-      warning: TEXTS.notCraftable[id] ?? TEXTS.notCraftableYet,
-    };
-  }
-  const { tool } = inspection;
+  const plan = CONTENT_TEXTS.plans[id] ?? id;
   return {
     id,
-    name: TEXTS.toolNames[tool] ?? tool,
-    icon: TOOLS[tool]?.icon ?? 'axe',
+    name: plan.charAt(0).toUpperCase() + plan.slice(1),
+    icon:
+      TOOLS[inspection.tool ?? '']?.icon ?? PLACEABLES[inspection.placeable ?? '']?.icon ?? 'axe',
     ingredients: inspection.ingredients
       .map(
         ({ resource, owned, required }) =>

@@ -11,6 +11,8 @@ export const COMMAND_TYPES = Object.freeze({
   READ_BOOK: 'READ_BOOK',
   CRAFT: 'CRAFT',
   GIVE: 'GIVE',
+  PLACE: 'PLACE',
+  REKINDLE: 'REKINDLE',
 });
 
 /** Motifs de refus d'une commande, dans l'ordre où ils sont vérifiés (spécification B.5). */
@@ -27,6 +29,9 @@ export const REJECTION_REASONS = Object.freeze({
   ALREADY_OWNED: 'ALREADY_OWNED',
   MISSING_INGREDIENTS: 'MISSING_INGREDIENTS',
   NOTHING_TO_GIVE: 'NOTHING_TO_GIVE',
+  NOTHING_TO_PLACE: 'NOTHING_TO_PLACE',
+  CANNOT_PLACE: 'CANNOT_PLACE',
+  NOTHING_TO_REKINDLE: 'NOTHING_TO_REKINDLE',
 });
 
 /**
@@ -39,8 +44,11 @@ export const REJECTION_REASONS = Object.freeze({
  * @typedef {{ type: 'READ_BOOK', bookId: string }} ReadBookCommand
  * @typedef {{ type: 'CRAFT', recipeId: string }} CraftCommand
  * @typedef {{ type: 'GIVE', npcId: string }} GiveCommand
+ * @typedef {{ type: 'PLACE', itemId: string }} PlaceCommand
+ * @typedef {{ type: 'REKINDLE', column: number, row: number }} RekindleCommand
  * @typedef {SetMoveIntentCommand | HarvestCommand | SearchCommand | TalkCommand | NextPageCommand
- *   | EndDialogueCommand | ReadBookCommand | CraftCommand | GiveCommand} Command
+ *   | EndDialogueCommand | ReadBookCommand | CraftCommand | GiveCommand | PlaceCommand
+ *   | RekindleCommand} Command
  */
 
 /**
@@ -138,4 +146,23 @@ export function craftItem(recipeId) {
  */
 export function giveTo(npcId) {
   return { type: COMMAND_TYPES.GIVE, npcId };
+}
+
+/**
+ * Crée la commande « poser un objet » devant le joueur (R-ART-POS-001).
+ * @param {string} itemId
+ * @returns {PlaceCommand}
+ */
+export function placeItem(itemId) {
+  return { type: COMMAND_TYPES.PLACE, itemId };
+}
+
+/**
+ * Crée la commande « raviver un feu de camp » (R-ART-FEU-001).
+ * @param {{ column: number, row: number }} tile
+ * @returns {RekindleCommand}
+ * @throws {TypeError} Si la colonne ou la ligne n'est pas un entier.
+ */
+export function rekindle({ column, row }) {
+  return { ...harvestTile({ column, row }), type: COMMAND_TYPES.REKINDLE };
 }

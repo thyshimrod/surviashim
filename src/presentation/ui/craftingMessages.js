@@ -13,9 +13,9 @@ export function learnedMessages(recipes) {
 
 /**
  * R-IHM-ART-001 : notification d'une fabrication.
- * @param {string} tool Outil fabriqué.
+ * @param {string} recipeId Recette fabriquée (son nom est celui du plan).
  * @returns {string}
  */
-export function craftedMessage(tool) {
-  return TEXTS.crafted(CONTENT_TEXTS.plans[tool] ?? tool);
+export function craftedMessage(recipeId) {
+  return TEXTS.crafted(CONTENT_TEXTS.plans[recipeId] ?? recipeId);
 }

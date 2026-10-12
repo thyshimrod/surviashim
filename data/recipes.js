@@ -2,8 +2,7 @@
 
 /**
  * Recettes d'artisanat (concept C-ART-04, spécification B.8). L'identifiant d'une recette est celui
- * du plan qu'un livre apprend (data/books.js) ; un plan sans recette ici (le feu de camp) est
- * connu mais ne se fabrique pas encore.
+ * du plan qu'un livre apprend (data/books.js). Une recette donne un outil ou un objet à poser.
  */
 
 /**
@@ -11,7 +10,9 @@
  * @property {string} id Identifiant du plan.
  * @property {Readonly<Record<string, number>>} ingredients Ressources consommées, dans l'ordre
  *   d'affichage.
- * @property {string} tool Outil obtenu (clé de data/tools.js).
+ * @property {string} [tool] Outil obtenu (clé de data/tools.js).
+ * @property {string} [placeable] Objet à poser obtenu (clé de data/placeables.js), autant de
+ *   fois qu'on veut (R-ART-FAB-001).
  */
 
 /** Ingrédients d'un outil en silex : une lame, un manche, un lien. */
@@ -24,5 +25,10 @@ export const RECIPES = Object.freeze({
     id: 'flint-pickaxe',
     ingredients: FLINT_TOOL,
     tool: 'flint-pickaxe',
+  }),
+  campfire: Object.freeze({
+    id: 'campfire',
+    ingredients: Object.freeze({ stone: 3, wood: 2 }),
+    placeable: 'campfire',
   }),
 });

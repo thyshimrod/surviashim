@@ -38,7 +38,7 @@ const sticky = (texts) => texts.map((text) => ({ text, sticky: true }));
  * @property {string} [questId]
  * @property {number} [experience]
  * @property {string[]} [recipes]
- * @property {string} [tool]
+ * @property {string} [recipeId]
  * @property {string[]} [books]
  * @property {string[]} [items]
  * @property {Record<string, number>} [resources]
@@ -60,7 +60,7 @@ const BY_EVENT = Object.freeze({
     brief(findingsMessages({ books, items, resources })),
   // R-IHM-LIV-001, R-IHM-ART-001
   [GAME_EVENTS.BOOK_READ]: ({ recipes = [] }) => brief(learnedMessages(recipes)),
-  [GAME_EVENTS.ITEM_CRAFTED]: ({ tool = '' }) => brief([craftedMessage(tool)]),
+  [GAME_EVENTS.ITEM_CRAFTED]: ({ recipeId = '' }) => brief([craftedMessage(recipeId)]),
   // R-IHM-NOT-003
   [GAME_EVENTS.QUEST_STARTED]: ({ questId = '' }) => sticky([questStartedMessage(questId)]),
   [GAME_EVENTS.QUEST_COMPLETED]: ({ questId = '', experience = 0 }) =>

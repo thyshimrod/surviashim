@@ -1,7 +1,8 @@
 // @ts-check
-import { giveTo, harvestTile, searchTile, talkTo } from '../../core/commands/commands.js';
+import { giveTo, harvestTile, rekindle, searchTile, talkTo } from '../../core/commands/commands.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
+import { campfireView } from './campfireView.js';
 
 /** @typedef {import('../input/designateTile.js').Target} Target */
 /** @typedef {import('../../core/commands/harvest.js').TileInspection} TileInspection */
@@ -120,7 +121,8 @@ export class InspectionController {
     }
     const command = commandFor(selected, game);
     const result = game.execute(command);
-    if (result.ok) {
+    // R-IHM-INS-008 : la fenêtre d'un feu de camp ravivé reste ouverte.
+    if (result.ok && command.type !== 'REKINDLE') {
       this.close();
     }
     return result;
@@ -140,7 +142,11 @@ function isInspectable(target, game) {
     return game.inspectNpc(target.npcId).exists;
   }
   const inspection = game.inspect(target);
-  return inspection.harvest !== undefined || inspection.search !== undefined;
+  return (
+    inspection.harvest !== undefined ||
+    inspection.search !== undefined ||
+    inspection.campfire !== undefined
+  );
 }
 
 /**
@@ -153,7 +159,11 @@ function commandFor(target, game) {
   if ('npcId' in target) {
     return talkTo(target.npcId);
   }
-  return game.inspect(target).search === undefined ? harvestTile(target) : searchTile(target);
+  const inspection = game.inspect(target);
+  if (inspection.campfire !== undefined) {
+    return rekindle(target);
+  }
+  return inspection.search === undefined ? harvestTile(target) : searchTile(target);
 }
 
 /**
@@ -168,6 +178,9 @@ function tileView(tile, game) {
     isActionEnabled: inspection.isInReach,
     warning: inspection.isInReach ? undefined : TEXTS.tooFar,
   };
+  if (inspection.campfire !== undefined) {
+    return campfireView({ ...inspection, campfire: inspection.campfire });
+  }
   if (inspection.search !== undefined) {
     // R-IHM-INS-006 : un élément à fouiller.
     return { title, action: TEXTS.searchAction, button: TEXTS.searchAction, ...reach };

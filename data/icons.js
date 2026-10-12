@@ -53,6 +53,8 @@ export const ICONS = Object.freeze({
   hammer: tool(35, 9),
   experience: misc(6, 14),
   doll: misc(8, 9),
+  // Flamme des feux de camp allumés (R-IHM-NUI-001).
+  flame: misc(6, 8),
 
   // Matériaux.
   log: material(12, 0),

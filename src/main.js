@@ -22,7 +22,11 @@ import { bindKeyboard } from './presentation/input/keyboard.js';
 import { MovementInput } from './presentation/input/MovementInput.js';
 import { CharacterRenderer } from './presentation/renderers/CharacterRenderer.js';
 import { GameInterface } from './presentation/ui/GameInterface.js';
+import { NightRenderer } from './presentation/renderers/NightRenderer.js';
+import { nightView } from './presentation/ui/nightView.js';
 
+/** Minutes de jeu par heure (raccourci de debug « h »). */
+const MINUTES_PER_HOUR = 60;
 const SPEED_FACTOR = 2;
 const MS_PER_SECOND = 1000;
 
@@ -133,11 +137,13 @@ function createInterface(game, renderer) {
  */
 function createLoop(game, renderer, ui) {
   const debugOverlay = isDebugEnabled ? new DebugOverlay() : undefined;
+  const night = new NightRenderer({ doc: document, icons: assets.getImage(ICON_SET.image) });
   const loop = new GameLoop({
     stepMs: MS_PER_SECOND / GAME_PARAMETERS.TICK_RATE,
     update: () => game.update(),
     render: (frameTime) => {
       renderer.render(game.getState());
+      night.render(screen.context, renderer.origin, nightView(game), game.getState().tick);
       ui.render();
       if (debugOverlay !== undefined) {
         debugOverlay.drawWorld(screen.context, game.getState(), game.rules, renderer.origin);
@@ -161,6 +167,10 @@ function enableDebugControls({ game, loop, renderer, ui }) {
     n: () => loop.stepOnce(),
     '+': () => loop.setSpeed(loop.speed * SPEED_FACTOR),
     '-': () => loop.setSpeed(loop.speed / SPEED_FACTOR),
+    // Avance l'horloge d'une heure, pour voir la nuit sans attendre.
+    h: () => {
+      game.getState().clock += MINUTES_PER_HOUR * GAME_PARAMETERS.TICK_PER_GAME_MINUTE;
+    },
   });
   Object.assign(window, { surshim: { game, loop, renderer, ui, parameters: GAME_PARAMETERS } });
 }

@@ -15,6 +15,7 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  * @property {string} resource Ressource obtenue (clé de data/resources.js).
  * @property {number} amount Rendement.
  * @property {string} becomes Type de tuile laissé après la récolte (R-RES-REC-003).
+ * @property {boolean} [regrows] `true` si l'élément repousse (R-RES-REC-005).
  * @property {import('./tools.js').ToolKind} [tool] Sorte d'outil exigée (R-RES-OUT-001) ;
  *   absente, la récolte se fait à la main.
  */
@@ -29,21 +30,25 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  * @property {Readonly<HarvestDefinition>} [harvest] Présent si la tuile est récoltable.
  * @property {Readonly<{ becomes: string }>} [search] Présent si la tuile se fouille
  *   (R-RES-FOU-001) : type de tuile laissé après la fouille (R-RES-FOU-004).
+ * @property {boolean} [canPlace] `true` si l'on peut y poser un objet (R-ART-POS-001).
+ * @property {boolean} [isCampfire] `true` pour un feu de camp posé (R-ART-FEU-001).
  */
 
 /**
  * @param {string} id
  * @param {string} symbol
  * @param {{ isBlocking?: boolean, isStanding?: boolean, harvest?: HarvestDefinition,
- *   search?: { becomes: string } }} [options]
+ *   search?: { becomes: string }, canPlace?: boolean, isCampfire?: boolean }} [options]
  * @returns {Readonly<TileDefinition>}
  */
-function tile(id, symbol, { isBlocking = false, isStanding = false, harvest, search } = {}) {
+function tile(id, symbol, options = {}) {
+  const { isBlocking = false, isStanding = false, harvest, search, ...flags } = options;
   return Object.freeze({
     id,
     symbol,
     isBlocking,
     isStanding,
+    ...flags,
     ...(harvest === undefined ? {} : { harvest: Object.freeze(harvest) }),
     ...(search === undefined ? {} : { search: Object.freeze(search) }),
   });
@@ -54,7 +59,7 @@ const FURNITURE = Object.freeze({ isBlocking: true, isStanding: true });
 
 /** @type {Readonly<Record<string, Readonly<TileDefinition>>>} */
 export const TILE_DEFINITIONS = Object.freeze({
-  grass: tile('grass', '.'),
+  grass: tile('grass', '.', { canPlace: true }),
   flowers: tile('flowers', ',', {
     harvest: {
       action: 'pick',
@@ -63,7 +68,7 @@ export const TILE_DEFINITIONS = Object.freeze({
       becomes: 'grass',
     },
   }),
-  path: tile('path', '='),
+  path: tile('path', '=', { canPlace: true }),
   water: tile('water', '~', { isBlocking: true }),
   tree: tile('tree', 'T', {
     isBlocking: true,
@@ -74,6 +79,7 @@ export const TILE_DEFINITIONS = Object.freeze({
       resource: 'wood',
       amount: GAME_PARAMETERS.TREE_WOOD_YIELD,
       becomes: 'stump',
+      regrows: true,
     },
   }),
   rock: tile('rock', 'o', {
@@ -88,8 +94,10 @@ export const TILE_DEFINITIONS = Object.freeze({
     },
   }),
   stump: tile('stump', 's'),
+  // Objet posé (R-ART-POS-001) : un feu de camp, allumé ou éteint selon l'horloge (R-ART-FEU-001).
+  campfire: tile('campfire', 'F', { isBlocking: true, isCampfire: true }),
   // Ruines (C-MON-07) : un dallage franchissable et des vestiges debout (piliers, gravats).
-  'ruin-floor': tile('ruin-floor', '_'),
+  'ruin-floor': tile('ruin-floor', '_', { canPlace: true }),
   ruin: tile('ruin', '#', { isBlocking: true, isStanding: true }),
   // Éléments à fouiller (R-RES-FOU-001), puis fouillés (R-RES-FOU-004).
   'ruin-bookshelf': tile('ruin-bookshelf', 'B', {

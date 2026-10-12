@@ -1,5 +1,7 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
+import { ticksFor, MINUTES_PER_DAY } from '../systems/time.js';
+import { inspectCampfire } from './campfire.js';
 import { REJECTION_REASONS } from './commands.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
@@ -19,6 +21,8 @@ import { REJECTION_REASONS } from './commands.js';
  *   R-RES-FOU-002).
  * @property {boolean} hasTool `true` si le joueur a l'outil qu'exige la récolte, ou si elle n'en
  *   exige pas (R-RES-OUT-001).
+ * @property {import('./campfire.js').CampfireInspection} [campfire] Présent sur un feu de camp
+ *   (R-IHM-INS-008).
  */
 
 /**
@@ -51,6 +55,9 @@ export function inspectTile(state, rules, { column, row }) {
     search: rules.tiles[tileId]?.search,
     isInReach: distance <= rules.harvestReach, // R-RES-REC-001
     hasTool: hasToolKind(state, rules, harvestDefinition?.tool),
+    ...(rules.tiles[tileId]?.isCampfire
+      ? { campfire: inspectCampfire(state, rules, { column, row }) }
+      : {}),
   };
 }
 
@@ -86,9 +93,15 @@ export function harvest(state, rules, events, tile) {
   if (!inspection.isInReach) {
     return { ok: false, reason: REJECTION_REASONS.OUT_OF_REACH };
   }
-  const { resource, amount, becomes } = inspection.harvest;
+  const { resource, amount, becomes, regrows } = inspection.harvest;
   state.inventory[resource] = (state.inventory[resource] ?? 0) + amount;
   state.map.setTile(tile.column, tile.row, rules.tiles[becomes]);
+  if (regrows && rules.time !== undefined) {
+    // R-RES-REC-005 : la souche redeviendra ce qu'elle était.
+    const days = rules.time.treeRegrowDays * MINUTES_PER_DAY;
+    const at = state.clock + ticksFor(days, rules.time);
+    state.regrowth.push({ ...tile, tile: /** @type {string} */ (inspection.tileId), at });
+  }
   events.emit(GAME_EVENTS.RESOURCE_HARVESTED, {
     ...tile,
     resource,

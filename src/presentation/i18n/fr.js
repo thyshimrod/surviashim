@@ -27,6 +27,7 @@ export const TEXTS = Object.freeze({
     'ruin-chest-open': 'Coffre ouvert',
     'ruin-crate': 'Caisse',
     'ruin-crate-empty': 'Caisse vide',
+    campfire: 'Feu de camp',
   }),
   /** Verbe de chaque action de récolte. */
   harvestActions: Object.freeze({ cut: 'Couper', mine: 'Piocher', pick: 'Ramasser' }),
@@ -51,6 +52,16 @@ export const TEXTS = Object.freeze({
   harvestButton: 'Récolter',
   closeButton: 'Fermer',
   tooFar: 'Trop loin : approchez-vous',
+  // Feu de camp (R-IHM-INS-008).
+  campfireLit: (/** @type {number} */ hours) => 'Allumé, encore ' + hours + ' h',
+  campfireOut: 'Éteint',
+  rekindleButton: 'Raviver : 1 bois',
+  woodNeeded: 'Il faut 1 bois',
+  // Objets à poser (R-IHM-INV-001).
+  placeButton: 'Poser',
+  placeableCount: (/** @type {string} */ name, /** @type {number} */ count) => name + ' ×' + count,
+  // Horloge (R-IHM-HOR-001).
+  clock: (/** @type {number} */ day, /** @type {string} */ time) => 'Jour ' + day + ' · ' + time,
   /** Outil manquant, par sorte d'outil (R-IHM-INS-007). */
   toolNeeded: Object.freeze({ axe: 'Il faut une hache', pickaxe: 'Il faut une pioche' }),
   /** Nom des outils (data/tools.js). */
@@ -74,11 +85,6 @@ export const TEXTS = Object.freeze({
   alreadyOwned: 'Déjà possédé',
   missingIngredients: (/** @type {string} */ list) => 'Il manque : ' + list,
   crafted: (/** @type {string} */ name) => 'Fabriqué : ' + name,
-  /** Pourquoi un plan connu ne se fabrique pas encore (R-IHM-ART-001). */
-  notCraftable: Object.freeze({
-    campfire: 'Pas encore fabricable : arrive avec le cycle jour / nuit',
-  }),
-  notCraftableYet: 'Pas encore fabricable',
   /** Nom des objets (data/items.js) : avec majuscule, et dans une phrase. */
   itemNames: Object.freeze({
     'blue-doll': Object.freeze({

@@ -11,7 +11,9 @@ RPG 2D en pixel art, vu de dessus : on rebâtit un village dans une vallée enva
 
 ## État
 
-**v0.6 (en cours) : la première quête.** Une barre d'actions verticale, à gauche, ouvre l'inventaire, l'artisanat et le journal (le survol indique le nom et la touche). Maëlle confie une quête : retrouver la poupée de chiffon bleue de sa fille, cachée dans un coffre du Hameau abandonné. On la lui rend avec le bouton « Donner » de sa fenêtre d'information ; elle remercie et la quête rapporte 50 points d'expérience, affichés en fin de bandeau. Le journal suit les quêtes.
+**v0.7 (en cours) : le temps passe.** Une horloge tourne en bout de bandeau (« Jour 1 · 6:00 ») : de 6:00 à 2:00, une journée dure 12 minutes réelles. Le soir, la lumière baisse ; la nuit, on ne voit qu'autour du héros et des feux. Le feu de camp (3 pierres + 2 bois, appris dans le *Carnet du guetteur*) se pose devant le héros depuis l'inventaire ; il brûle 10 heures de jeu et se ravive avec 1 bois. Les arbres coupés repoussent en 3 jours.
+
+**v0.6 (livrée) : la première quête.** Une barre d'actions verticale, à gauche, ouvre l'inventaire, l'artisanat et le journal (le survol indique le nom et la touche). Maëlle confie une quête : retrouver la poupée de chiffon bleue de sa fille, cachée dans un coffre du Hameau abandonné. On la lui rend avec le bouton « Donner » de sa fenêtre d'information ; elle remercie et la quête rapporte 50 points d'expérience, affichés en fin de bandeau. Le journal suit les quêtes.
 
 **v0.5 (livrée) : premier artisanat.** Au départ, on ne peut que ramasser : couper un arbre demande une hache, piocher un rocher une pioche. Dans les Ruines du Guet, on trouve le livre « Le Tailleur de silex » et de quoi fabriquer ces deux outils. La fenêtre d'inventaire (touche I) montre les ressources, les outils et les livres ; « Lire » ouvre un livre et en apprend les recettes. La fenêtre d'artisanat (touche C) liste les recettes connues et fabrique les outils. Les fenêtres s'ouvrent au milieu de l'écran, une à la fois.
 
@@ -58,6 +60,7 @@ Ouvrir <http://localhost:8081/index.html?debug=1> : panneau (FPS, tick, position
 |---|---|
 | `P` | Pause / reprise |
 | `N` | En pause : avance d'un tick |
+| `H` | Avance l'horloge d'une heure (pour voir la nuit) |
 | `+` / `-` | Vitesse ×2 / ÷2 |
 
 Catalogue des sprites (toutes les planches), des icônes nommées et des personnages : <http://localhost:8081/tools/catalog/>.

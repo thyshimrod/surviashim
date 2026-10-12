@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.6** | 2026-10-12 | Validée — prête pour l'implémentation |
+| **v0.7** | 2026-10-12 | Validée — prête pour l'implémentation |
 
 La vision du jeu et ses concepts sont décrits dans la [spécification globale](GAME_DESIGN.md). Ce document-ci contient les **règles précises et testables**, version par version.
 
@@ -217,6 +217,11 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 | **Outil** | Objet qui permet une action de récolte : la **hache** pour couper, la **pioche** pour piocher. Le joueur en possède au plus un de chaque (R-INV-OUT-001). |
 | **Fabriquer** | Transformer des ingrédients en objet, à la main, en suivant une recette connue (R-ART-FAB-001). |
 | **Fenêtre d'information** | Fenêtre qui décrit l'élément désigné et permet de le récolter (R-IHM-INS-002). |
+| **Horloge** | Jour et heure du monde, en minutes de jeu (R-MON-TPS-001). Une partie commence le jour 1 à 6:00. |
+| **Obscurité** | Opacité du voile de nuit, de 0 (plein jour) à `NIGHT_DARKNESS` (R-MON-TPS-002). |
+| **Objet à poser** | Objet fabriqué qu'on garde dans l'inventaire puis qu'on pose sur la tuile devant le héros : le feu de camp (R-ART-POS-001). |
+| **Feu de camp** | Objet posé qui éclaire la nuit tant qu'il brûle ; il s'éteint au bout de `CAMPFIRE_BURN_MINUTES` minutes de jeu et se ravive avec du bois (R-ART-FEU-001). |
+| **Tuile devant le joueur** | Tuile voisine de celle qui contient sa position, dans la direction de son orientation. |
 | **Barre d'actions** | Colonne d'icônes à gauche de l'écran qui ouvrent les fenêtres d'inventaire, d'artisanat et le journal (R-IHM-BAR-001). |
 | **Quête** | Demande d'un PNJ, confiée par une page de son dialogue : rapporter un objet. Elle est **en cours**, puis **terminée** quand on lui a donné l'objet (R-PNJ-QUE-001, 002). |
 | **Objet** | Chose unique que possède le joueur, comme la poupée de chiffon bleue ; on la trouve en fouillant et on peut la donner (R-INV-OBJ-001). |
@@ -231,7 +236,7 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 
 - Toutes les vitesses et durées sont exprimées **en ticks** ([décision 0002](decisions/0002-temps-en-ticks.md)).
 - `TICK_RATE` = 60 : 1 seconde de jeu = 60 ticks.
-- L'heure **du monde** (matin, nuit…) sera dérivée du nombre de ticks écoulés (concept C-MON-02, à venir).
+- L'heure **du monde** avance d'une minute de jeu tous les `TICK_PER_GAME_MINUTE` ticks (R-MON-TPS-001) : de 6:00 à 2:00, une journée dure 12 minutes réelles. Une **minute de jeu** sert d'unité aux durées du monde (feu de camp, repousse) ; un **jour** dure 1 440 minutes de jeu, de 0:00 à 23:59.
 
 ## B.3 Repère, unités et tuiles
 
@@ -244,7 +249,7 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 
 ## B.4 Ordre d'exécution d'un tick
 
-Un tick exécute, dans l'ordre : 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003).
+Un tick exécute, dans l'ordre : 0. l'avance de l'horloge (R-MON-TPS-001) ; 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003) ; 3. la repousse des arbres (R-RES-REC-005). Un feu de camp s'éteint de lui-même quand l'horloge atteint sa fin de combustion (R-ART-FEU-001).
 
 ## B.5 Commandes du joueur
 
@@ -259,8 +264,10 @@ Les commandes sont traitées immédiatement, entre deux ticks.
 | Page suivante | Passe à la page suivante du dialogue, ou le termine après la dernière (R-PNJ-DIA-002) | `NO_DIALOGUE` : aucun dialogue en cours |
 | Terminer le dialogue | Termine le dialogue (R-PNJ-DIA-002) | `NO_DIALOGUE` : aucun dialogue en cours |
 | Donner à un PNJ | Donne l'objet d'une quête en cours (R-PNJ-QUE-002) | `NOBODY_TO_TALK_TO` : ce PNJ n'existe pas ; `ALREADY_TALKING` : un dialogue est en cours ; `OUT_OF_REACH` : le PNJ est trop loin ; `NOTHING_TO_GIVE` : aucune quête en cours de ce PNJ dont le joueur a l'objet |
+| Poser un objet | Pose un objet de l'inventaire sur la tuile devant le joueur (R-ART-POS-001) | `NOTHING_TO_PLACE` : le joueur n'en a pas ; `CANNOT_PLACE` : la tuile devant lui ne l'accepte pas |
+| Raviver un feu | Rallume un feu de camp avec du bois (R-ART-FEU-001) | `NOTHING_TO_REKINDLE` : la tuile n'est pas un feu de camp ; `MISSING_INGREDIENTS` : pas assez de bois ; `OUT_OF_REACH` : le feu est hors de portée |
 | Lire un livre | Apprend les plans du livre (R-INV-LIV-002) | `BOOK_NOT_OWNED` : le livre n'est pas dans la bibliothèque |
-| Fabriquer | Fabrique l'objet d'une recette (R-ART-FAB-001, 002) | `UNKNOWN_RECIPE` : la recette n'existe pas ou n'a pas été apprise ; `ALREADY_OWNED` : l'outil est déjà possédé ; `MISSING_INGREDIENTS` : il manque des ingrédients |
+| Fabriquer | Fabrique l'objet d'une recette (R-ART-FAB-001, 002) | `UNKNOWN_RECIPE` : la recette n'existe pas ou n'a pas été apprise ; `ALREADY_OWNED` : l'outil est déjà possédé (un objet à poser se fabrique autant de fois qu'on veut) ; `MISSING_INGREDIENTS` : il manque des ingrédients |
 
 ## B.6 La vallée (v0.3)
 
@@ -304,7 +311,7 @@ Contenu défini dans `data/tools.js`, `data/recipes.js` et `data/books.js` (noms
 |---|---|---|---|---|
 | Hache en silex | hache | couper un arbre | 1 silex, 2 branches, 1 fibre | « Le Tailleur de silex » |
 | Pioche en silex | pioche | piocher un rocher | 1 silex, 2 branches, 1 fibre | « Le Tailleur de silex » |
-| Feu de camp | — | — | pas encore de recette : il faudra pouvoir le poser (concept C-ART-05, v0.6) | « Carnet du guetteur » |
+| Feu de camp | — (objet à poser) | éclairer la nuit (R-ART-FEU-001) | 3 pierres, 2 bois (v0.7) | « Carnet du guetteur » |
 
 **Convention des exemples** — Dans les exemples des règles de récolte (R-RES-REC-001 à 004, R-IHM-INS-003), le joueur possède la hache et la pioche, sauf mention contraire.
 
@@ -344,6 +351,17 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | `TALK_REACH` | 64 | px (2 tuiles) | EN VIGUEUR | v0.3 | R-PNJ-DIA-001, R-IHM-INS-005 |
 | `NOTIFICATION_TICKS` | 240 | ticks (= 4 s) | EN VIGUEUR | v0.3 | R-IHM-NOT-001, R-IHM-NOT-002 |
 | `SEARCH_MAX_BOOKS` | 2 | livres par cachette | EN VIGUEUR | v0.4 | R-RES-FOU-003 |
+| `TICK_PER_GAME_MINUTE` | 36 | ticks par minute de jeu (= 0,6 s) | NOUVEAU | v0.7 | B.2, R-MON-TPS-001 — 20 h de jeu (6:00 → 2:00) en 12 minutes réelles |
+| `DAY_START` | 360 | minute du jour (= 6:00) | NOUVEAU | v0.7 | R-MON-TPS-001, R-MON-TPS-002 — début d'une partie, fin de l'aube |
+| `DUSK_START` | 1080 | minute du jour (= 18:00) | NOUVEAU | v0.7 | R-MON-TPS-002 |
+| `NIGHT_START` | 1260 | minute du jour (= 21:00) | NOUVEAU | v0.7 | R-MON-TPS-002 |
+| `DAWN_START` | 240 | minute du jour (= 4:00) | NOUVEAU | v0.7 | R-MON-TPS-002 |
+| `NIGHT_DARKNESS` | 0.8 | opacité du voile (0 à 1) | NOUVEAU | v0.7 | R-MON-TPS-002, R-IHM-NUI-001 |
+| `HERO_LIGHT_RADIUS` | 96 | px (3 tuiles) | NOUVEAU | v0.7 | R-IHM-NUI-001 |
+| `CAMPFIRE_LIGHT_RADIUS` | 192 | px (6 tuiles) | NOUVEAU | v0.7 | R-IHM-NUI-001 |
+| `CAMPFIRE_BURN_MINUTES` | 600 | minutes de jeu (= 10 h, 6 minutes réelles) | NOUVEAU | v0.7 | R-ART-FEU-001 |
+| `CAMPFIRE_REKINDLE_WOOD` | 1 | bois | NOUVEAU | v0.7 | R-ART-FEU-001, R-IHM-INS-008 |
+| `TREE_REGROW_DAYS` | 3 | jours de jeu (= 4 320 minutes de jeu) | NOUVEAU | v0.7 | R-RES-REC-005 |
 
 ---
 
@@ -444,7 +462,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — Le joueur a un compteur d'expérience, à 0 au début d'une nouvelle partie. Terminer une quête y ajoute sa récompense (R-PNJ-QUE-002).
 
@@ -613,7 +631,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — À la fin de chaque tick, un lieu déjà découvert qui contient la position du joueur, alors qu'il ne la contenait pas au tick précédent, est annoncé (le joueur y revient). Un lieu découvert pendant ce tick n'est pas annoncé une seconde fois.
 
@@ -628,6 +646,50 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-MON-06. Retour de test : on aime retrouver le nom du lieu où l'on arrive. Ordre du tick : B.4, après la découverte.
 
 **Historique** — v0.6 : création.
+
+### 2.4 TPS — Temps
+
+#### R-MON-TPS-001 · Horloge du monde
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | `TICK_PER_GAME_MINUTE`, `DAY_START` |
+
+**Règle** — Une partie commence le jour 1 à `DAY_START` (6:00). L'horloge avance d'une minute de jeu tous les `TICK_PER_GAME_MINUTE` ticks. Après 23:59 vient 0:00 du jour suivant.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | — | une nouvelle partie commence | l'horloge indique le jour 1, 6:00 |
+| 2 | 36 ticks par minute, le jour 1 à 6:00 | 36 ticks s'écoulent | l'horloge indique 6:01 |
+| 3 | le jour 1 à 23:59 | 36 ticks s'écoulent | l'horloge indique le jour 2, 0:00 |
+| 4 | le jour 1 à 6:00 | 43 200 ticks (12 minutes réelles) s'écoulent | l'horloge indique le jour 2, 2:00 |
+
+**Notes** — Concept C-MON-02. Sans sommeil (v0.8), l'horloge tourne en continu.
+
+**Historique** — v0.7 : création.
+
+#### R-MON-TPS-002 · Obscurité
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | `DAY_START`, `DUSK_START`, `NIGHT_START`, `DAWN_START`, `NIGHT_DARKNESS` |
+
+**Règle** — L'obscurité vaut 0 de `DAY_START` (6:00) à `DUSK_START` (18:00), croît linéairement jusqu'à `NIGHT_DARKNESS` à `NIGHT_START` (21:00), y reste jusqu'à `DAWN_START` (4:00), puis décroît linéairement jusqu'à 0 à `DAY_START`.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | — | il est 12:00 | l'obscurité vaut 0 |
+| 2 | `NIGHT_DARKNESS` = 0,8 | il est 19:30 | l'obscurité vaut 0,4 |
+| 3 | idem | il est 23:00 | l'obscurité vaut 0,8 |
+| 4 | idem | il est 5:00 | l'obscurité vaut 0,4 |
+
+**Notes** — Concepts C-MON-02, C-MON-11. Pour l'instant la nuit ne fait que réduire la vue (R-IHM-NUI-001).
+
+**Historique** — v0.7 : création.
 
 ## 3. IHM — Interface joueur
 
@@ -863,7 +925,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | `TALK_REACH` |
+| EN VIGUEUR | v0.6 | `TALK_REACH` |
 
 **Règle** — Un clic sur le sprite d'un PNJ le désigne, en priorité sur le décor. La fenêtre d'information affiche alors son nom, l'action « Parler » et un bouton « Parler », actif si le PNJ est à portée de parole (R-PNJ-DIA-001), inactif sinon avec « Trop loin : approchez-vous ». Un clic sur le bouton actif commence le dialogue et ferme la fenêtre. Si le joueur peut donner à ce PNJ l'objet d'une quête (R-PNJ-QUE-002), la fenêtre affiche en plus « Donner : <objet> » et un bouton « Donner », actif dans les mêmes conditions ; un clic sur ce bouton donne l'objet et ferme la fenêtre.
 
@@ -925,6 +987,26 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Historique** — v0.5 : création.
 
+#### R-IHM-INS-008 · Désigner un feu de camp
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH` |
+
+**Règle** — Désigner un feu de camp ouvre la fenêtre d'information : « Feu de camp », son état (« Allumé, encore <h> h » en heures entières arrondies au-dessus, ou « Éteint ») et un bouton « Raviver : 1 bois ». Le bouton est actif si le joueur a assez de bois et que le feu est à portée ; sinon il est inactif avec « Il faut 1 bois » (en priorité) ou « Trop loin : approchez-vous ». Un clic sur le bouton actif ravive le feu (R-ART-FEU-001) ; la fenêtre reste ouverte.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | un feu allumé il y a 2 h (8 h restantes), 3 bois, à portée | on le désigne | « Feu de camp », « Allumé, encore 8 h », bouton « Raviver : 1 bois » actif |
+| 2 | un feu éteint, 0 bois, à portée | on le désigne | « Éteint », bouton inactif, « Il faut 1 bois » |
+| 3 | un feu éteint, 1 bois, à portée | clic sur « Raviver : 1 bois » | le feu est allumé, « Allumé, encore 10 h », 0 bois |
+
+**Notes** — Concepts C-IHM-05, C-ART-05.
+
+**Historique** — v0.7 : création.
+
 ### 3.6 HUD — Bandeau d'informations
 
 #### R-IHM-HUD-001 · Affichage de l'inventaire
@@ -950,7 +1032,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — À la fin du bandeau d'inventaire, l'expérience est affichée en permanence avec son icône : « Expérience <points> ».
 
@@ -964,6 +1046,47 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concepts C-JOU-09, C-IHM-06.
 
 **Historique** — v0.6 : création.
+
+#### R-IHM-HOR-001 · Horloge au bandeau
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | — |
+
+**Règle** — Au bout du bandeau d'inventaire, l'horloge affiche le jour et l'heure, les minutes arrondies à la dizaine inférieure : « Jour <n> · <h>:<mm> ».
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | une nouvelle partie | l'écran est affiché | « Jour 1 · 6:00 » |
+| 2 | le jour 1 à 6:07 | l'écran est affiché | « Jour 1 · 6:00 » |
+| 3 | le jour 2 à 14:35 | l'écran est affiché | « Jour 2 · 14:30 » |
+
+**Notes** — Concepts C-IHM-14, C-MON-02. Par tranches de 10 minutes, comme dans *Stardew Valley*.
+
+**Historique** — v0.7 : création.
+
+#### R-IHM-NUI-001 · La nuit à l'écran
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | `NIGHT_DARKNESS`, `HERO_LIGHT_RADIUS`, `CAMPFIRE_LIGHT_RADIUS` |
+
+**Règle** — Un voile sombre, d'opacité égale à l'obscurité (R-MON-TPS-002), couvre la vue, sauf des halos de lumière : un halo de rayon `HERO_LIGHT_RADIUS` autour du héros, et un halo de rayon `CAMPFIRE_LIGHT_RADIUS` autour de chaque feu de camp allumé (centre de sa tuile).
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | il est 12:00 | l'écran est affiché | pas de voile (opacité 0) |
+| 2 | il est 23:00, aucun feu | l'écran est affiché | voile d'opacité 0,8, un seul halo, de 96 px autour du héros |
+| 3 | il est 23:00, le héros en (336, 336), un feu de camp allumé sur la tuile (11, 10) | l'écran est affiché | deux halos : 96 px autour du héros, 192 px autour de (368, 336), centre du feu |
+| 4 | il est 23:00, un feu de camp éteint | l'écran est affiché | un seul halo, autour du héros |
+
+**Notes** — Concepts C-MON-11, C-ART-05. Les flammes d'un feu allumé sont animées.
+
+**Historique** — v0.7 : création.
 
 ### 3.7 DIA — Dialogues
 
@@ -994,7 +1117,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — La touche J ouvre et ferme le journal ; un bouton × le ferme aussi. Il liste, dans l'ordre où ils y sont entrés, les lieux découverts (nom et « Découvert ») et les indices (nom, « Indice d'<PNJ> » et le texte de la page qui l'a donné). Un journal vide affiche « Aucun lieu pour l'instant. »
 
@@ -1015,7 +1138,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — Le journal a une partie « Quêtes » : pour chaque quête reçue, dans l'ordre, son titre, son état (« En cours » ou « Terminée ») et sa description. Sans quête, elle affiche « Aucune quête pour l'instant. »
 
@@ -1037,7 +1160,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
+| EN VIGUEUR | v0.6 | `NOTIFICATION_TICKS` |
 
 **Règle** — Les notifications s'affichent au-dessus du héros, au milieu de l'écran, chacune avec un bouton × qui la ferme. Découvrir un lieu affiche « Lieu découvert : <nom> » ; revenir dans un lieu (R-MON-LIE-003) affiche son nom ; recevoir un indice affiche « Nouvel indice : <nom> ». Chaque notification reste affichée `NOTIFICATION_TICKS` ticks, sauf celles des quêtes (R-IHM-NOT-003), qui restent jusqu'à ce qu'on les ferme. Plusieurs notifications s'empilent, la plus récente en bas, près du héros.
 
@@ -1059,7 +1182,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
+| EN VIGUEUR | v0.6 | `NOTIFICATION_TICKS` |
 
 **Règle** — Après une fouille, une seule notification liste tout ce qui a été trouvé : les livres (« livre « <titre> » »), puis les objets, puis les matériaux dans l'ordre de l'inventaire (« Trouvé : poupée de chiffon bleue, 2 silex, 1 branche »). Une fouille qui ne rapporte rien affiche « Rien d'intéressant. »
 
@@ -1080,7 +1203,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | `NOTIFICATION_TICKS` |
+| EN VIGUEUR | v0.6 | `NOTIFICATION_TICKS` |
 
 **Règle** — Recevoir une quête affiche « Nouvelle quête : <titre> ». La terminer affiche « Quête terminée : <titre> » puis « +<points> expérience ». Ces notifications restent affichées jusqu'à ce qu'on les ferme (R-IHM-NOT-001).
 
@@ -1113,7 +1236,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — À gauche de l'écran, sous le bandeau d'inventaire, une barre verticale d'icônes ouvre et ferme les fenêtres : « Inventaire » (sac), « Artisanat » (marteau) et « Journal » (livre ouvert). Survoler une icône affiche son nom et sa touche : « Inventaire (I) », « Artisanat (C) », « Journal (J) ». Un clic fait comme la touche. L'icône d'une fenêtre ouverte est mise en valeur. Les touches restent actives.
 
@@ -1136,7 +1259,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — Les fenêtres d'information, d'inventaire, de lecture, d'artisanat et le journal s'affichent au milieu de l'écran. Une seule de ces fenêtres est ouverte à la fois : en ouvrir une ferme celle qui l'était. La touche Échap ou le bouton × ferment la fenêtre ouverte.
 
@@ -1161,9 +1284,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | — |
+| MODIFIÉ | v0.7 | — |
 
-**Règle** — La touche I ouvre et ferme la fenêtre d'inventaire. Elle a trois parties : « Ressources » (chaque ressource avec son icône et sa quantité, dans l'ordre du bandeau), « Outils » (les outils possédés, avec icône et nom, ou « Aucun outil. ») « Livres » (les livres de la bibliothèque, avec icône, titre et un bouton « Lire », ou « Aucun livre pour l'instant. ») et « Objets » (les objets possédés, avec icône et nom, ou « Aucun objet. »). Elle s'ouvre aussi par la barre d'actions (R-IHM-BAR-001).
+**Règle** — La touche I ouvre et ferme la fenêtre d'inventaire. Elle a trois parties : « Ressources » (chaque ressource avec son icône et sa quantité, dans l'ordre du bandeau), « Outils » (les outils possédés, avec icône et nom, ou « Aucun outil. ») « Livres » (les livres de la bibliothèque, avec icône, titre et un bouton « Lire », ou « Aucun livre pour l'instant. ») et « Objets » (les objets possédés, avec icône et nom, puis les objets à poser, avec icône, nom, quantité « ×<n> » et un bouton « Poser » ; ou « Aucun objet. »). Un clic sur « Poser » pose l'objet (R-ART-POS-001) et ferme la fenêtre s'il a été posé. Elle s'ouvre aussi par la barre d'actions (R-IHM-BAR-001).
 
 **Exemples**
 
@@ -1174,10 +1297,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 3 | le livre « Le Tailleur de silex » trouvé | la fenêtre est ouverte | « Livres » affiche « Le Tailleur de silex » avec un bouton « Lire » |
 | 4 | la fenêtre ouverte | touche I | la fenêtre est fermée |
 | 5 | la poupée de chiffon bleue possédée | la fenêtre est ouverte | « Objets » affiche « Poupée de chiffon bleue » |
+| 6 | 2 feux de camp à poser | la fenêtre est ouverte | « Objets » affiche « Feu de camp ×2 » avec un bouton « Poser » |
+| 7 | 1 feu de camp, de l'herbe devant le joueur | clic sur « Poser » | le feu est posé, la fenêtre est fermée |
 
 **Notes** — Concepts C-INV-03, C-IHM-11, C-IHM-12. Pas de limite de place pour l'instant (C-INV-01).
 
-**Historique** — v0.5 : création. v0.6 : partie « Objets » ajoutée (objets de quête).
+**Historique** — v0.5 : création. v0.6 : partie « Objets » ajoutée (objets de quête). v0.7 : objets à poser, avec « Poser ».
 
 ### 3.12 LIV — Lecture
 
@@ -1207,9 +1332,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
+| MODIFIÉ | v0.7 | `NOTIFICATION_TICKS` |
 
-**Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet ; pour celles qui ont une recette définie (B.8), ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Une recette connue sans recette définie a son bouton inactif et affiche pourquoi : pour le feu de camp, « Pas encore fabricable : arrive avec le cycle jour / nuit ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients : la fenêtre dit alors lesquels, dans l'ordre de la recette (« Il manque : 1 branche, 1 fibre »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
+**Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet, ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients : la fenêtre dit alors lesquels, dans l'ordre de la recette (« Il manque : 1 branche, 1 fibre »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
 
 **Exemples**
 
@@ -1219,11 +1344,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 2 | la recette de la hache connue ; 2 silex, 1 branche, 1 fibre | la fenêtre est ouverte | « Hache en silex », « Silex 2/1 · Branches 1/2 · Fibres 1/1 », bouton inactif, « Il manque : 1 branche » |
 | 3 | la recette de la hache connue ; 1 silex, 2 branches, 1 fibre | clic sur « Fabriquer » | le joueur possède la hache en silex ; notification « Fabriqué : hache en silex » |
 | 4 | la recette de la hache connue, la hache possédée | la fenêtre est ouverte | bouton inactif, « Déjà possédé » |
-| 5 | seul le plan « feu de camp » connu | la fenêtre est ouverte | « Feu de camp », bouton inactif, « Pas encore fabricable : arrive avec le cycle jour / nuit » |
+| 5 | le plan « feu de camp » connu ; 3 pierres, 2 bois | la fenêtre est ouverte | « Feu de camp », « Pierre 3/3 · Bois 2/2 », bouton actif |
 
 **Notes** — Concepts C-ART-04, C-ART-06, C-IHM-12. Un bouton inactif dit toujours pourquoi ; les conditions à venir (établi, lieu, niveau d'expérience) s'afficheront de la même façon.
 
-**Historique** — v0.5 : création. v0.6 : « Il manque des matériaux » → la liste de ce qui manque (retour de test : la raison n'était pas claire). Et : un plan connu sans recette (feu de camp) était masqué, ce qui faisait croire que la lecture n'avait rien appris → il est affiché, inactif, avec « Pas encore fabricable ».
+**Historique** — v0.5 : création. v0.6 : « Il manque des matériaux » → la liste de ce qui manque (retour de test : la raison n'était pas claire). Et : un plan connu sans recette (feu de camp) était masqué, ce qui faisait croire que la lecture n'avait rien appris → il est affiché, inactif, avec « Pas encore fabricable ». v0.7 : le feu de camp a sa recette ; le cas « plan sans recette » disparaît.
 
 ## 4. RES — Ressources et récolte
 
@@ -1311,7 +1436,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 3 | des fleurs à portée | le joueur les récolte | la tuile est de l'herbe |
 | 4 | une souche à portée | le joueur la récolte | la récolte est refusée (`NOTHING_TO_HARVEST`) |
 
-**Notes** — Concept C-RES-04. La repousse des arbres depuis leur souche est une question ouverte (Q14).
+**Notes** — Concept C-RES-04. La souche redevient un arbre au bout de quelques jours (R-RES-REC-005).
 
 **Historique** — v0.2 : création.
 
@@ -1361,6 +1486,26 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Historique** — v0.5 : création.
 
+#### R-RES-REC-005 · Repousse des arbres
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | `TREE_REGROW_DAYS` |
+
+**Règle** — Un arbre coupé repousse : `TREE_REGROW_DAYS` jours de jeu après la coupe (même heure), sa souche redevient un arbre, sauf si le joueur ou un PNJ se tient dessus ; elle repousse alors dès que la tuile est libre.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | 3 jours de repousse, un arbre coupé le jour 1 à 10:00 | l'horloge atteint le jour 4 à 9:59 | la tuile est toujours une souche |
+| 2 | idem | l'horloge atteint le jour 4 à 10:00 | la tuile est de nouveau un arbre |
+| 3 | idem, le joueur debout sur la souche le jour 4 à 10:00 | il en descend | la souche redevient un arbre au tick suivant |
+
+**Notes** — Concepts C-RES-07, C-RES-02. Les rochers ne réapparaissent pas encore.
+
+**Historique** — v0.7 : création.
+
 ### 4.3 FOU — Fouille
 
 #### R-RES-FOU-001 · Éléments à fouiller
@@ -1407,7 +1552,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.6 | `SEARCH_MAX_BOOKS` |
+| EN VIGUEUR | v0.6 | `SEARCH_MAX_BOOKS` |
 
 **Règle** — Une fouille acceptée rapporte le contenu défini pour cet emplacement : au plus `SEARCH_MAX_BOOKS` livres, ajoutés à la bibliothèque du joueur, des objets (R-INV-OBJ-001), et des matériaux, ajoutés à l'inventaire. Un emplacement sans contenu défini ne rapporte rien. Un livre déjà possédé n'est pas ajouté une seconde fois.
 
@@ -1506,7 +1651,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 4 | une bibliothèque vide | le joueur lit « Le Tailleur de silex » | refus `BOOK_NOT_OWNED` ; aucune recette connue |
 | 5 | « Carnet du guetteur » dans la bibliothèque | le joueur le lit | « feu de camp » est une recette connue |
 
-**Notes** — Concepts C-TEC-06, C-TEC-07. Tous les livres de la v0.5 sont des livres de survie. Le feu de camp est connu mais pas encore fabricable (B.8).
+**Notes** — Concepts C-TEC-06, C-TEC-07. Tous les livres de la v0.5 sont des livres de survie. Le feu de camp se fabrique depuis la v0.7 (B.8).
 
 **Historique** — v0.5 : création.
 
@@ -1537,7 +1682,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — Le joueur possède des objets, chacun au plus une fois, dans l'ordre où il les a trouvés. Une nouvelle partie commence sans objet. Donner un objet le retire (R-PNJ-QUE-002).
 
@@ -1551,6 +1696,27 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concepts C-INV-03, C-VIL-09.
 
 **Historique** — v0.6 : création.
+
+### 5.5 POS — Objets à poser
+
+#### R-INV-POS-001 · Objets à poser
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | — |
+
+**Règle** — L'inventaire compte les objets à poser de chaque sorte (le feu de camp). Une nouvelle partie commence sans objet à poser. Fabriquer en ajoute un (R-ART-FAB-001), en poser un le retire (R-ART-POS-001).
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | — | une nouvelle partie commence | aucun objet à poser |
+| 2 | 2 feux de camp à poser, de l'herbe devant le joueur | il en pose un | il reste 1 feu de camp à poser |
+
+**Notes** — Concepts C-ART-07, C-INV-03.
+
+**Historique** — v0.7 : création.
 
 ## 6. PNJ — Personnages non joueurs
 
@@ -1687,7 +1853,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — Quand une page qui confie une quête devient la page en cours, la quête entre au journal « en cours », sauf si elle y figure déjà.
 
@@ -1707,7 +1873,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | `TALK_REACH` |
+| EN VIGUEUR | v0.6 | `TALK_REACH` |
 
 **Règle** — Donner à un PNJ l'objet d'une quête en cours qu'il a confiée retire l'objet, termine la quête, ajoute sa récompense à l'expérience et commence un dialogue de remerciement. Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOBODY_TO_TALK_TO` (ce PNJ n'existe pas), `ALREADY_TALKING` (un dialogue est en cours), `OUT_OF_REACH` (le PNJ est à plus de `TALK_REACH`), `NOTHING_TO_GIVE` (aucune quête en cours de ce PNJ dont le joueur a l'objet).
 
@@ -1729,7 +1895,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| NOUVEAU | v0.6 | — |
+| EN VIGUEUR | v0.6 | — |
 
 **Règle** — Une fois une quête terminée, le PNJ qui l'a confiée ne dit plus la page qui la confiait ; il dit à sa place sa page « après la quête ». Tant que la quête n'est pas terminée, cette page n'est pas dite.
 
@@ -1752,9 +1918,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.5 | — |
+| MODIFIÉ | v0.7 | — |
 
-**Règle** — Fabriquer une recette connue retire ses ingrédients de l'inventaire et donne l'objet au joueur (B.8). La fabrication est immédiate, à la main, n'importe où.
+**Règle** — Fabriquer une recette connue retire ses ingrédients de l'inventaire et donne l'objet au joueur (B.8) : un outil, ou un objet à poser, ajouté aux objets à poser de l'inventaire (R-INV-POS-001). La fabrication est immédiate, à la main, n'importe où.
 
 **Exemples**
 
@@ -1762,18 +1928,19 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|---|
 | 1 | la recette de la hache connue ; 2 silex, 3 branches, 1 fibre | le joueur fabrique la hache en silex | l'inventaire contient 1 silex, 1 branche, 0 fibre ; le joueur possède la hache en silex |
 | 2 | la recette de la pioche connue ; 1 silex, 2 branches, 1 fibre | le joueur fabrique la pioche en silex | l'inventaire contient 0 silex, 0 branche, 0 fibre ; le joueur possède la pioche en silex |
+| 3 | la recette du feu de camp connue ; 3 pierres, 3 bois, 1 feu de camp à poser | le joueur fabrique le feu de camp | 0 pierre, 1 bois ; 2 feux de camp à poser |
 
 **Notes** — Concept C-ART-04. Sans établi ni durée pour ce premier artisanat (C-ART-01 viendra avec la construction).
 
-**Historique** — v0.5 : création.
+**Historique** — v0.5 : création. v0.7 : les recettes peuvent donner un objet à poser (le feu de camp).
 
 #### R-ART-FAB-002 · Refus d'une fabrication
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.5 | — |
+| MODIFIÉ | v0.7 | — |
 
-**Règle** — Une fabrication refusée n'a aucun effet. Le motif est le premier qui s'applique, dans l'ordre : `UNKNOWN_RECIPE` (la recette n'existe pas ou n'a pas été apprise), puis `ALREADY_OWNED` (l'outil est déjà possédé), puis `MISSING_INGREDIENTS` (il manque au moins un ingrédient).
+**Règle** — Une fabrication refusée n'a aucun effet. Le motif est le premier qui s'applique, dans l'ordre : `UNKNOWN_RECIPE` (la recette n'existe pas ou n'a pas été apprise), puis `ALREADY_OWNED` (l'outil est déjà possédé ; jamais pour un objet à poser), puis `MISSING_INGREDIENTS` (il manque au moins un ingrédient).
 
 **Exemples**
 
@@ -1782,13 +1949,60 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | aucune recette connue ; 1 silex, 2 branches, 1 fibre | le joueur fabrique la hache en silex | refus `UNKNOWN_RECIPE` ; l'inventaire est inchangé |
 | 2 | la recette de la hache connue, la hache possédée ; 1 silex, 2 branches, 1 fibre | le joueur fabrique la hache en silex | refus `ALREADY_OWNED` ; l'inventaire est inchangé |
 | 3 | la recette de la hache connue ; 1 silex, 1 branche, 1 fibre | le joueur fabrique la hache en silex | refus `MISSING_INGREDIENTS` ; l'inventaire est inchangé |
-| 4 | le plan « feu de camp » connu | le joueur fabrique le feu de camp | refus `UNKNOWN_RECIPE` (pas encore de recette, B.8) |
+| 4 | « catapulte », une recette qui n'existe pas | le joueur la fabrique | refus `UNKNOWN_RECIPE` |
 
 **Notes** — Spécification B.5. `ALREADY_OWNED` évite de gaspiller des matériaux rares.
 
-**Historique** — v0.5 : création.
+**Historique** — v0.5 : création. v0.7 : le feu de camp a une recette ; l'exemple 4 porte sur une recette inexistante.
 
 ---
+
+### 7.2 POS — Poser
+
+#### R-ART-POS-001 · Poser un objet
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | — |
+
+**Règle** — Poser un objet le retire des objets à poser et le place sur la tuile devant le joueur, qui devient infranchissable. Un feu de camp posé est allumé (R-ART-FEU-001). Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOTHING_TO_PLACE` (le joueur n'a pas cet objet), puis `CANNOT_PLACE` (la tuile devant lui est hors de la carte, n'est ni de l'herbe, ni un chemin, ni un dallage, ou touche la boîte de collision du joueur ou d'un PNJ).
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | le joueur sur la tuile (10, 10), orienté à droite, 1 feu de camp, de l'herbe en (11, 10) | il pose le feu | la tuile (11, 10) est un feu de camp allumé, infranchissable ; plus de feu à poser |
+| 2 | idem, orienté vers le haut, un arbre en (10, 9) | il pose le feu | refus `CANNOT_PLACE` |
+| 3 | aucun feu de camp à poser | il pose un feu | refus `NOTHING_TO_PLACE` |
+| 4 | orienté à droite, de l'eau en (11, 10) | il pose le feu | refus `CANNOT_PLACE` |
+
+**Notes** — Concepts C-ART-07. On ne reprend pas un objet posé pour l'instant.
+
+**Historique** — v0.7 : création.
+
+### 7.3 FEU — Feu de camp
+
+#### R-ART-FEU-001 · Feu de camp
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.7 | `CAMPFIRE_BURN_MINUTES`, `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH` |
+
+**Règle** — Un feu de camp posé ou ravivé brûle `CAMPFIRE_BURN_MINUTES` minutes de jeu, puis s'éteint. Raviver un feu, allumé ou éteint, coûte `CAMPFIRE_REKINDLE_WOOD` bois et le fait brûler `CAMPFIRE_BURN_MINUTES` minutes à partir de cet instant. Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOTHING_TO_REKINDLE` (la tuile n'est pas un feu de camp), `MISSING_INGREDIENTS` (pas assez de bois), `OUT_OF_REACH` (le feu est à plus de `HARVEST_REACH`).
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | 600 minutes de combustion, un feu posé le jour 1 à 20:00 | l'horloge atteint le jour 2 à 5:59 | le feu est allumé |
+| 2 | idem | l'horloge atteint le jour 2 à 6:00 | le feu est éteint |
+| 3 | un feu éteint à portée, 1 bois | le joueur le ravive à 7:00 | le feu est allumé jusqu'à 17:00 ; 0 bois |
+| 4 | un feu éteint à portée, 0 bois | le joueur le ravive | refus `MISSING_INGREDIENTS` |
+| 5 | une tuile d'herbe à portée | le joueur la ravive | refus `NOTHING_TO_REKINDLE` |
+
+**Notes** — Concept C-ART-05. Plus tard : protection contre la Flétrissure, cuisson.
+
+**Historique** — v0.7 : création.
 
 # Partie E — Questions
 
@@ -1829,6 +2043,7 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | Q20 | Tilesets RPG Maker MV (tuiles de 48 px) ? | **Réduits à 32 px** par `tools/assets/downscaleTileset.js` (moyenne pondérée) : rendu jugé acceptable. Les originaux restent dans `assets/images/tilesets/mv-48px/`. | Aucune (assets) |
 | Q22 | Détails de la v0.5 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : touches I (inventaire) et C (artisanat) ; une seule fenêtre centrale à la fois ; fabrication immédiate ; un seul outil de chaque sorte, sans usure ; `MISSING_TOOL` vérifié avant `OUT_OF_REACH` ; 4 branches dans le coffre des Ruines du Guet. | B.5, B.7, B.8, R-IHM-FEN-001, R-INV-OUT-001, R-ART-FAB-002 |
 | Q23 | Détails de la v0.6 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : la quête est confiée par la page 3 de Maëlle ; la poupée se trouve dans le coffre du Hameau (127, 96), même avant d'avoir reçu la quête ; on ne peut la donner qu'une fois la quête reçue ; récompense de 50 expérience ; après la quête, Maëlle a une nouvelle réplique ; icônes de la barre : sac, marteau, livre ouvert. | B.9, R-PNJ-QUE-001 à 003, R-IHM-BAR-001 |
+| Q24 | Détails de la v0.7 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : horloge continue sur 24 h (pas encore de sommeil) ; aube de 4:00 à 6:00, crépuscule de 18:00 à 21:00, voile de nuit à 0,8 ; halos de 3 tuiles (héros) et 6 tuiles (feu) ; feu de camp : 3 pierres + 2 bois, brûle 10 h, se ravive avec 1 bois, posé devant le héros sur herbe, chemin ou dallage, non récupérable ; repousse des arbres en 3 jours. | B.2, B.8, partie C, R-MON-TPS-001, 002, R-ART-POS-001, R-ART-FEU-001, R-RES-REC-005 |
 | Q11 | Origine et licence des assets ? | **Ressources de RPG Maker, pour un jeu personnel non publié** : utilisables tant que le jeu n'est pas diffusé. | — (assets/ASSETS.md) |
 
 ---
@@ -1842,4 +2057,5 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | v0.3 | 2026-10-12 | **Livrée.** Explorer : une vallée de 160 × 120 tuiles générée par un outil, le Vallon préservé au départ, des lieux et des ruines à découvrir, trois PNJ immobiles à qui parler, des indices, un journal, des notifications, une forêt dense hors de la carte. | Clôture de la v0.2 : 13 règles passées `EN VIGUEUR`. v0.3 : 12 NOUVEAU (R-MON-LIE-001, 002, R-PNJ-POS-001, 002, R-PNJ-DIA-001 à 004, R-IHM-INS-005, R-IHM-DIA-001, R-IHM-JRN-001, R-IHM-NOT-001), 2 MODIFIÉ (R-MON-CAR-001, R-IHM-CAM-001). Paramètres : `MAP_WIDTH`, `MAP_HEIGHT`, `PLAYER_START_TILE` modifiés ; `TALK_REACH`, `NOTIFICATION_TICKS` ajoutés. |
 | v0.4 | 2026-10-12 | **Livrée.** Fouiller : bibliothèques, coffres et caisses des ruines, deux livres (plans de la hache et de la pioche en silex, du feu de camp), silex, branches, fibres ; livres au journal ; atlas d'icônes ; tilesets MV réduits à 32 px. | Clôture de la v0.3 : 14 règles passées `EN VIGUEUR`. v0.4 : 8 NOUVEAU (R-RES-FOU-001 à 004, R-INV-LIV-001, R-IHM-INS-006, R-IHM-NOT-002, R-IHM-JRN-002), 3 MODIFIÉ (R-INV-RES-001, R-IHM-HUD-001, R-IHM-INS-002 : fenêtre au milieu de l'écran). Paramètre ajouté : `SEARCH_MAX_BOOKS`. Q20 et Q21 tranchées. |
 | v0.5 | 2026-10-12 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres, recettes apprises, fenêtre d'artisanat, hache et pioche en silex ; couper et piocher demandent un outil. | Clôture de la v0.4 : 12 règles passées `EN VIGUEUR`, `SEARCH_MAX_BOOKS` aussi. v0.5 : 10 NOUVEAU (R-IHM-INS-007, R-IHM-FEN-001, R-IHM-INV-001, R-IHM-LIV-001, R-IHM-ART-001, R-RES-OUT-001, R-INV-LIV-002, R-INV-OUT-001, R-ART-FAB-001, R-ART-FAB-002), 2 MODIFIÉ (R-IHM-INS-003, R-RES-REC-004). Aucun paramètre : outils et recettes sont des données (B.8). Q22 tranchée par défaut. |
-| v0.6 | 2026-10-12 | *En cours.* Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprites de la bibliothèque en ruine et du coffre ancien (illisibles), caisse du hameau masquée. Retours de test : notifications au-dessus du héros avec ×, une notification par fouille, nom du lieu à chaque retour, livres retirés du journal, journal dans les fenêtres exclusives. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 10 NOUVEAU (R-MON-LIE-003, R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 8 MODIFIÉ (R-IHM-NOT-001, R-IHM-FEN-001, R-IHM-JRN-001, R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003), 1 SUPPRIMÉ (R-IHM-JRN-002). Q23 tranchée par défaut. |
+| v0.6 | 2026-10-12 | **Livrée.** Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprites de la bibliothèque en ruine et du coffre ancien (illisibles), caisse du hameau masquée. Retours de test : notifications au-dessus du héros avec ×, une notification par fouille, nom du lieu à chaque retour, livres retirés du journal, journal dans les fenêtres exclusives. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 10 NOUVEAU (R-MON-LIE-003, R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 8 MODIFIÉ (R-IHM-NOT-001, R-IHM-FEN-001, R-IHM-JRN-001, R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003), 1 SUPPRIMÉ (R-IHM-JRN-002). Q23 tranchée par défaut. |
+| v0.7 | 2026-10-12 | *En cours.* Le temps passe : horloge (12 minutes réelles de 6:00 à 2:00), nuit sombre avec halos de lumière, feu de camp à fabriquer, poser et raviver, repousse des arbres. | Clôture de la v0.6 : 18 règles passées `EN VIGUEUR`. v0.7 : 9 NOUVEAU (R-MON-TPS-001, 002, R-IHM-HOR-001, R-IHM-NUI-001, R-IHM-INS-008, R-INV-POS-001, R-RES-REC-005, R-ART-POS-001, R-ART-FEU-001), 4 MODIFIÉ (R-IHM-INV-001, R-IHM-ART-001, R-ART-FAB-001, 002). 11 paramètres ajoutés. Q24 tranchée par défaut. |

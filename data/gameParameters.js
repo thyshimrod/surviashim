@@ -32,6 +32,17 @@
  * @property {number} TALK_REACH Distance maximale pour parler à un PNJ (px).
  * @property {number} NOTIFICATION_TICKS Durée d'affichage d'une notification (ticks).
  * @property {number} SEARCH_MAX_BOOKS Nombre maximal de livres dans une cachette.
+ * @property {number} TICK_PER_GAME_MINUTE Ticks par minute de jeu (R-MON-TPS-001).
+ * @property {number} DAY_START Minute du jour où commence une partie, fin de l'aube (6:00).
+ * @property {number} DUSK_START Minute du jour où commence le crépuscule (18:00).
+ * @property {number} NIGHT_START Minute du jour où la nuit est complète (21:00).
+ * @property {number} DAWN_START Minute du jour où commence l'aube (4:00).
+ * @property {number} NIGHT_DARKNESS Opacité du voile en pleine nuit (0 à 1).
+ * @property {number} HERO_LIGHT_RADIUS Rayon du halo autour du héros (px).
+ * @property {number} CAMPFIRE_LIGHT_RADIUS Rayon du halo d'un feu de camp allumé (px).
+ * @property {number} CAMPFIRE_BURN_MINUTES Durée de combustion d'un feu de camp (minutes de jeu).
+ * @property {number} CAMPFIRE_REKINDLE_WOOD Bois pour raviver un feu de camp.
+ * @property {number} TREE_REGROW_DAYS Jours de jeu avant qu'une souche redevienne un arbre.
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -54,4 +65,15 @@ export const GAME_PARAMETERS = Object.freeze({
   TALK_REACH: 64,
   NOTIFICATION_TICKS: 240,
   SEARCH_MAX_BOOKS: 2,
+  TICK_PER_GAME_MINUTE: 36,
+  DAY_START: 360,
+  DUSK_START: 1080,
+  NIGHT_START: 1260,
+  DAWN_START: 240,
+  NIGHT_DARKNESS: 0.8,
+  HERO_LIGHT_RADIUS: 96,
+  CAMPFIRE_LIGHT_RADIUS: 192,
+  CAMPFIRE_BURN_MINUTES: 600,
+  CAMPFIRE_REKINDLE_WOOD: 1,
+  TREE_REGROW_DAYS: 3,
 });

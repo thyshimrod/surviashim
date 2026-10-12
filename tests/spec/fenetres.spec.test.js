@@ -262,16 +262,6 @@ describe("R-IHM-ART-001 · Fenêtre d'artisanat", () => {
     assert.equal(entry.isEnabled, false);
     assert.equal(entry.warning, 'Déjà possédé');
   });
-
-  it('ex.5 — seul le plan « feu de camp » connu : « Pas encore fabricable : … »', () => {
-    const view = craftView(craftGame({ knownRecipes: ['campfire'] }));
-    const [entry] = view.entries;
-
-    assert.equal(view.empty, undefined);
-    assert.equal(entry.name, 'Feu de camp');
-    assert.equal(entry.isEnabled, false);
-    assert.equal(entry.warning, 'Pas encore fabricable : arrive avec le cycle jour / nuit');
-  });
 });
 
 describe("R-IHM-BAR-001 · Barre d'actions", () => {

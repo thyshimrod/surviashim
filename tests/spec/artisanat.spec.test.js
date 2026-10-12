@@ -179,8 +179,8 @@ describe("R-ART-FAB-002 · Refus d'une fabrication", () => {
     assert.deepEqual(after, before);
   });
 
-  it('ex.4 — le plan « feu de camp » connu, sans recette : refus UNKNOWN_RECIPE', () => {
-    const { result, before, after } = attempt({ knownRecipes: ['campfire'] }, 'campfire');
+  it("ex.4 — « catapulte », une recette qui n'existe pas : refus UNKNOWN_RECIPE", () => {
+    const { result, before, after } = attempt({ knownRecipes: ['catapult'] }, 'catapult');
 
     assert.deepEqual(result, { ok: false, reason: 'UNKNOWN_RECIPE' });
     assert.deepEqual(after, before);

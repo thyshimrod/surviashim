@@ -1,6 +1,7 @@
 // @ts-check
 import { nextPage } from '../../core/commands/commands.js';
 import { BookPanel } from './BookPanel.js';
+import { clockLabel } from './clockLabel.js';
 import { bookView } from './bookView.js';
 import { CraftPanel } from './CraftPanel.js';
 import { craftView } from './craftView.js';
@@ -53,6 +54,7 @@ export class GameInterface {
       container,
       onClose,
       onRead: (bookId) => this.windows.read(bookId, game),
+      onPlace: (itemId) => this.windows.place(itemId, game),
     });
     this.book = new BookPanel({ doc, container, onClose });
     this.craft = new CraftPanel({
@@ -131,7 +133,11 @@ export class GameInterface {
     const state = this.game.getState();
     const { windows } = this;
     this.renderWindows(state);
-    this.hud.render([...inventoryEntries(state.inventory), experienceEntry(state.experience)]);
+    this.hud.render([
+      ...inventoryEntries(state.inventory),
+      experienceEntry(state.experience),
+      { id: 'clock', label: clockLabel(this.game.time()), icon: 'hourglass' },
+    ]);
     this.toolbar.render(toolbarView(windows));
     this.dialogue.render(dialogueView(state.dialogue));
     this.journal.render(windows.journalOpen ? journalView(state.journal, state.quests) : undefined);

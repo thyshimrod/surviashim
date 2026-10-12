@@ -1,5 +1,5 @@
 // @ts-check
-import { craftItem, readBook } from '../../core/commands/commands.js';
+import { craftItem, placeItem, readBook } from '../../core/commands/commands.js';
 import { InspectionController } from './InspectionController.js';
 
 /** @typedef {import('../input/designateTile.js').Target} Target */
@@ -111,6 +111,20 @@ export class WindowsController {
    */
   craft(recipeId, game) {
     return game.execute(craftItem(recipeId));
+  }
+
+  /**
+   * R-IHM-INV-001 : pose un objet devant le joueur ; la fenêtre se ferme s'il a été posé.
+   * @param {string} itemId
+   * @param {InspectableGame} game
+   * @returns {CommandResult}
+   */
+  place(itemId, game) {
+    const result = game.execute(placeItem(itemId));
+    if (result.ok) {
+      this.close();
+    }
+    return result;
   }
 
   /** Ferme la fenêtre ouverte (× ou Échap). */

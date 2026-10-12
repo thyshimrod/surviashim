@@ -1,6 +1,7 @@
 // @ts-check
 import { BOOKS } from '../../../data/books.js';
 import { ITEMS } from '../../../data/items.js';
+import { PLACEABLES } from '../../../data/placeables.js';
 import { TOOLS } from '../../../data/tools.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
@@ -25,7 +26,9 @@ import { inventoryEntries } from './inventoryEntries.js';
  * @property {Array<NamedItem & { title: string }>} books Dans l'ordre de la bibliothèque.
  * @property {string | undefined} noBook Message si aucun livre.
  * @property {NamedItem[]} items Objets possédés, dans l'ordre.
- * @property {string | undefined} noItem Message si aucun objet.
+ * @property {Array<NamedItem & { label: string, count: number, button: string }>} placeables
+ *   Objets à poser, avec leur quantité (« Feu de camp ×2 »).
+ * @property {string | undefined} noItem Message s'il n'y a ni objet ni objet à poser.
  * @property {string} readButton Libellé du bouton de lecture.
  */
 
@@ -36,13 +39,15 @@ import { inventoryEntries } from './inventoryEntries.js';
  * @property {readonly string[]} tools
  * @property {readonly string[]} books
  * @property {readonly string[]} items
+ * @property {Readonly<Record<string, number>>} placeables
  */
 
 /**
  * @param {InventorySource} state
  * @returns {InventoryContent}
  */
-export function inventoryView({ inventory, tools, books, items }) {
+export function inventoryView({ inventory, tools, books, items, placeables }) {
+  const toPlace = placeableEntries(placeables);
   return {
     resources: inventoryEntries(inventory),
     tools: tools.map((id) => ({
@@ -61,7 +66,31 @@ export function inventoryView({ inventory, tools, books, items }) {
       name: TEXTS.itemNames[id]?.title ?? id,
       icon: ITEMS[id]?.icon ?? 'gift',
     })),
-    noItem: items.length === 0 ? TEXTS.itemsEmpty : undefined,
+    placeables: toPlace,
+    noItem: items.length === 0 && toPlace.length === 0 ? TEXTS.itemsEmpty : undefined,
     readButton: TEXTS.readButton,
   };
+}
+
+/**
+ * Objets à poser possédés, dans l'ordre de data/placeables.js.
+ * @param {Readonly<Record<string, number>>} placeables
+ * @returns {InventoryContent['placeables']}
+ */
+function placeableEntries(placeables) {
+  return Object.values(PLACEABLES)
+    .filter(({ id }) => (placeables[id] ?? 0) > 0)
+    .map(({ id, icon }) => {
+      const plan = CONTENT_TEXTS.plans[id] ?? id;
+      const name = plan.charAt(0).toUpperCase() + plan.slice(1);
+      const count = placeables[id];
+      return {
+        id,
+        name,
+        icon,
+        count,
+        label: TEXTS.placeableCount(name, count),
+        button: TEXTS.placeButton,
+      };
+    });
 }

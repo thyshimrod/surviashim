@@ -54,5 +54,6 @@ export function createInitialState(
     map,
     player,
     npcs: Object.values(npcs).map((npc) => createNpc(npc, parameters.TILE_SIZE)),
+    clock: parameters.DAY_START * parameters.TICK_PER_GAME_MINUTE, // R-MON-TPS-001 : jour 1, 6:00
   });
 }

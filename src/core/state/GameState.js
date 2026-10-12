@@ -2,6 +2,7 @@
 import { BOOKS } from '../../../data/books.js';
 import { ITEMS } from '../../../data/items.js';
 import { NPCS } from '../../../data/npcs.js';
+import { PLACEABLES } from '../../../data/placeables.js';
 import { PLACES } from '../../../data/places.js';
 import { QUESTS } from '../../../data/quests.js';
 import { RECIPES } from '../../../data/recipes.js';
@@ -41,6 +42,23 @@ import { TOOLS } from '../../../data/tools.js';
  */
 
 /**
+ * Feu de camp posé (R-ART-FEU-001).
+ * @typedef {object} Campfire
+ * @property {number} column
+ * @property {number} row
+ * @property {number} burnsUntil Horloge (ticks) où il s'éteint.
+ */
+
+/**
+ * Souche qui repoussera (R-RES-REC-005).
+ * @typedef {object} Regrowth
+ * @property {number} column
+ * @property {number} row
+ * @property {string} tile Type de tuile qui repousse (« tree »).
+ * @property {number} at Horloge (ticks) de la repousse.
+ */
+
+/**
  * Quête reçue (R-PNJ-QUE-001, 002).
  * @typedef {object} QuestEntry
  * @property {string} questId Clé de data/quests.js.
@@ -74,6 +92,10 @@ import { TOOLS } from '../../../data/tools.js';
  * @property {number} experience Points d'expérience (R-JOU-EXP-001).
  * @property {string[]} currentPlaces Lieux qui contenaient le joueur à la fin du tick précédent
  *   (R-MON-LIE-003).
+ * @property {number} clock Horloge : ticks écoulés depuis le jour 1 à 0:00 (R-MON-TPS-001).
+ * @property {Record<string, number>} placeables Objets à poser, par sorte (R-INV-POS-001).
+ * @property {Campfire[]} campfires Feux de camp posés (R-ART-FEU-001).
+ * @property {Regrowth[]} regrowth Souches qui repousseront (R-RES-REC-005).
  */
 
 /**
@@ -100,6 +122,9 @@ import { TOOLS } from '../../../data/tools.js';
  *   [quests] Quêtes (R-PNJ-QUE-001 à 003).
  * @property {Readonly<Record<string, Readonly<import('../../../data/items.js').ItemDefinition>>>}
  *   [items] Objets (R-INV-OBJ-001).
+ * @property {Readonly<Record<string, Readonly<import('../../../data/placeables.js').PlaceableDefinition>>>}
+ *   [placeables] Objets à poser (R-ART-POS-001).
+ * @property {import('../systems/time.js').TimeRules} [time] Temps, nuit, feu de camp, repousse.
  */
 
 /**
@@ -125,6 +150,10 @@ export function createEmptyInventory() {
  * @param {QuestEntry[]} [params.quests]
  * @param {number} [params.experience]
  * @param {string[]} [params.currentPlaces]
+ * @param {number} [params.clock]
+ * @param {Record<string, number>} [params.placeables]
+ * @param {Campfire[]} [params.campfires]
+ * @param {Regrowth[]} [params.regrowth]
  * @param {number} [params.tick]
  * @returns {GameState}
  */
@@ -138,6 +167,7 @@ export function createGameState(params) {
     dialogue: dialogue === undefined ? undefined : copyDialogue(dialogue),
     ...copyWorld(params),
     ...copyProgress(params),
+    ...copyTime(params),
   };
 }
 
@@ -151,6 +181,21 @@ function copyWorld({ npcs = [], journal = [], currentPlaces = [] }) {
     npcs: npcs.map((npc) => ({ ...npc, position: { ...npc.position } })),
     journal: journal.map((entry) => ({ ...entry })),
     currentPlaces: [...currentPlaces],
+  };
+}
+
+/**
+ * Horloge, objets à poser, feux de camp et repousses, copiés.
+ * @param {{ clock?: number, placeables?: Record<string, number>, campfires?: Campfire[],
+ *   regrowth?: Regrowth[] }} params
+ * @returns {Pick<GameState, 'clock' | 'placeables' | 'campfires' | 'regrowth'>}
+ */
+function copyTime({ clock = 0, placeables = {}, campfires = [], regrowth = [] }) {
+  return {
+    clock,
+    placeables: { ...placeables },
+    campfires: campfires.map((fire) => ({ ...fire })),
+    regrowth: regrowth.map((entry) => ({ ...entry })),
   };
 }
 
@@ -199,6 +244,28 @@ export function createGameRules(parameters) {
     books: BOOKS,
     quests: QUESTS,
     items: ITEMS,
+    placeables: PLACEABLES,
+    time: createTimeRules(parameters),
+  };
+}
+
+/**
+ * @param {Readonly<import('../../../data/gameParameters.js').GameParameters>} parameters
+ * @returns {import('../systems/time.js').TimeRules}
+ */
+function createTimeRules(parameters) {
+  return {
+    ticksPerMinute: parameters.TICK_PER_GAME_MINUTE,
+    dayStart: parameters.DAY_START,
+    duskStart: parameters.DUSK_START,
+    nightStart: parameters.NIGHT_START,
+    dawnStart: parameters.DAWN_START,
+    nightDarkness: parameters.NIGHT_DARKNESS,
+    heroLightRadius: parameters.HERO_LIGHT_RADIUS,
+    campfireLightRadius: parameters.CAMPFIRE_LIGHT_RADIUS,
+    campfireBurnMinutes: parameters.CAMPFIRE_BURN_MINUTES,
+    campfireRekindleWood: parameters.CAMPFIRE_REKINDLE_WOOD,
+    treeRegrowDays: parameters.TREE_REGROW_DAYS,
   };
 }
 

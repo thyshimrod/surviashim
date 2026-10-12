@@ -41,7 +41,7 @@ export class InventoryHud {
     const item = this.doc.createElement('li');
     item.dataset.resource = entry.id;
     const label = this.doc.createElement('span');
-    label.textContent = `${entry.label} ${entry.amount}`;
+    label.textContent = entry.amount === undefined ? entry.label : `${entry.label} ${entry.amount}`;
     item.append(iconElement(this.doc, entry.icon), label);
     return item;
   }

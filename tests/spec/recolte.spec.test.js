@@ -23,6 +23,7 @@ describe('R-RES-ELE-001 · Éléments récoltables', () => {
       resource: 'wood',
       amount: 3,
       becomes: 'stump',
+      regrows: true,
     });
   });
 

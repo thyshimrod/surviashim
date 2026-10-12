@@ -9,8 +9,9 @@
  * | RESOURCE_HARVESTED | { column, row, resource, amount, total }                  |
  * | ITEMS_FOUND        | { column, row, books, items, resources } — fouille        |
  * | BOOK_READ          | { bookId, recipes } — recettes apprises par cette lecture |
- * | ITEM_CRAFTED       | { recipeId, tool }                                        |
+ * | ITEM_CRAFTED       | { recipeId, tool, placeable } — l'un des deux             |
  * | QUEST_STARTED      | { questId, npcId }                                        |
+ * | CAMPFIRE_REKINDLED | { column, row }                                           |
  * | QUEST_COMPLETED    | { questId, npcId, experience } — expérience gagnée        |
  * | DIALOGUE_STARTED   | { npcId }                                                 |
  * | DIALOGUE_ENDED     | { npcId }                                                 |
@@ -26,6 +27,7 @@ export const GAME_EVENTS = Object.freeze({
   BOOK_READ: 'book-read',
   ITEM_CRAFTED: 'item-crafted',
   QUEST_STARTED: 'quest-started',
+  CAMPFIRE_REKINDLED: 'campfire-rekindled',
   QUEST_COMPLETED: 'quest-completed',
   DIALOGUE_STARTED: 'dialogue-started',
   DIALOGUE_ENDED: 'dialogue-ended',

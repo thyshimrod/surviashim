@@ -7,7 +7,7 @@ import { TEXTS } from '../i18n/fr.js';
  * @typedef {object} InventoryEntry
  * @property {string} id Ressource, ou « experience ».
  * @property {string} label Libellé affiché (« Bois »).
- * @property {number} amount
+ * @property {number} [amount] Absente pour l'horloge.
  * @property {string} icon Icône (clé de ICONS).
  */
 

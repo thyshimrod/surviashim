@@ -44,6 +44,7 @@ export const TERRAIN_APPEARANCE = Object.freeze({
   }),
   path: Object.freeze({ autotile: 'dirt', seamless: true }),
   stump: Object.freeze({ autotile: 'grass', decor: Object.freeze(['stump-cut']) }),
+  campfire: Object.freeze({ autotile: 'grass', decor: Object.freeze(['campfire']) }),
   'ruin-floor': Object.freeze({
     ground: 'ground-flagstone',
     sprinkle: Object.freeze(['pebbles', 'grass-tuft', 'weeds']),

@@ -19,7 +19,8 @@ import { REJECTION_REASONS } from './commands.js';
  * Ce qu'on peut faire d'une recette : lu par la fenêtre d'artisanat (R-IHM-ART-001).
  * @typedef {object} RecipeInspection
  * @property {boolean} isKnown `true` si la recette existe et a été apprise.
- * @property {string | undefined} tool Outil obtenu, `undefined` si la recette n'existe pas.
+ * @property {string | undefined} tool Outil obtenu, s'il y en a un.
+ * @property {string | undefined} placeable Objet à poser obtenu, s'il y en a un.
  * @property {boolean} isOwned `true` si cet outil est déjà possédé.
  * @property {IngredientStatus[]} ingredients Dans l'ordre de la recette.
  * @property {boolean} hasIngredients `true` si aucun ingrédient ne manque.
@@ -63,7 +64,8 @@ export function inspectRecipe(state, rules, recipeId) {
   return {
     isKnown: recipe !== undefined && state.knownRecipes.includes(recipeId),
     tool: recipe?.tool,
-    isOwned: recipe !== undefined && state.tools.includes(recipe.tool),
+    placeable: recipe?.placeable,
+    isOwned: recipe?.tool !== undefined && state.tools.includes(recipe.tool),
     ingredients,
     hasIngredients: ingredients.every(({ owned, required }) => owned >= required),
   };
@@ -71,7 +73,7 @@ export function inspectRecipe(state, rules, recipeId) {
 
 /**
  * R-ART-FAB-001, R-ART-FAB-002 : vérifie les motifs de refus dans l'ordre, retire les ingrédients
- * et donne l'outil.
+ * et donne l'outil ou l'objet à poser.
  * @param {GameState} state
  * @param {GameRules} rules
  * @param {EventBus} events
@@ -80,7 +82,7 @@ export function inspectRecipe(state, rules, recipeId) {
  */
 export function craft(state, rules, events, recipeId) {
   const inspection = inspectRecipe(state, rules, recipeId);
-  if (!inspection.isKnown || inspection.tool === undefined) {
+  if (!inspection.isKnown) {
     return { ok: false, reason: REJECTION_REASONS.UNKNOWN_RECIPE };
   }
   if (inspection.isOwned) {
@@ -92,7 +94,13 @@ export function craft(state, rules, events, recipeId) {
   for (const { resource, required } of inspection.ingredients) {
     state.inventory[resource] -= required;
   }
-  state.tools.push(inspection.tool);
-  events.emit(GAME_EVENTS.ITEM_CRAFTED, { recipeId, tool: inspection.tool });
+  const { tool, placeable } = inspection;
+  if (tool !== undefined) {
+    state.tools.push(tool);
+  }
+  if (placeable !== undefined) {
+    state.placeables[placeable] = (state.placeables[placeable] ?? 0) + 1; // R-INV-POS-001
+  }
+  events.emit(GAME_EVENTS.ITEM_CRAFTED, { recipeId, tool, placeable });
   return { ok: true };
 }

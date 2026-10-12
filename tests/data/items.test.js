@@ -7,6 +7,7 @@ import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { ICON_SET, ICONS } from '../../data/icons.js';
 import { INTERIOR_SPRITES } from '../../data/interiorSprites.js';
 import { VALLEY_MAP } from '../../data/maps/valley.js';
+import { PLACEABLES } from '../../data/placeables.js';
 import { RECIPES } from '../../data/recipes.js';
 import { RESOURCES } from '../../data/resources.js';
 import { SEARCH_SPOTS } from '../../data/searchSpots.js';
@@ -46,12 +47,13 @@ describe('data/tools.js et data/recipes.js', () => {
     }
   });
 
-  it("chaque recette est le plan d'un livre, donne un outil et consomme des ressources", () => {
+  it("chaque recette est le plan d'un livre, donne un outil ou un objet à poser, consomme des ressources", () => {
     const plans = Object.values(BOOKS).flatMap((book) => book.plans);
     for (const [key, recipe] of Object.entries(RECIPES)) {
       assert.equal(recipe.id, key);
       assert.ok(plans.includes(key), key);
-      assert.ok(recipe.tool in TOOLS, recipe.tool);
+      const gives = [recipe.tool in TOOLS, recipe.placeable in PLACEABLES];
+      assert.equal(gives.filter(Boolean).length, 1, key);
       for (const [resource, amount] of Object.entries(recipe.ingredients)) {
         assert.ok(resource in RESOURCES, resource);
         assert.ok(Number.isInteger(amount) && amount > 0);

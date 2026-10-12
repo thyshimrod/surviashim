@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.9** | 2026-10-12 | Brouillon — barre d'actions, première quête, expérience ; notifications au-dessus du héros |
+| **v0.10** | 2026-10-12 | Brouillon — le temps passe : jour / nuit, feu de camp, repousse des arbres |
 
 > *Surshim* est un nom de travail.
 
@@ -184,7 +184,8 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | ID | Concept | Statut |
 |---|---|---|
 | `C-MON-01` | Le monde est une carte à **tuiles** organisée en **zones** (clairière du Foyer, bois, marais, collines, mines, ruines de la cité, forteresse de la Horde). | PROPOSÉ |
-| `C-MON-02` | **Cycle jour / nuit** : une journée de jeu dure environ 12 minutes réelles ; l'heure s'affiche par tranches de 10 minutes de jeu ; la lumière baisse le soir. | PROPOSÉ — cf. G3 |
+| `C-MON-02` | **Cycle jour / nuit** : de 6 h à 2 h du matin, une journée de jeu dure 12 minutes réelles ; l'heure s'affiche par tranches de 10 minutes de jeu ; la lumière baisse le soir. Tant qu'on ne dort pas (v0.8), l'horloge tourne en continu sur 24 h. | VALIDÉ (G3) — v0.7 |
+| `C-MON-11` | **La nuit, sans danger pour l'instant** : on y voit moins loin, un halo de lumière entoure le héros et les feux. Les dangers de la nuit (Flétrissure, monstres) viendront plus tard. | VALIDÉ — v0.7 |
 | `C-MON-03` | **Saisons** qui changent les cultures possibles, l'apparence de la carte et les monstres. | PROPOSÉ — cf. G4 |
 | `C-MON-04` | Le **Foyer** éclaire un rayon autour de lui. Dans la lumière, les monstres ordinaires n'entrent pas ; les raids, eux, viennent l'attaquer. Le rayon grandit avec le niveau du village. | PROPOSÉ |
 | `C-MON-05` | Météo (pluie qui arrose les cultures, orage, brouillard qui réduit la vue). | REPORTÉ |
@@ -205,7 +206,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-RES-08` | **Progression par les outils** : au départ, on ne peut que ramasser. Les premiers matériaux (silex, branches, fibres) se trouvent dans les ruines ; ils permettent de fabriquer la hache et la pioche, qui ouvrent le bois et la pierre, puis la suite. | VALIDÉ |
 | `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite ou davantage. | PROPOSÉ |
 | `C-RES-06` | **Ressources de départ** : bois, pierre, branche, silex, fibre végétale, fleurs. Puis : minerais, herbes médicinales, plantes rares des zones flétries. | VALIDÉ — silex, branches et fibres arrivent en v0.4 par la fouille |
-| `C-RES-07` | Les arbres repoussent depuis leur souche au bout de quelques jours ; les rochers et les filons réapparaissent ailleurs. | VALIDÉ (Q14) — avec le temps (jour / nuit) |
+| `C-RES-07` | Les arbres repoussent depuis leur souche au bout de quelques jours ; les rochers et les filons réapparaissent ailleurs. | VALIDÉ (Q14) — les arbres en v0.7 (3 jours), les rochers plus tard |
 
 ### 6.4 INV — Inventaire et objets
 
@@ -225,7 +226,8 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-ART-03` | Cuisine : les plats rendent de l'énergie et donnent des bonus temporaires (vitesse, défense, rendement). | PROPOSÉ |
 | `C-ART-04` | **Premier artisanat, à la main**, sans établi : une **hache en silex** (silex, branches, fibres), une **pioche en silex**, un **feu de camp** (pierres + bois). C'est le premier pas avant la recherche. On ne fabrique que les recettes **apprises** (C-TEC-07). | VALIDÉ — hache et pioche en v0.5 ; le feu de camp attend C-ART-05 |
 | `C-ART-06` | **Fenêtre d'artisanat** (touche C) : les recettes apprises, ce qu'elles demandent (possédé / requis) et un bouton **Fabriquer**. | VALIDÉ |
-| `C-ART-05` | Le **feu de camp** est la première source de lumière que le joueur fabrique : il éclaire, protège de la Flétrissure (C-JOU-08) et permet de cuire. Il s'éteint s'il n'est pas alimenté en bois. | PROPOSÉ |
+| `C-ART-05` | Le **feu de camp** est la première source de lumière que le joueur fabrique (pierres et bois) : posé au sol, il éclaire la nuit ; il brûle une dizaine d'heures puis s'éteint, et se ravive avec du bois. Plus tard : il protège de la Flétrissure (C-JOU-08) et permet de cuire. | VALIDÉ — v0.7 (lumière et combustible) |
+| `C-ART-07` | **Objets à poser** : certaines recettes (le feu de camp) donnent un objet qu'on garde dans l'inventaire, puis qu'on **pose** sur la tuile devant le héros. | VALIDÉ — v0.7 |
 
 ### 6.6 CON — Construction
 
@@ -331,6 +333,7 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-IHM-10` | **Notifications** au-dessus du héros, là où le regard se porte, chacune avec une croix : « Lieu découvert », le nom du lieu à chaque retour, « Nouvel indice », « Trouvé : … » (une seule par fouille). Celles des quêtes restent jusqu'à ce qu'on les ferme. | VALIDÉ |
 | `C-IHM-11` | **Atlas d'icônes** : chaque objet, ressource et livre a une icône tirée de la planche d'icônes (24 px). | VALIDÉ |
 | `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent **au milieu de l'écran**, près du héros, et se ferment par × ou Échap. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ |
+| `C-IHM-14` | **Horloge** au bandeau : le jour et l'heure (« Jour 1 · 6:00 »). | VALIDÉ — v0.7 |
 | `C-IHM-13` | **Barre d'actions** verticale, à gauche sous le bandeau : une icône par fenêtre (inventaire, artisanat, journal). Survoler une icône affiche son nom et sa touche ; un clic ouvre ou ferme la fenêtre. On n'a pas à connaître les touches. | VALIDÉ |
 
 ### 6.16 TEC — Recherche et technologies
@@ -387,12 +390,13 @@ Chaque version est **jouable** de bout en bout et ajoute une brique. Les version
 | v0.3 | **Livrée.** Explorer : une grande vallée, le Vallon préservé au départ, des lieux et des ruines à découvrir, trois PNJ à qui parler et qui donnent des indices, un journal, une forêt dense autour | C-UNI-06, C-MON-06, C-MON-07, C-MON-08, C-VIL-07, C-IHM-08 à 10 |
 | v0.4 | **Livrée.** Fouiller : bibliothèques, coffres et caisses des ruines ; deux livres à trouver (plans de la hache en silex et du feu de camp) ; silex, branches et fibres ; atlas d'icônes | C-MON-09, C-TEC-06, C-RES-06, C-IHM-11 |
 | v0.5 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres de survie, recettes apprises, fenêtre d'artisanat, hache et pioche en silex, outils requis pour couper et piocher | C-INV-03, C-INV-04, C-TEC-07, C-ART-04, C-ART-06, C-RES-04, C-RES-08, C-IHM-12 |
-| **v0.6** | **En cours.** Barre d'actions ; la première quête (la poupée de Maëlle) ; l'expérience | C-IHM-13, C-VIL-09, C-JOU-09 |
-| v0.7 | Le temps passe : jour / nuit, faim, sommeil, sauvegarde, repousse des arbres, PNJ qui se déplacent ; le feu de camp | C-MON-02, C-JOU-02, C-JOU-05, C-SAU-01, C-RES-07, C-VIL-08, C-ART-05 |
-| v0.8 | La recherche : plans avancés, expérience et points de recherche | C-TEC-01 à C-TEC-05 |
-| v0.9 | Le Foyer, la Flétrissure et le premier monstre : lumière, énergie, sauge de l'aube, combat, mort | C-MON-04, C-JOU-06, C-MEN-08, C-CBT-01, C-SAU-02 |
-| v0.10 | Construire : établi, palissade, maison | C-CON-01, C-CON-02, C-ART-01 |
-| v0.11 | Cultiver ; le premier raid annoncé ; un PNJ rejoint le village ; la première zone reprise | C-AGR-01, C-MEN-02, C-MEN-04, C-VIL-01, C-MEN-01 |
+| v0.6 | **Livrée.** Barre d'actions ; la première quête (la poupée de Maëlle) ; l'expérience | C-IHM-13, C-VIL-09, C-JOU-09 |
+| **v0.7** | **En cours.** Le temps passe : jour / nuit et horloge, nuit sombre avec halos de lumière, feu de camp à poser et à raviver, repousse des arbres | C-MON-02, C-MON-11, C-IHM-14, C-ART-05, C-ART-07, C-RES-07 |
+| v0.8 | Vivre au rythme des jours : faim et nourriture, sommeil, sauvegarde au coucher, PNJ qui se déplacent | C-JOU-02, C-JOU-05, C-SAU-01, C-VIL-08 |
+| v0.9 | La recherche : plans avancés, expérience et points de recherche | C-TEC-01 à C-TEC-05 |
+| v0.10 | Le Foyer, la Flétrissure et le premier monstre : lumière, énergie, sauge de l'aube, combat, mort | C-MON-04, C-JOU-06, C-MEN-08, C-CBT-01, C-SAU-02 |
+| v0.11 | Construire : établi, palissade, maison | C-CON-01, C-CON-02, C-ART-01 |
+| v0.12 | Cultiver ; le premier raid annoncé ; un PNJ rejoint le village ; la première zone reprise | C-AGR-01, C-MEN-02, C-MEN-04, C-VIL-01, C-MEN-01 |
 | v1.0 | Une saison complète, 3 zones, 5 villageois, 1 chef, les branches Survie, Armes, Habitat et Magie de la recherche | — |
 
 ---
@@ -405,7 +409,6 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 
 | # | Question | Concepts | Proposition |
 |---|---|---|---|
-| G3 | Durée d'une journée de jeu en temps réel ? | C-MON-02 | **12 minutes** (6 h → 2 h) |
 | G4 | Saisons : combien, et de combien de jours ? | C-MON-03, C-AGR-02 | 4 saisons de 14 jours |
 | G7 | Une monnaie dès le début, ou seulement avec la caravane ? | C-ECO-01, C-ECO-02 | Avec la caravane |
 | G8 | Que perd le joueur quand il tombe au combat ? | C-SAU-02 | Quelques objets du sac, au hasard ; jamais les outils |
@@ -427,6 +430,7 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | G15 | Comment gagne-t-on des points de recherche ? | **Par l'expérience** ; et les **plans se découvrent dans des livres** trouvés en explorant. | C-TEC-03 |
 | G16 | Les choix de recherche sont-ils définitifs ? | **Non, un ordre de priorité.** | C-TEC-05 |
 | G17 | La sauge de l'aube protège-t-elle temporairement ou purifie-t-elle ? | **Elle purifie définitivement**, pour commencer. | C-MEN-08 |
+| G3 | Durée d'une journée de jeu en temps réel ? | **12 minutes** de 6 h à 2 h. | C-MON-02 |
 
 ---
 
@@ -443,3 +447,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.7 | 2026-10-12 | Demande du porteur du projet : inventaire consultable et livres lisibles (C-INV-03, C-INV-04), lire un livre de survie apprend ses recettes (C-TEC-07, précise C-TEC-03), fenêtre d'artisanat (C-ART-06), hache requise pour couper et pioche pour piocher (C-RES-04), progression par les outils (C-RES-08), fenêtres au milieu de l'écran (C-IHM-12). Quêtes (C-VIL-09) validées dans leur principe pour la v0.6. Feuille de route décalée : v0.5 artisanat, v0.6 quêtes, v0.7 le temps. |
 | v0.8 | 2026-10-12 | Retours de test : barre d'actions à icônes plutôt que des touches à connaître (C-IHM-13). Quêtes détaillées (C-VIL-09) : la poupée est dans un coffre des ruines, on la rend avec un bouton « Donner », la récompense est de l'expérience. Expérience (C-JOU-09), niveaux plus tard. Le feu de camp passe en v0.7. |
 | v0.9 | 2026-10-12 | Retours de test : notifications au-dessus du héros avec une croix, quêtes jusqu'à fermeture, une seule notification par fouille, nom du lieu à chaque retour (C-IHM-10, C-MON-06) ; livres retirés du journal (C-IHM-09) ; journal parmi les fenêtres exclusives (C-IHM-12). |
+| v0.10 | 2026-10-12 | Réponse G3 (12 minutes de 6 h à 2 h). Périmètre de la v0.7 choisi : jour / nuit (C-MON-02, C-MON-11), horloge (C-IHM-14), feu de camp qui s'éteint et se ravive (C-ART-05, C-ART-07), repousse des arbres (C-RES-07). Faim, sommeil, sauvegarde et PNJ qui se déplacent passent en v0.8. |

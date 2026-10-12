@@ -1,6 +1,8 @@
 import { BOOKS } from '../../data/books.js';
+import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { ITEMS } from '../../data/items.js';
 import { NPCS } from '../../data/npcs.js';
+import { PLACEABLES } from '../../data/placeables.js';
 import { QUESTS } from '../../data/quests.js';
 import { RECIPES } from '../../data/recipes.js';
 import { TOOLS } from '../../data/tools.js';
@@ -15,7 +17,11 @@ import {
 import { Game } from '../../src/core/Game.js';
 import { Player } from '../../src/core/model/Player.js';
 import { TileMap } from '../../src/core/model/TileMap.js';
-import { createEmptyInventory, createGameState } from '../../src/core/state/GameState.js';
+import {
+  createEmptyInventory,
+  createGameRules,
+  createGameState,
+} from '../../src/core/state/GameState.js';
 
 /** Directions demandées, avec le vocabulaire de la spécification. */
 export const DIRECTIONS = Object.freeze({
@@ -62,7 +68,8 @@ export function makeMap({ columns = 40, rows = 30, tileSize = 32, rocks = [], ti
  * portée de récolte 48 px, types de tuiles et rendements de data/tilesets.js, inventaire vide,
  * aucun PNJ ni lieu, portée de parole 64 px, dialogues de data/npcs.js. Le joueur possède
  * tous les outils (convention des exemples, spécification B.8) et ne connaît aucune recette ;
- * un inventaire partiel est complété par des 0.
+ * un inventaire partiel est complété par des 0. L'horloge marque le jour 1 à 6:00 ; temps, nuit,
+ * feu de camp et repousse suivent la partie C de la spécification.
  * @example
  * const { game, state } = createTestGame({ player: { position: { x: 100, y: 100 } } });
  * walk(game, 'droite', 1);
@@ -88,6 +95,9 @@ export function createTestGame({
   items = [],
   quests = [],
   experience = 0,
+  clock = at(1, '6:00'),
+  placeables = {},
+  campfires = [],
 } = {}) {
   const state = createGameState({
     map: makeMap(map),
@@ -102,6 +112,9 @@ export function createTestGame({
     items,
     quests,
     experience,
+    clock,
+    placeables,
+    campfires,
   });
   const game = new Game(state, {
     rules: {
@@ -119,6 +132,8 @@ export function createTestGame({
       books: BOOKS,
       quests: QUESTS,
       items: ITEMS,
+      placeables: PLACEABLES,
+      time: createGameRules(GAME_PARAMETERS).time,
     },
   });
   return { game, state };
@@ -183,4 +198,15 @@ export function readAt(game, bookId) {
  */
 export function craftAt(game, recipeId) {
   return game.execute(craftItem(recipeId));
+}
+
+/**
+ * Horloge (en ticks) au jour et à l'heure donnés : `at(2, '6:30')`.
+ * @param {number} day À partir de 1.
+ * @param {string} time « H:MM ».
+ * @returns {number}
+ */
+export function at(day, time) {
+  const [hours, minutes] = time.split(':').map(Number);
+  return ((day - 1) * 1440 + hours * 60 + minutes) * GAME_PARAMETERS.TICK_PER_GAME_MINUTE;
 }
