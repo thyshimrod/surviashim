@@ -313,7 +313,7 @@ Contenu défini dans `data/quests.js`, `data/items.js` et `data/npcs.js` (textes
 
 | Quête | Confiée par | Page qui la confie | Objet à rapporter | Où le trouver | Récompense | Remerciement | Page « après la quête » |
 |---|---|---|---|---|---|---|---|
-| La poupée de Maëlle | Maëlle, l'ancienne meunière | `maelle-3` | Poupée de chiffon bleue | Coffre du Hameau abandonné, tuile (127, 96) | 50 expérience | `maelle-thanks` | `maelle-4` (remplace `maelle-3`) |
+| La poupée de Maëlle | Maëlle, l'ancienne meunière (sa page 3 dit où chercher : le coffre de sa maison, au nord-est du hameau) | `maelle-3` | Poupée de chiffon bleue | Coffre du Hameau abandonné, tuile (127, 96) | 50 expérience | `maelle-thanks` | `maelle-4` (remplace `maelle-3`) |
 
 ---
 
@@ -973,9 +973,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.3 | — |
+| MODIFIÉ | v0.6 | — |
 
-**Règle** — La touche J ouvre et ferme le journal. Il liste, dans l'ordre où ils y sont entrés, les lieux découverts (nom et « Découvert ») et les indices (nom, « Indice d'<PNJ> » et le texte de la page qui l'a donné). Un journal vide affiche « Aucun lieu pour l'instant. »
+**Règle** — La touche J ouvre et ferme le journal ; un bouton × le ferme aussi. Il liste, dans l'ordre où ils y sont entrés, les lieux découverts (nom et « Découvert ») et les indices (nom, « Indice d'<PNJ> » et le texte de la page qui l'a donné). Un journal vide affiche « Aucun lieu pour l'instant. »
 
 **Exemples**
 
@@ -984,10 +984,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | un journal vide | touche J | le journal s'ouvre et affiche « Aucun lieu pour l'instant. » |
 | 2 | le Vallon découvert, puis un indice d'Aldric sur les Ruines du Guet | touche J | le journal affiche « Le Vallon — Découvert », puis « Les Ruines du Guet — Indice d'Aldric » avec son texte |
 | 3 | le journal ouvert | touche J | le journal est fermé |
+| 4 | le journal ouvert | clic sur × | le journal est fermé |
 
 **Notes** — Concept C-IHM-09. Les quêtes, livres et plans s'y ajouteront.
 
-**Historique** — v0.3 : création.
+**Historique** — v0.3 : création. v0.6 : bouton × ajouté (retour de test : rien ne permettait de le fermer à la souris).
 
 #### R-IHM-JRN-003 · Quêtes au journal
 
@@ -1189,21 +1190,21 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
 
-**Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet ; pour celles qui ont une recette définie (B.8), ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Une recette connue sans recette définie a son bouton inactif et affiche « Pas encore fabricable ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients (« Il manque des matériaux »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
+**Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet ; pour celles qui ont une recette définie (B.8), ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Une recette connue sans recette définie a son bouton inactif et affiche « Pas encore fabricable ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients : la fenêtre dit alors lesquels, dans l'ordre de la recette (« Il manque : 1 branche, 1 fibre »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
 | 1 | aucune recette connue | la fenêtre est ouverte | elle affiche « Aucune recette connue : lisez des livres pour en apprendre. » |
-| 2 | la recette de la hache connue ; 2 silex, 1 branche, 1 fibre | la fenêtre est ouverte | « Hache en silex », « Silex 2/1 · Branches 1/2 · Fibres 1/1 », bouton inactif, « Il manque des matériaux » |
+| 2 | la recette de la hache connue ; 2 silex, 1 branche, 1 fibre | la fenêtre est ouverte | « Hache en silex », « Silex 2/1 · Branches 1/2 · Fibres 1/1 », bouton inactif, « Il manque : 1 branche » |
 | 3 | la recette de la hache connue ; 1 silex, 2 branches, 1 fibre | clic sur « Fabriquer » | le joueur possède la hache en silex ; notification « Fabriqué : hache en silex » |
 | 4 | la recette de la hache connue, la hache possédée | la fenêtre est ouverte | bouton inactif, « Déjà possédé » |
 | 5 | seul le plan « feu de camp » connu | la fenêtre est ouverte | « Feu de camp », bouton inactif, « Pas encore fabricable » |
 
-**Notes** — Concepts C-ART-04, C-ART-06, C-IHM-12.
+**Notes** — Concepts C-ART-04, C-ART-06, C-IHM-12. Un bouton inactif dit toujours pourquoi ; les conditions à venir (établi, lieu, niveau d'expérience) s'afficheront de la même façon.
 
-**Historique** — v0.5 : création. v0.6 : un plan connu sans recette (feu de camp) était masqué, ce qui faisait croire que la lecture n'avait rien appris → il est affiché, inactif, avec « Pas encore fabricable ».
+**Historique** — v0.5 : création. v0.6 : « Il manque des matériaux » → la liste de ce qui manque (retour de test : la raison n'était pas claire). Et : un plan connu sans recette (feu de camp) était masqué, ce qui faisait croire que la lecture n'avait rien appris → il est affiché, inactif, avec « Pas encore fabricable ».
 
 ## 4. RES — Ressources et récolte
 
@@ -1822,4 +1823,4 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | v0.3 | 2026-10-12 | **Livrée.** Explorer : une vallée de 160 × 120 tuiles générée par un outil, le Vallon préservé au départ, des lieux et des ruines à découvrir, trois PNJ immobiles à qui parler, des indices, un journal, des notifications, une forêt dense hors de la carte. | Clôture de la v0.2 : 13 règles passées `EN VIGUEUR`. v0.3 : 12 NOUVEAU (R-MON-LIE-001, 002, R-PNJ-POS-001, 002, R-PNJ-DIA-001 à 004, R-IHM-INS-005, R-IHM-DIA-001, R-IHM-JRN-001, R-IHM-NOT-001), 2 MODIFIÉ (R-MON-CAR-001, R-IHM-CAM-001). Paramètres : `MAP_WIDTH`, `MAP_HEIGHT`, `PLAYER_START_TILE` modifiés ; `TALK_REACH`, `NOTIFICATION_TICKS` ajoutés. |
 | v0.4 | 2026-10-12 | **Livrée.** Fouiller : bibliothèques, coffres et caisses des ruines, deux livres (plans de la hache et de la pioche en silex, du feu de camp), silex, branches, fibres ; livres au journal ; atlas d'icônes ; tilesets MV réduits à 32 px. | Clôture de la v0.3 : 14 règles passées `EN VIGUEUR`. v0.4 : 8 NOUVEAU (R-RES-FOU-001 à 004, R-INV-LIV-001, R-IHM-INS-006, R-IHM-NOT-002, R-IHM-JRN-002), 3 MODIFIÉ (R-INV-RES-001, R-IHM-HUD-001, R-IHM-INS-002 : fenêtre au milieu de l'écran). Paramètre ajouté : `SEARCH_MAX_BOOKS`. Q20 et Q21 tranchées. |
 | v0.5 | 2026-10-12 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres, recettes apprises, fenêtre d'artisanat, hache et pioche en silex ; couper et piocher demandent un outil. | Clôture de la v0.4 : 12 règles passées `EN VIGUEUR`, `SEARCH_MAX_BOOKS` aussi. v0.5 : 10 NOUVEAU (R-IHM-INS-007, R-IHM-FEN-001, R-IHM-INV-001, R-IHM-LIV-001, R-IHM-ART-001, R-RES-OUT-001, R-INV-LIV-002, R-INV-OUT-001, R-ART-FAB-001, R-ART-FAB-002), 2 MODIFIÉ (R-IHM-INS-003, R-RES-REC-004). Aucun paramètre : outils et recettes sont des données (B.8). Q22 tranchée par défaut. |
-| v0.6 | 2026-10-12 | *En cours.* Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprite de la bibliothèque en ruine, caisse du hameau masquée. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 9 NOUVEAU (R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 5 MODIFIÉ (R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003). Q23 tranchée par défaut. |
+| v0.6 | 2026-10-12 | *En cours.* Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprites de la bibliothèque en ruine et du coffre ancien (illisibles), caisse du hameau masquée. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 9 NOUVEAU (R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 6 MODIFIÉ (R-IHM-JRN-001, R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003). Q23 tranchée par défaut. |

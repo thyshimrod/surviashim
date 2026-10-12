@@ -69,7 +69,7 @@ export class GameInterface {
     this.hud = new InventoryHud({ doc, container });
     this.toolbar = new Toolbar({ doc, container, onToggle: (id) => this.windows.toggle(id) });
     this.dialogue = new DialogueBox({ doc, container, onNext: () => game.execute(nextPage()) });
-    this.journal = new JournalPanel({ doc, container });
+    this.journal = new JournalPanel({ doc, container, onClose: () => this.windows.closeJournal() });
     this.notifications = new NotificationQueue(notificationTicks);
     this.notificationList = new NotificationList({ doc, container });
     this.listenToGame();

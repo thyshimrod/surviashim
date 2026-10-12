@@ -48,8 +48,12 @@ export const INTERIOR_SPRITES = Object.freeze({
   // ressemblait à deux escaliers).
   'ruin-bookshelf': abandoned(7, 8, 'furniture', [1, 2]),
   'ruin-bookshelf-searched': abandoned(5, 8, 'furniture', [1, 2]),
-  'ruin-chest': haunted(0, 11, 'furniture'),
-  'ruin-chest-open': haunted(7, 11, 'furniture'),
+  // Le coffre sombre des intérieurs se confondait avec le sol : le coffre doré de la planche
+  // principale se repère tout de suite.
+  'ruin-chest': main(30, 50, 'furniture'),
+  'ruin-chest-open': main(31, 50, 'furniture'),
+  'dark-chest': haunted(0, 11, 'furniture'),
+  'dark-chest-empty': haunted(7, 11, 'furniture'),
 
   // Mobilier abandonné. Les bibliothèques voûtées font 2 tuiles de large : ne pas les couper.
   'vaulted-bookcase-grey': abandoned(1, 0, 'furniture', [2, 2]),

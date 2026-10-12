@@ -82,6 +82,11 @@ export class WindowsController {
     this.show(this.panel === name ? undefined : name);
   }
 
+  /** R-IHM-JRN-001 : ferme le journal (bouton ×). */
+  closeJournal() {
+    this.journalOpen = false;
+  }
+
   /**
    * R-IHM-LIV-001 : lit un livre et ouvre la fenêtre de lecture.
    * @param {string} bookId

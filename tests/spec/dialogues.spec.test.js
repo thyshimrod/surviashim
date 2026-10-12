@@ -143,6 +143,15 @@ describe('R-IHM-JRN-001 · Journal des lieux', () => {
 
     assert.equal(windows.journalOpen, false);
   });
+
+  it('ex.4 — journal ouvert, clic sur × : le journal est fermé', () => {
+    const windows = new WindowsController();
+    windows.toggle('journal');
+
+    windows.closeJournal();
+
+    assert.equal(windows.journalOpen, false);
+  });
 });
 
 describe('R-IHM-NOT-001 · Notifications', () => {

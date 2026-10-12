@@ -208,14 +208,14 @@ describe("R-IHM-ART-001 · Fenêtre d'artisanat", () => {
     assert.equal(view.empty, EMPTY);
   });
 
-  it('ex.2 — 2 silex, 1 branche, 1 fibre : bouton inactif, « Il manque des matériaux »', () => {
+  it('ex.2 — 2 silex, 1 branche, 1 fibre : bouton inactif, « Il manque : 1 branche »', () => {
     const [entry] = craftView(craftGame({ inventory: { flint: 2, branch: 1, fiber: 1 } })).entries;
 
     assert.equal(entry.name, 'Hache en silex');
     assert.equal(entry.ingredients, 'Silex 2/1 · Branches 1/2 · Fibres 1/1');
     assert.equal(entry.button, 'Fabriquer');
     assert.equal(entry.isEnabled, false);
-    assert.equal(entry.warning, 'Il manque des matériaux');
+    assert.equal(entry.warning, 'Il manque : 1 branche');
   });
 
   it('ex.3 — les ingrédients exacts, clic sur « Fabriquer » : hache et notification', () => {

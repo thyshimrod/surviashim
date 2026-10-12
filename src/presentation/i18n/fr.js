@@ -72,7 +72,7 @@ export const TEXTS = Object.freeze({
   craftButton: 'Fabriquer',
   craftEmpty: 'Aucune recette connue : lisez des livres pour en apprendre.',
   alreadyOwned: 'Déjà possédé',
-  missingIngredients: 'Il manque des matériaux',
+  missingIngredients: (/** @type {string} */ list) => 'Il manque : ' + list,
   crafted: (/** @type {string} */ name) => 'Fabriqué : ' + name,
   notCraftable: 'Pas encore fabricable',
   /** Nom des objets (data/items.js) : avec majuscule, et dans une phrase. */

@@ -278,7 +278,8 @@ body {
   color: #a8e6a1;
 }
 
-.center-window .close {
+.center-window .close,
+.journal-panel .close {
   position: absolute;
   top: 4px;
   right: 8px;
@@ -292,6 +293,7 @@ body {
 /* Journal (R-IHM-JRN-001). */
 .journal-panel {
   position: absolute;
+  box-sizing: border-box;
   top: 64px;
   left: 86px;
   width: min(420px, calc(100% - 48px));

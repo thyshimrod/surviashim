@@ -15,12 +15,18 @@ export class JournalPanel {
    * @param {object} params
    * @param {Document} params.doc
    * @param {HTMLElement} params.container
+   * @param {() => void} params.onClose Clic sur × (R-IHM-JRN-001).
    */
-  constructor({ doc, container }) {
+  constructor({ doc, container, onClose }) {
     this.doc = doc;
     this.root = doc.createElement('section');
     this.root.className = 'rpg-window journal-panel';
     this.root.hidden = true;
+    const closeButton = doc.createElement('button');
+    closeButton.className = 'close';
+    closeButton.textContent = '×';
+    closeButton.title = TEXTS.closeButton;
+    closeButton.addEventListener('click', onClose);
     const title = doc.createElement('h2');
     title.textContent = TEXTS.journalTitle;
     this.places = doc.createElement('ul');
@@ -28,6 +34,7 @@ export class JournalPanel {
     this.books.className = 'books';
     this.quests = doc.createElement('ul');
     this.root.append(
+      closeButton,
       title,
       this.heading(TEXTS.questsTitle),
       this.quests,

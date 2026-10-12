@@ -2,6 +2,7 @@
 import { TOOLS } from '../../../data/tools.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
+import { resourceNoun } from './InspectionController.js';
 
 /** @typedef {import('../../core/commands/crafting.js').RecipeInspection} RecipeInspection */
 
@@ -84,5 +85,14 @@ function warningOf(inspection) {
   if (inspection.isOwned) {
     return TEXTS.alreadyOwned;
   }
-  return inspection.hasIngredients ? undefined : TEXTS.missingIngredients;
+  if (inspection.hasIngredients) {
+    return undefined;
+  }
+  const missing = inspection.ingredients
+    .filter(({ owned, required }) => owned < required)
+    .map(({ resource, owned, required }) => {
+      const amount = required - owned;
+      return `${amount} ${resourceNoun(resource, amount)}`;
+    });
+  return TEXTS.missingIngredients(missing.join(', '));
 }

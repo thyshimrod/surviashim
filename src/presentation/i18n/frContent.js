@@ -37,7 +37,7 @@ export const CONTENT_TEXTS = Object.freeze({
     'blue-doll': Object.freeze({
       title: 'La poupée de Maëlle',
       description:
-        "Maëlle, l'ancienne meunière, a laissé au Hameau abandonné la poupée de chiffon bleue de sa fille. Elle aimerait tant la retrouver.",
+        "Maëlle, l'ancienne meunière, a laissé au Hameau abandonné la poupée de chiffon bleue de sa fille : dans le coffre de sa maison, au nord-est du hameau. Elle aimerait tant la retrouver.",
     }),
   }),
   /** Noms des plans décrits par les livres. */
@@ -63,7 +63,7 @@ export const CONTENT_TEXTS = Object.freeze({
     'maelle-2':
       'Tout y est resté : les maisons, le vieux moulin, nos affaires… Si tu y vas, sois prudent. On dit que des ombres y rôdent la nuit.',
     'maelle-3':
-      'Et si tu trouves une poupée de chiffon bleue… elle était à ma fille. Rapporte-la-moi.',
+      'Et si tu trouves une poupée de chiffon bleue… elle était à ma fille. Elle doit être restée dans le coffre de notre maison, au nord-est du hameau. Rapporte-la-moi.',
     'maelle-4':
       'Ma fille ne lâche plus sa poupée. Le hameau me manque, mais grâce à toi, un peu de lui est revenu.',
     'maelle-thanks':
