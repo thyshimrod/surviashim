@@ -1,0 +1,12 @@
+{
+  "format": ["javascript"],
+  "path": ["src", "data", "tools", "tests"],
+  "ignore": ["**/node_modules/**", "**/coverage/**", "**/reports/**"],
+  "minLines": 6,
+  "minTokens": 60,
+  "threshold": 3,
+  "reporters": ["console"],
+  "output": "reports/duplication",
+  "absolute": false,
+  "gitignore": true
+}

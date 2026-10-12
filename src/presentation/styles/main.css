@@ -1,0 +1,356 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #10140f;
+  font-family: 'Trebuchet MS', Verdana, sans-serif;
+}
+
+#screen {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  /* Pixel art net : aucun lissage (R-IHM-AFF-001). */
+  image-rendering: pixelated;
+}
+
+/* Interface au-dessus du canvas ; seules les fenêtres captent les clics. */
+#interface {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Fenêtre « à l'ancienne », façon RPG 16 bits. */
+.rpg-window {
+  pointer-events: auto;
+  color: #f4f1e8;
+  background: linear-gradient(180deg, rgba(42, 62, 128, 0.94), rgba(18, 26, 66, 0.94));
+  border: 3px solid #e8e2cf;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 2px #1a1a24,
+    0 6px 14px rgba(0, 0, 0, 0.45);
+  text-shadow: 1px 1px 0 #10121e;
+}
+
+/* Bandeau d'inventaire (R-IHM-HUD-001). */
+.inventory-hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 6px 14px;
+  list-style: none;
+  font-size: 16px;
+}
+
+.inventory-hud li {
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Barre d'actions (R-IHM-BAR-001) : colonne d'icônes à gauche, sous le bandeau. */
+.toolbar {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+}
+
+.toolbar button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: rgba(10, 16, 44, 0.55);
+  cursor: pointer;
+}
+
+.toolbar button:hover {
+  border-color: #e8e2cf;
+}
+
+.toolbar button.active {
+  border-color: #ffd166;
+  background: rgba(255, 209, 102, 0.22);
+}
+
+.toolbar .icon {
+  transform: scale(1.25);
+}
+
+/* Icônes de l'atlas (planche de 24 px). */
+.icon {
+  display: inline-block;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+/* Fenêtre d'information (R-IHM-INS-002 à 004) : centrée, juste sous le héros (au milieu). */
+.inspect-panel {
+  position: absolute;
+  top: calc(50% + 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  padding: 12px 16px 16px;
+}
+
+.inspect-panel .buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.inspect-panel h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.inspect-panel p {
+  margin: 0 0 10px;
+}
+
+.inspect-panel .warning {
+  color: #ffd166;
+  font-size: 14px;
+}
+
+.inspect-panel .close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  border: none;
+  background: none;
+  color: #f4f1e8;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.rpg-button {
+  padding: 6px 18px;
+  color: #f4f1e8;
+  font: inherit;
+  background: #3c5bb0;
+  border: 2px solid #e8e2cf;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rpg-button:hover:enabled {
+  background: #5576d0;
+}
+
+.rpg-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Boîte de dialogue (R-IHM-DIA-001). */
+.dialogue-box {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 48px));
+  min-height: 110px;
+  padding: 12px 20px 18px;
+  cursor: pointer;
+}
+
+.dialogue-box h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #ffd166;
+}
+
+.dialogue-box p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.dialogue-box .more {
+  position: absolute;
+  right: 16px;
+  bottom: 8px;
+  animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Fenêtres centrales : inventaire, lecture, artisanat (R-IHM-FEN-001), au milieu de l'écran. */
+.center-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(380px, calc(100% - 48px));
+  max-height: calc(100% - 140px);
+  overflow-y: auto;
+  padding: 12px 18px 16px;
+}
+
+.book-panel {
+  width: min(460px, calc(100% - 48px));
+}
+
+.center-window h2 {
+  margin: 0 24px 8px 0;
+  font-size: 20px;
+}
+
+.center-window h3 {
+  margin: 12px 0 6px;
+  font-size: 16px;
+  color: #ffd166;
+}
+
+.center-window ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.center-window li {
+  margin-bottom: 8px;
+}
+
+.center-window li.empty {
+  color: #d8d4c4;
+  font-style: italic;
+}
+
+.center-window .resources {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 12px;
+}
+
+.center-window .resources strong {
+  font-weight: normal;
+}
+
+.center-window .book,
+.center-window .recipe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.center-window .recipe p {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 14px;
+}
+
+.center-window .warning {
+  color: #ffd166;
+}
+
+.center-window .book-text {
+  font-style: italic;
+  line-height: 1.45;
+  color: #e6e1d0;
+}
+
+.center-window .plans {
+  color: #a8e6a1;
+}
+
+.center-window .close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  border: none;
+  background: none;
+  color: #f4f1e8;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* Journal (R-IHM-JRN-001). */
+.journal-panel {
+  position: absolute;
+  top: 64px;
+  left: 86px;
+  width: min(420px, calc(100% - 48px));
+  max-height: calc(100% - 120px);
+  overflow-y: auto;
+  padding: 12px 18px;
+}
+
+.journal-panel h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.journal-panel ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journal-panel li {
+  margin-bottom: 10px;
+}
+
+.journal-panel h3 {
+  margin: 12px 0 6px;
+  font-size: 16px;
+  color: #ffd166;
+}
+
+.journal-panel .plans {
+  font-style: normal;
+  color: #a8e6a1;
+}
+
+.journal-panel li p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: #d8d4c4;
+}
+
+/* Notifications (R-IHM-NOT-001). */
+.notifications {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.notifications li {
+  padding: 6px 16px;
+  font-size: 16px;
+  pointer-events: none;
+}

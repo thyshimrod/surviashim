@@ -1,0 +1,10 @@
+# Fins de ligne LF partout, quelle que soit la configuration git locale (cf. .prettierrc, .editorconfig).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.mp3 binary
+*.ogg binary
+*.woff2 binary

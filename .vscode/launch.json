@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Jeu (Chrome, mode debug)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8081/index.html?debug=1&log=debug",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Tests : fichier courant",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["--test"],
+      "program": "${file}",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Tests : tous",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["--test", "tests/**/*.test.js"],
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

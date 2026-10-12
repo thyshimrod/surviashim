@@ -1,0 +1,7 @@
+node_modules/
+coverage/
+package-lock.json
+# Les fichiers Markdown (dont la spécification) ont une mise en forme lue par tools/specCheck.js :
+# on ne les reformate pas automatiquement.
+*.md
+reports/

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catalogue des sprites</title>
+    <link rel="icon" href="data:," />
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+        background: #1d2420;
+        color: #e8f5d0;
+      }
+      h2 {
+        margin: 24px 0 8px;
+        text-transform: capitalize;
+      }
+      .grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      figure {
+        margin: 0;
+        padding: 6px;
+        background: #2b3530;
+        border-radius: 4px;
+        text-align: center;
+      }
+      canvas {
+        image-rendering: pixelated;
+        background: repeating-conic-gradient(#cfcfcf 0 25%, #ededed 0 50%) 0 0 / 16px 16px;
+      }
+      figcaption {
+        font: 12px monospace;
+        margin-top: 4px;
+      }
+      .coords {
+        color: #9fb39a;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Catalogue des planches</h1>
+    <p>
+      Chaque sprite de <code>data/tileset.js</code> (toutes planches), agrandi ×2, puis les icônes
+      nommées de <code>data/icons.js</code> et les personnages de <code>data/sprites.js</code>. Les
+      autotiles sont montrés en îlot de 3 × 3 tuiles.
+    </p>
+    <main id="catalog"></main>
+    <script type="module" src="catalog.js"></script>
+  </body>
+</html>

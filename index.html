@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Surshim</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="src/presentation/styles/main.css" />
+  </head>
+  <body>
+    <!-- Écran du jeu, à la taille de la fenêtre en pixels physiques (R-IHM-AFF-001). -->
+    <canvas id="screen"></canvas>
+    <!-- Interface en DOM au-dessus du canvas : inventaire, fenêtre d'information. -->
+    <div id="interface"></div>
+    <noscript>Ce jeu nécessite JavaScript.</noscript>
+    <!-- Un seul point d'entrée : les dépendances sont résolues par les imports. -->
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
