@@ -74,7 +74,11 @@ export const TEXTS = Object.freeze({
   alreadyOwned: 'Déjà possédé',
   missingIngredients: (/** @type {string} */ list) => 'Il manque : ' + list,
   crafted: (/** @type {string} */ name) => 'Fabriqué : ' + name,
-  notCraftable: 'Pas encore fabricable',
+  /** Pourquoi un plan connu ne se fabrique pas encore (R-IHM-ART-001). */
+  notCraftable: Object.freeze({
+    campfire: 'Pas encore fabricable : arrive avec le cycle jour / nuit',
+  }),
+  notCraftableYet: 'Pas encore fabricable',
   /** Nom des objets (data/items.js) : avec majuscule, et dans une phrase. */
   itemNames: Object.freeze({
     'blue-doll': Object.freeze({
@@ -84,7 +88,6 @@ export const TEXTS = Object.freeze({
   }),
   itemsTitle: 'Objets',
   itemsEmpty: 'Aucun objet.',
-  itemFound: (/** @type {string} */ name) => 'Objet trouvé : ' + name,
   // Donner l'objet d'une quête (R-IHM-INS-005).
   giveButton: 'Donner',
   giveAction: (/** @type {string} */ name) => 'Donner : ' + name,
@@ -105,7 +108,7 @@ export const TEXTS = Object.freeze({
   talkAction: 'Parler',
   searchAction: 'Fouiller',
   // Trouvailles d'une fouille (R-IHM-NOT-002).
-  bookFound: (/** @type {string} */ title) => 'Livre trouvé : ' + title,
+  bookLabel: (/** @type {string} */ title) => 'livre « ' + title + ' »',
   materialsFound: (/** @type {string} */ list) => 'Trouvé : ' + list,
   nothingFound: "Rien d'intéressant.",
   // Partie « Livres » du journal (R-IHM-JRN-002).

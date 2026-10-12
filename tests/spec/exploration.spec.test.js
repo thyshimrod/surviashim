@@ -110,6 +110,47 @@ describe("R-MON-LIE-002 · Découverte d'un lieu", () => {
   });
 });
 
+describe('R-MON-LIE-003 · Retour dans un lieu', () => {
+  const nearPlace = (journal = []) => {
+    const { game, state } = createTestGame({
+      places: { 'test-place': PLACE },
+      player: { position: { x: 310, y: 340 } }, // tuile (9, 10), juste à gauche du lieu
+      journal,
+    });
+    const entered = [];
+    game.events.on('place-entered', ({ placeId }) => entered.push(placeId));
+    return { game, state, entered };
+  };
+  const DISCOVERED = [{ placeId: 'test-place', status: 'discovered' }];
+
+  it('ex.1 — le lieu découvert, le joueur y entre : il est annoncé', () => {
+    const { game, entered } = nearPlace(DISCOVERED);
+
+    walk(game, 'droite', 10);
+
+    assert.deepEqual(entered, ['test-place']);
+  });
+
+  it('ex.2 — un lieu jamais découvert : découvert, pas annoncé comme un retour', () => {
+    const { game, state, entered } = nearPlace();
+
+    walk(game, 'droite', 10);
+
+    assert.deepEqual(state.journal, DISCOVERED);
+    assert.deepEqual(entered, []);
+  });
+
+  it("ex.3 — déjà dans le lieu, un pas de plus : rien n'est annoncé", () => {
+    const { game, entered } = nearPlace(DISCOVERED);
+    walk(game, 'droite', 10);
+    entered.length = 0;
+
+    walk(game, 'droite', 1);
+
+    assert.deepEqual(entered, []);
+  });
+});
+
 describe("R-PNJ-POS-001 · Position d'un PNJ", () => {
   it('ex.1 — Aldric est au centre de sa tuile (38, 90), orienté vers le bas', () => {
     const aldric = Game.create()

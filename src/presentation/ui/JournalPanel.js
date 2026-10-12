@@ -1,13 +1,11 @@
 // @ts-check
 import { TEXTS } from '../i18n/fr.js';
-import { iconElement } from './iconElement.js';
 
 /** @typedef {import('./journalView.js').JournalContent} JournalContent */
 /** @typedef {import('./journalView.js').JournalLine} JournalLine */
-/** @typedef {import('./journalView.js').JournalBook} JournalBook */
 
 /**
- * Journal (R-IHM-JRN-001 à 003), en DOM : les quêtes, les lieux, puis les livres. La touche J ou
+ * Journal (R-IHM-JRN-001, R-IHM-JRN-003), en DOM : les quêtes, puis les lieux. La touche J ou
  * la barre d'actions l'ouvrent et le ferment (WindowsController).
  */
 export class JournalPanel {
@@ -30,8 +28,6 @@ export class JournalPanel {
     const title = doc.createElement('h2');
     title.textContent = TEXTS.journalTitle;
     this.places = doc.createElement('ul');
-    this.books = doc.createElement('ul');
-    this.books.className = 'books';
     this.quests = doc.createElement('ul');
     this.root.append(
       closeButton,
@@ -40,8 +36,6 @@ export class JournalPanel {
       this.quests,
       this.heading(TEXTS.placesTitle),
       this.places,
-      this.heading(TEXTS.booksTitle),
-      this.books,
     );
     container.append(this.root);
     this.lastRendered = '';
@@ -70,11 +64,6 @@ export class JournalPanel {
       ...(content.empty === undefined
         ? content.lines.map((line) => this.placeItem(line))
         : [this.emptyItem(content.empty)]),
-    );
-    this.books.replaceChildren(
-      ...(content.noBook === undefined
-        ? content.books.map((book) => this.bookItem(book))
-        : [this.emptyItem(content.noBook)]),
     );
   }
 
@@ -123,20 +112,6 @@ export class JournalPanel {
     const heading = this.doc.createElement('strong');
     heading.textContent = quest.heading;
     item.append(heading, this.paragraph(quest.description));
-    return item;
-  }
-
-  /**
-   * @param {JournalBook} book
-   * @returns {HTMLLIElement}
-   */
-  bookItem(book) {
-    const item = this.doc.createElement('li');
-    const heading = this.doc.createElement('strong');
-    heading.append(iconElement(this.doc, book.icon), ` ${book.title}`);
-    const plans = this.paragraph(book.plans);
-    plans.className = 'plans';
-    item.append(heading, this.paragraph(book.text), plans);
     return item;
   }
 

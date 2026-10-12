@@ -201,21 +201,21 @@ describe('R-IHM-HUD-002 · Expérience au bandeau', () => {
 
 describe('R-IHM-JRN-003 · Quêtes au journal', () => {
   it("ex.1 — aucune quête : « Aucune quête pour l'instant. »", () => {
-    const view = journalView([], [], []);
+    const view = journalView([], []);
 
     assert.deepEqual(view.quests, []);
     assert.equal(view.noQuest, "Aucune quête pour l'instant.");
   });
 
   it('ex.2 — la quête de Maëlle en cours : titre, état et description', () => {
-    const [quest] = journalView([], [], ACTIVE).quests;
+    const [quest] = journalView([], ACTIVE).quests;
 
     assert.equal(quest.heading, 'La poupée de Maëlle — En cours');
     assert.ok(quest.description.length > 0);
   });
 
   it('ex.3 — la quête de Maëlle terminée : « Terminée »', () => {
-    const [quest] = journalView([], [], DONE).quests;
+    const [quest] = journalView([], DONE).quests;
 
     assert.equal(quest.heading, 'La poupée de Maëlle — Terminée');
   });

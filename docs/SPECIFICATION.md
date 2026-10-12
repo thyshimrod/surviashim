@@ -207,7 +207,7 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 | **PNJ** | Personnage non joueur : un habitant de la vallée, immobile, à qui l'on peut parler (R-PNJ-POS-001). |
 | **Dialogue** | Conversation avec un PNJ, faite de **pages** de texte lues l'une après l'autre (R-PNJ-DIA-001, 002). |
 | **Indice** | Information donnée par un PNJ sur un lieu à visiter ; il est noté au journal (R-PNJ-DIA-004). |
-| **Journal** | Liste des lieux découverts, des indices reçus et des livres trouvés (R-IHM-JRN-001, R-IHM-JRN-002). |
+| **Journal** | Fenêtre qui liste les quêtes, les lieux découverts et les indices reçus (R-IHM-JRN-001, R-IHM-JRN-003). |
 | **Élément à fouiller** | Bibliothèque, coffre ou caisse des ruines, qu'on peut fouiller une fois (R-RES-FOU-001). |
 | **Cachette** | Élément à fouiller dont le contenu est défini dans les données (`data/searchSpots.js`) : des livres et des matériaux. |
 | **Livre** | Objet trouvé en fouillant ; il a un titre, un texte et décrit des plans. Les livres trouvés forment la **bibliothèque** du joueur (R-INV-LIV-001). |
@@ -221,7 +221,8 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 | **Quête** | Demande d'un PNJ, confiée par une page de son dialogue : rapporter un objet. Elle est **en cours**, puis **terminée** quand on lui a donné l'objet (R-PNJ-QUE-001, 002). |
 | **Objet** | Chose unique que possède le joueur, comme la poupée de chiffon bleue ; on la trouve en fouillant et on peut la donner (R-INV-OBJ-001). |
 | **Expérience** | Points que gagne le joueur, d'abord en terminant des quêtes (R-JOU-EXP-001). |
-| **Fenêtres centrales** | Fenêtres d'information, d'inventaire, de lecture et d'artisanat : une seule est ouverte à la fois (R-IHM-FEN-001). |
+| **Fenêtres** | Fenêtres d'information, d'inventaire, de lecture, d'artisanat et journal : une seule est ouverte à la fois (R-IHM-FEN-001). |
+| **Notification** | Court message affiché au-dessus du héros, avec un bouton × (R-IHM-NOT-001). |
 | **Image** (d'animation) | Une vignette d'une feuille de sprites ; une animation fait défiler plusieurs images. Dans une feuille de personnage, chaque **ligne** correspond à une orientation et les images sont numérotées de 1 à 3, de gauche à droite. |
 | **Commande** | Action demandée par le joueur. Le jeu l'accepte ou la refuse avec un motif. |
 | **Foyer**, **Horde**, **Flétrissure**, **Villageois**, **Raid** | Voir la spécification globale ; ces termes seront définis ici quand une règle les utilisera. |
@@ -243,7 +244,7 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 
 ## B.4 Ordre d'exécution d'un tick
 
-Un tick exécute, dans l'ordre : 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002).
+Un tick exécute, dans l'ordre : 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003).
 
 ## B.5 Commandes du joueur
 
@@ -607,6 +608,26 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-MON-06. Ordre du tick : B.4.
 
 **Historique** — v0.3 : création.
+
+#### R-MON-LIE-003 · Retour dans un lieu
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.6 | — |
+
+**Règle** — À la fin de chaque tick, un lieu déjà découvert qui contient la position du joueur, alors qu'il ne la contenait pas au tick précédent, est annoncé (le joueur y revient). Un lieu découvert pendant ce tick n'est pas annoncé une seconde fois.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | le Vallon découvert, le joueur juste en dehors | le joueur y entre | le Vallon est annoncé |
+| 2 | un lieu jamais découvert, le joueur juste en dehors | le joueur y entre | le lieu est découvert, il n'est pas annoncé comme un retour |
+| 3 | le joueur déjà dans le Vallon découvert | il fait un pas dans le Vallon | rien n'est annoncé |
+
+**Notes** — Concept C-MON-06. Retour de test : on aime retrouver le nom du lieu où l'on arrive. Ordre du tick : B.4, après la découverte.
+
+**Historique** — v0.6 : création.
 
 ## 3. IHM — Interface joueur
 
@@ -1016,9 +1037,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.3 | `NOTIFICATION_TICKS` |
+| MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
 
-**Règle** — Découvrir un lieu affiche « Lieu découvert : <nom> » ; recevoir un indice affiche « Nouvel indice : <nom> ». Chaque notification reste affichée `NOTIFICATION_TICKS` ticks ; plusieurs notifications s'empilent, la plus récente en bas.
+**Règle** — Les notifications s'affichent au-dessus du héros, au milieu de l'écran, chacune avec un bouton × qui la ferme. Découvrir un lieu affiche « Lieu découvert : <nom> » ; revenir dans un lieu (R-MON-LIE-003) affiche son nom ; recevoir un indice affiche « Nouvel indice : <nom> ». Chaque notification reste affichée `NOTIFICATION_TICKS` ticks, sauf celles des quêtes (R-IHM-NOT-003), qui restent jusqu'à ce qu'on les ferme. Plusieurs notifications s'empilent, la plus récente en bas, près du héros.
 
 **Exemples**
 
@@ -1026,10 +1047,13 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|---|
 | 1 | durée 240 ticks | le Vallon est découvert au tick 100 | « Lieu découvert : Le Vallon » est affiché du tick 100 au tick 339 et a disparu au tick 340 |
 | 2 | une notification affichée depuis le tick 100 | un indice sur les Ruines du Guet est reçu au tick 150 | les deux notifications sont affichées, « Nouvel indice : Les Ruines du Guet » en bas |
+| 3 | « Lieu découvert : Le Vallon » affichée | clic sur son × | elle a disparu |
+| 4 | durée 240 ticks, « Quête terminée : La poupée de Maëlle » affichée au tick 100 | tick 400 | elle est toujours affichée |
+| 5 | les Ruines du Guet découvertes, le joueur en dehors | il y revient | « Les Ruines du Guet » est affiché |
 
 **Notes** — Concept C-IHM-10.
 
-**Historique** — v0.3 : création.
+**Historique** — v0.3 : création. v0.6 : « en haut de l'écran, pendant `NOTIFICATION_TICKS` » → au-dessus du héros, avec un ×, les quêtes jusqu'à fermeture ; nom du lieu à chaque retour (retours de test : les notifications du haut se superposaient au bandeau et passaient inaperçues).
 
 #### R-IHM-NOT-002 · Trouvailles
 
@@ -1037,20 +1061,20 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
 
-**Règle** — Après une fouille, une notification annonce chaque livre trouvé (« Livre trouvé : <titre> »), puis chaque objet trouvé (« Objet trouvé : <nom> »), puis une notification liste les matériaux (« Trouvé : 2 silex, 1 branche »). Une fouille qui ne rapporte rien affiche « Rien d'intéressant. »
+**Règle** — Après une fouille, une seule notification liste tout ce qui a été trouvé : les livres (« livre « <titre> » »), puis les objets, puis les matériaux dans l'ordre de l'inventaire (« Trouvé : poupée de chiffon bleue, 2 silex, 1 branche »). Une fouille qui ne rapporte rien affiche « Rien d'intéressant. »
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | une cachette avec le livre « Le Tailleur de silex » et 2 silex | le joueur la fouille | « Livre trouvé : Le Tailleur de silex » puis « Trouvé : 2 silex » |
+| 1 | une cachette avec le livre « Le Tailleur de silex » et 2 silex | le joueur la fouille | « Trouvé : livre « Le Tailleur de silex », 2 silex » |
 | 2 | une cachette avec 3 branches et 1 fibre | le joueur la fouille | « Trouvé : 3 branches, 1 fibre » |
 | 3 | une cachette vide | le joueur la fouille | « Rien d'intéressant. » |
-| 4 | une cachette avec la poupée de chiffon bleue et 2 silex | le joueur la fouille | « Objet trouvé : Poupée de chiffon bleue » puis « Trouvé : 2 silex » |
+| 4 | une cachette avec la poupée de chiffon bleue et 2 silex | le joueur la fouille | « Trouvé : poupée de chiffon bleue, 2 silex » |
 
 **Notes** — Concept C-IHM-10. Les matériaux sont listés dans l'ordre de l'inventaire.
 
-**Historique** — v0.4 : création. v0.6 : notification des objets trouvés.
+**Historique** — v0.4 : création. v0.6 : objets trouvés ; « une notification par livre, puis une pour les matériaux » → une seule notification pour toute la fouille (retour de test : la seconde passait inaperçue).
 
 #### R-IHM-NOT-003 · Quêtes et expérience
 
@@ -1058,7 +1082,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | NOUVEAU | v0.6 | `NOTIFICATION_TICKS` |
 
-**Règle** — Recevoir une quête affiche « Nouvelle quête : <titre> ». La terminer affiche « Quête terminée : <titre> » puis « +<points> expérience ».
+**Règle** — Recevoir une quête affiche « Nouvelle quête : <titre> ». La terminer affiche « Quête terminée : <titre> » puis « +<points> expérience ». Ces notifications restent affichées jusqu'à ce qu'on les ferme (R-IHM-NOT-001).
 
 **Exemples**
 
@@ -1071,24 +1095,17 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Historique** — v0.6 : création.
 
-#### R-IHM-JRN-002 · Livres au journal
+#### R-IHM-JRN-002 · ~~Livres au journal~~
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.4 | — |
+| SUPPRIMÉ | v0.6 | — |
 
-**Règle** — Le journal a une seconde partie, « Livres », qui liste les livres trouvés dans l'ordre : titre, texte et plans décrits (« Plans : hache en silex, pioche en silex »). Sans livre, elle affiche « Aucun livre pour l'instant. »
-
-**Exemples**
-
-| # | Étant donné | Quand | Alors |
-|---|---|---|---|
-| 1 | aucun livre | le journal est ouvert | la partie « Livres » affiche « Aucun livre pour l'instant. » |
-| 2 | le livre « Le Tailleur de silex » trouvé | le journal est ouvert | la partie « Livres » affiche son titre, son texte et « Plans : hache en silex, pioche en silex » |
+**Règle** — ~~Le journal a une seconde partie, « Livres », qui liste les livres trouvés dans l'ordre : titre, texte et plans décrits (« Plans : hache en silex, pioche en silex »). Sans livre, elle affiche « Aucun livre pour l'instant. »~~
 
 **Notes** — Concepts C-IHM-09, C-TEC-06.
 
-**Historique** — v0.4 : création.
+**Historique** — v0.4 : création. v0.6 : supprimée — les livres se lisent dans l'inventaire (R-IHM-INV-001, R-IHM-LIV-001) ; au journal, ils faisaient double emploi sans pouvoir être lus (retour de test).
 
 ### 3.14 BAR — Barre d'actions
 
@@ -1119,9 +1136,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.5 | — |
+| MODIFIÉ | v0.6 | — |
 
-**Règle** — Les fenêtres d'information, d'inventaire, de lecture et d'artisanat s'affichent au milieu de l'écran. Une seule est ouverte à la fois : en ouvrir une ferme celle qui l'était. La touche Échap ou le bouton × ferment la fenêtre ouverte. Le journal (touche J) n'en fait pas partie.
+**Règle** — Les fenêtres d'information, d'inventaire, de lecture et d'artisanat s'affichent au milieu de l'écran ; le journal, à gauche. Une seule de ces fenêtres est ouverte à la fois : en ouvrir une ferme celle qui l'était. La touche Échap ou le bouton × ferment la fenêtre ouverte.
 
 **Exemples**
 
@@ -1131,10 +1148,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 2 | la fenêtre d'information ouverte sur un arbre | touche I | la fenêtre d'inventaire est ouverte, celle d'information est fermée |
 | 3 | la fenêtre d'artisanat ouverte | on désigne un arbre | la fenêtre d'information est ouverte, celle d'artisanat est fermée |
 | 4 | la fenêtre d'artisanat ouverte | touche Échap | aucune fenêtre n'est ouverte |
+| 5 | le journal ouvert | touche I | la fenêtre d'inventaire est ouverte, le journal est fermé |
+| 6 | la fenêtre d'inventaire ouverte | clic sur l'icône « Journal » | le journal est ouvert, la fenêtre d'inventaire est fermée |
 
 **Notes** — Concept C-IHM-12. Le joueur peut se déplacer fenêtre ouverte.
 
-**Historique** — v0.5 : création.
+**Historique** — v0.5 : création. v0.6 : le journal en fait partie (retour de test : ouvrir une fenêtre doit fermer les autres).
 
 ### 3.11 INV — Fenêtre d'inventaire
 
@@ -1190,7 +1209,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.6 | `NOTIFICATION_TICKS` |
 
-**Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet ; pour celles qui ont une recette définie (B.8), ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Une recette connue sans recette définie a son bouton inactif et affiche « Pas encore fabricable ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients : la fenêtre dit alors lesquels, dans l'ordre de la recette (« Il manque : 1 branche, 1 fibre »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
+**Règle** — La touche C ouvre et ferme la fenêtre d'artisanat. Elle liste les recettes connues, dans l'ordre où elles ont été apprises : icône et nom de l'objet ; pour celles qui ont une recette définie (B.8), ingrédients sous la forme « possédé/requis » (« Silex 2/1 · Branches 1/2 · Fibres 1/1 ») et un bouton « Fabriquer ». Une recette connue sans recette définie a son bouton inactif et affiche pourquoi : pour le feu de camp, « Pas encore fabricable : arrive avec le cycle jour / nuit ». Le bouton est inactif si l'outil est déjà possédé (« Déjà possédé ») ou s'il manque des ingrédients : la fenêtre dit alors lesquels, dans l'ordre de la recette (« Il manque : 1 branche, 1 fibre »). Un clic sur le bouton actif fabrique l'objet (R-ART-FAB-001) et affiche la notification « Fabriqué : <objet> ». Sans recette, la fenêtre affiche « Aucune recette connue : lisez des livres pour en apprendre. »
 
 **Exemples**
 
@@ -1200,7 +1219,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 2 | la recette de la hache connue ; 2 silex, 1 branche, 1 fibre | la fenêtre est ouverte | « Hache en silex », « Silex 2/1 · Branches 1/2 · Fibres 1/1 », bouton inactif, « Il manque : 1 branche » |
 | 3 | la recette de la hache connue ; 1 silex, 2 branches, 1 fibre | clic sur « Fabriquer » | le joueur possède la hache en silex ; notification « Fabriqué : hache en silex » |
 | 4 | la recette de la hache connue, la hache possédée | la fenêtre est ouverte | bouton inactif, « Déjà possédé » |
-| 5 | seul le plan « feu de camp » connu | la fenêtre est ouverte | « Feu de camp », bouton inactif, « Pas encore fabricable » |
+| 5 | seul le plan « feu de camp » connu | la fenêtre est ouverte | « Feu de camp », bouton inactif, « Pas encore fabricable : arrive avec le cycle jour / nuit » |
 
 **Notes** — Concepts C-ART-04, C-ART-06, C-IHM-12. Un bouton inactif dit toujours pourquoi ; les conditions à venir (établi, lieu, niveau d'expérience) s'afficheront de la même façon.
 
@@ -1823,4 +1842,4 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | v0.3 | 2026-10-12 | **Livrée.** Explorer : une vallée de 160 × 120 tuiles générée par un outil, le Vallon préservé au départ, des lieux et des ruines à découvrir, trois PNJ immobiles à qui parler, des indices, un journal, des notifications, une forêt dense hors de la carte. | Clôture de la v0.2 : 13 règles passées `EN VIGUEUR`. v0.3 : 12 NOUVEAU (R-MON-LIE-001, 002, R-PNJ-POS-001, 002, R-PNJ-DIA-001 à 004, R-IHM-INS-005, R-IHM-DIA-001, R-IHM-JRN-001, R-IHM-NOT-001), 2 MODIFIÉ (R-MON-CAR-001, R-IHM-CAM-001). Paramètres : `MAP_WIDTH`, `MAP_HEIGHT`, `PLAYER_START_TILE` modifiés ; `TALK_REACH`, `NOTIFICATION_TICKS` ajoutés. |
 | v0.4 | 2026-10-12 | **Livrée.** Fouiller : bibliothèques, coffres et caisses des ruines, deux livres (plans de la hache et de la pioche en silex, du feu de camp), silex, branches, fibres ; livres au journal ; atlas d'icônes ; tilesets MV réduits à 32 px. | Clôture de la v0.3 : 14 règles passées `EN VIGUEUR`. v0.4 : 8 NOUVEAU (R-RES-FOU-001 à 004, R-INV-LIV-001, R-IHM-INS-006, R-IHM-NOT-002, R-IHM-JRN-002), 3 MODIFIÉ (R-INV-RES-001, R-IHM-HUD-001, R-IHM-INS-002 : fenêtre au milieu de l'écran). Paramètre ajouté : `SEARCH_MAX_BOOKS`. Q20 et Q21 tranchées. |
 | v0.5 | 2026-10-12 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres, recettes apprises, fenêtre d'artisanat, hache et pioche en silex ; couper et piocher demandent un outil. | Clôture de la v0.4 : 12 règles passées `EN VIGUEUR`, `SEARCH_MAX_BOOKS` aussi. v0.5 : 10 NOUVEAU (R-IHM-INS-007, R-IHM-FEN-001, R-IHM-INV-001, R-IHM-LIV-001, R-IHM-ART-001, R-RES-OUT-001, R-INV-LIV-002, R-INV-OUT-001, R-ART-FAB-001, R-ART-FAB-002), 2 MODIFIÉ (R-IHM-INS-003, R-RES-REC-004). Aucun paramètre : outils et recettes sont des données (B.8). Q22 tranchée par défaut. |
-| v0.6 | 2026-10-12 | *En cours.* Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprites de la bibliothèque en ruine et du coffre ancien (illisibles), caisse du hameau masquée. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 9 NOUVEAU (R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 6 MODIFIÉ (R-IHM-JRN-001, R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003). Q23 tranchée par défaut. |
+| v0.6 | 2026-10-12 | *En cours.* Barre d'actions à icônes ; première quête (la poupée de Maëlle, bouton « Donner ») ; expérience. Corrections : sprites de la bibliothèque en ruine et du coffre ancien (illisibles), caisse du hameau masquée. Retours de test : notifications au-dessus du héros avec ×, une notification par fouille, nom du lieu à chaque retour, livres retirés du journal, journal dans les fenêtres exclusives. | Clôture de la v0.5 : 12 règles passées `EN VIGUEUR`. v0.6 : 10 NOUVEAU (R-MON-LIE-003, R-JOU-EXP-001, R-IHM-HUD-002, R-IHM-JRN-003, R-IHM-NOT-003, R-IHM-BAR-001, R-INV-OBJ-001, R-PNJ-QUE-001 à 003), 8 MODIFIÉ (R-IHM-NOT-001, R-IHM-FEN-001, R-IHM-JRN-001, R-IHM-INS-005, R-IHM-INV-001, R-IHM-ART-001, R-IHM-NOT-002, R-RES-FOU-003), 1 SUPPRIMÉ (R-IHM-JRN-002). Q23 tranchée par défaut. |

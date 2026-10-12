@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.8** | 2026-10-12 | Brouillon — barre d'actions, première quête, expérience |
+| **v0.9** | 2026-10-12 | Brouillon — barre d'actions, première quête, expérience ; notifications au-dessus du héros |
 
 > *Surshim* est un nom de travail.
 
@@ -327,10 +327,10 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-IHM-06` | **Inventaire** affiché en permanence (ressources et quantités, avec leur icône). | VALIDÉ — décliné en v0.2 |
 | `C-IHM-07` | La caméra garde **toujours le joueur au centre de l'écran** : le décor défile autour de lui. L'affichage s'adapte à la taille de chaque écran. | VALIDÉ — décliné en v0.2 |
 | `C-IHM-08` | **Dialogues** à l'ancienne : une boîte en bas de l'écran avec le nom de celui qui parle et son texte, page par page. | VALIDÉ |
-| `C-IHM-09` | **Journal** : la liste des lieux découverts et des **indices** reçus (qui l'a dit, ce qu'il a dit), pour savoir où aller. Plus tard : quêtes, livres, plans. | VALIDÉ |
-| `C-IHM-10` | **Notifications** discrètes : « Lieu découvert », « Nouvel indice », « Trouvé : … ». | VALIDÉ |
+| `C-IHM-09` | **Journal** : les **quêtes**, la liste des lieux découverts et des **indices** reçus (qui l'a dit, ce qu'il a dit), pour savoir où aller. Les livres se lisent dans l'inventaire, pas au journal. | VALIDÉ |
+| `C-IHM-10` | **Notifications** au-dessus du héros, là où le regard se porte, chacune avec une croix : « Lieu découvert », le nom du lieu à chaque retour, « Nouvel indice », « Trouvé : … » (une seule par fouille). Celles des quêtes restent jusqu'à ce qu'on les ferme. | VALIDÉ |
 | `C-IHM-11` | **Atlas d'icônes** : chaque objet, ressource et livre a une icône tirée de la planche d'icônes (24 px). | VALIDÉ |
-| `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent **au milieu de l'écran**, près du héros, et se ferment par × ou Échap. | VALIDÉ |
+| `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent **au milieu de l'écran**, près du héros, et se ferment par × ou Échap. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ |
 | `C-IHM-13` | **Barre d'actions** verticale, à gauche sous le bandeau : une icône par fenêtre (inventaire, artisanat, journal). Survoler une icône affiche son nom et sa touche ; un clic ouvre ou ferme la fenêtre. On n'a pas à connaître les touches. | VALIDÉ |
 
 ### 6.16 TEC — Recherche et technologies
@@ -442,3 +442,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.6 | 2026-10-12 | Réponses Q17 (Tiled, plus tard) et Q18 (PNJ qui se déplacent, avec le temps). Fouille des ruines (C-MON-09), livres (C-TEC-06), atlas d'icônes (C-IHM-11). |
 | v0.7 | 2026-10-12 | Demande du porteur du projet : inventaire consultable et livres lisibles (C-INV-03, C-INV-04), lire un livre de survie apprend ses recettes (C-TEC-07, précise C-TEC-03), fenêtre d'artisanat (C-ART-06), hache requise pour couper et pioche pour piocher (C-RES-04), progression par les outils (C-RES-08), fenêtres au milieu de l'écran (C-IHM-12). Quêtes (C-VIL-09) validées dans leur principe pour la v0.6. Feuille de route décalée : v0.5 artisanat, v0.6 quêtes, v0.7 le temps. |
 | v0.8 | 2026-10-12 | Retours de test : barre d'actions à icônes plutôt que des touches à connaître (C-IHM-13). Quêtes détaillées (C-VIL-09) : la poupée est dans un coffre des ruines, on la rend avec un bouton « Donner », la récompense est de l'expérience. Expérience (C-JOU-09), niveaux plus tard. Le feu de camp passe en v0.7. |
+| v0.9 | 2026-10-12 | Retours de test : notifications au-dessus du héros avec une croix, quêtes jusqu'à fermeture, une seule notification par fouille, nom du lieu à chaque retour (C-IHM-10, C-MON-06) ; livres retirés du journal (C-IHM-09) ; journal parmi les fenêtres exclusives (C-IHM-12). |

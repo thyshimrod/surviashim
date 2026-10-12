@@ -57,7 +57,7 @@ function toEntry(id, inspection) {
       ingredients: '',
       button: TEXTS.craftButton,
       isEnabled: false,
-      warning: TEXTS.notCraftable,
+      warning: TEXTS.notCraftable[id] ?? TEXTS.notCraftableYet,
     };
   }
   const { tool } = inspection;

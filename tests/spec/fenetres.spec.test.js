@@ -95,6 +95,26 @@ describe('R-IHM-FEN-001 · Une fenêtre à la fois', () => {
     assert.equal(windows.handleKey('Escape'), true);
     assert.equal(windows.open, undefined);
   });
+
+  it("ex.5 — le journal ouvert, touche I : l'inventaire remplace le journal", () => {
+    const { windows } = setup();
+    windows.handleKey('j');
+
+    windows.handleKey('i');
+
+    assert.equal(windows.open, 'inventory');
+    assert.equal(windows.journalOpen, false);
+  });
+
+  it("ex.6 — l'inventaire ouvert, clic sur « Journal » : le journal remplace l'inventaire", () => {
+    const { windows } = setup();
+    windows.toggle('inventory');
+
+    windows.toggle('journal');
+
+    assert.equal(windows.open, 'journal');
+    assert.equal(windows.journalOpen, true);
+  });
 });
 
 describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
@@ -243,14 +263,14 @@ describe("R-IHM-ART-001 · Fenêtre d'artisanat", () => {
     assert.equal(entry.warning, 'Déjà possédé');
   });
 
-  it('ex.5 — seul le plan « feu de camp » connu : « Pas encore fabricable »', () => {
+  it('ex.5 — seul le plan « feu de camp » connu : « Pas encore fabricable : … »', () => {
     const view = craftView(craftGame({ knownRecipes: ['campfire'] }));
     const [entry] = view.entries;
 
     assert.equal(view.empty, undefined);
     assert.equal(entry.name, 'Feu de camp');
     assert.equal(entry.isEnabled, false);
-    assert.equal(entry.warning, 'Pas encore fabricable');
+    assert.equal(entry.warning, 'Pas encore fabricable : arrive avec le cycle jour / nuit');
   });
 });
 

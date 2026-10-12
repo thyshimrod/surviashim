@@ -33,16 +33,33 @@ export function isInPlace(place, point, tileSize) {
  * @param {EventBus} events
  */
 export function discoverPlaces(state, rules, events) {
-  for (const place of Object.values(rules.places ?? {})) {
+  const here = Object.values(rules.places ?? {}).filter((place) =>
+    isInPlace(place, state.player.position, state.map.tileSize),
+  );
+  for (const place of here) {
     const entry = state.journal.find((line) => line.placeId === place.id);
-    const isNew = entry?.status !== 'discovered';
-    if (isNew && isInPlace(place, state.player.position, state.map.tileSize)) {
-      if (entry === undefined) {
-        state.journal.push({ placeId: place.id, status: 'discovered' });
-      } else {
-        entry.status = 'discovered';
-      }
-      events.emit(GAME_EVENTS.PLACE_DISCOVERED, { placeId: place.id });
+    if (entry?.status === 'discovered') {
+      announceReturn(state, events, place.id);
+      continue;
     }
+    if (entry === undefined) {
+      state.journal.push({ placeId: place.id, status: 'discovered' });
+    } else {
+      entry.status = 'discovered';
+    }
+    events.emit(GAME_EVENTS.PLACE_DISCOVERED, { placeId: place.id });
+  }
+  state.currentPlaces = here.map((place) => place.id);
+}
+
+/**
+ * R-MON-LIE-003 : un lieu déjà découvert où le joueur n'était pas au tick précédent est annoncé.
+ * @param {GameState} state
+ * @param {EventBus} events
+ * @param {string} placeId
+ */
+function announceReturn(state, events, placeId) {
+  if (!state.currentPlaces.includes(placeId)) {
+    events.emit(GAME_EVENTS.PLACE_ENTERED, { placeId });
   }
 }

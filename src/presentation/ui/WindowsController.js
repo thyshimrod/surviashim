@@ -8,7 +8,7 @@ import { InspectionController } from './InspectionController.js';
 
 /**
  * Fenêtre centrale ouverte (R-IHM-FEN-001).
- * @typedef {'inspection' | 'inventory' | 'book' | 'craft'} WindowName
+ * @typedef {'inspection' | 'inventory' | 'book' | 'craft' | 'journal'} WindowName
  */
 
 /** Touches qui ouvrent et ferment une fenêtre (R-IHM-INV-001, R-IHM-ART-001, R-IHM-JRN-001). */
@@ -23,12 +23,15 @@ export class WindowsController {
   /** Crée un contrôleur sans fenêtre ouverte. */
   constructor() {
     this.inspection = new InspectionController();
-    /** @type {'inventory' | 'book' | 'craft' | undefined} */
+    /** @type {'inventory' | 'book' | 'craft' | 'journal' | undefined} */
     this.panel = undefined;
     /** @type {string | undefined} Livre affiché par la fenêtre de lecture. */
     this.bookId = undefined;
-    /** Le journal est à part : il ne ferme pas les fenêtres centrales (R-IHM-FEN-001). */
-    this.journalOpen = false;
+  }
+
+  /** `true` si le journal est ouvert. */
+  get journalOpen() {
+    return this.panel === 'journal';
   }
 
   /**
@@ -75,16 +78,14 @@ export class WindowsController {
    * @param {'inventory' | 'craft' | 'journal'} name
    */
   toggle(name) {
-    if (name === 'journal') {
-      this.journalOpen = !this.journalOpen;
-      return;
-    }
     this.show(this.panel === name ? undefined : name);
   }
 
   /** R-IHM-JRN-001 : ferme le journal (bouton ×). */
   closeJournal() {
-    this.journalOpen = false;
+    if (this.journalOpen) {
+      this.close();
+    }
   }
 
   /**
@@ -118,7 +119,7 @@ export class WindowsController {
   }
 
   /**
-   * @param {'inventory' | 'book' | 'craft' | undefined} panel
+   * @param {'inventory' | 'book' | 'craft' | 'journal' | undefined} panel
    */
   show(panel) {
     this.inspection.close();

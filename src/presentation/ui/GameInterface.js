@@ -1,16 +1,12 @@
 // @ts-check
-import { GAME_EVENTS } from '../../core/events/gameEvents.js';
 import { nextPage } from '../../core/commands/commands.js';
-import { TEXTS } from '../i18n/fr.js';
-import { CONTENT_TEXTS } from '../i18n/frContent.js';
 import { BookPanel } from './BookPanel.js';
 import { bookView } from './bookView.js';
-import { craftedMessage, learnedMessages } from './craftingMessages.js';
 import { CraftPanel } from './CraftPanel.js';
 import { craftView } from './craftView.js';
 import { DialogueBox } from './DialogueBox.js';
 import { dialogueCommandForKey, dialogueView } from './dialogueView.js';
-import { findingsMessages } from './findingsMessages.js';
+import { NOTIFIED_EVENTS, notificationsFor } from './gameNotifications.js';
 import { InspectPanel } from './InspectPanel.js';
 import { experienceEntry, inventoryEntries } from './inventoryEntries.js';
 import { InventoryHud } from './InventoryHud.js';
@@ -20,7 +16,6 @@ import { JournalPanel } from './JournalPanel.js';
 import { journalView } from './journalView.js';
 import { NotificationList } from './NotificationList.js';
 import { NotificationQueue } from './NotificationQueue.js';
-import { questCompletedMessages, questStartedMessage } from './questMessages.js';
 import { Toolbar } from './Toolbar.js';
 import { toolbarView } from './toolbarView.js';
 import { WindowsController } from './WindowsController.js';
@@ -71,7 +66,11 @@ export class GameInterface {
     this.dialogue = new DialogueBox({ doc, container, onNext: () => game.execute(nextPage()) });
     this.journal = new JournalPanel({ doc, container, onClose: () => this.windows.closeJournal() });
     this.notifications = new NotificationQueue(notificationTicks);
-    this.notificationList = new NotificationList({ doc, container });
+    this.notificationList = new NotificationList({
+      doc,
+      container,
+      onDismiss: (id) => this.notifications.dismiss(id),
+    });
     this.listenToGame();
   }
 
@@ -80,26 +79,13 @@ export class GameInterface {
    * apprises (R-IHM-LIV-001), objets fabriqués (R-IHM-ART-001).
    */
   listenToGame() {
-    const { events } = this.game;
-    const notify = (/** @type {string} */ message) =>
-      this.notifications.push(message, this.game.getState().tick);
-    const placeName = (/** @type {string} */ id) => CONTENT_TEXTS.placeNames[id] ?? id;
-    events.on(GAME_EVENTS.PLACE_DISCOVERED, ({ placeId }) =>
-      this.notifications.push(TEXTS.placeDiscovered(placeName(placeId)), this.game.getState().tick),
-    );
-    events.on(GAME_EVENTS.PLACE_RUMORED, ({ placeId }) =>
-      this.notifications.push(TEXTS.placeRumored(placeName(placeId)), this.game.getState().tick),
-    );
-    // R-IHM-NOT-002 : trouvailles d'une fouille.
-    events.on(GAME_EVENTS.ITEMS_FOUND, ({ books, items, resources }) =>
-      findingsMessages({ books, items, resources }).forEach(notify),
-    );
-    events.on(GAME_EVENTS.BOOK_READ, ({ recipes }) => learnedMessages(recipes).forEach(notify));
-    events.on(GAME_EVENTS.ITEM_CRAFTED, ({ tool }) => notify(craftedMessage(tool)));
-    events.on(GAME_EVENTS.QUEST_STARTED, ({ questId }) => notify(questStartedMessage(questId)));
-    events.on(GAME_EVENTS.QUEST_COMPLETED, ({ questId, experience }) =>
-      questCompletedMessages(questId, experience).forEach(notify),
-    );
+    for (const eventName of NOTIFIED_EVENTS) {
+      this.game.events.on(eventName, (payload) => {
+        for (const { text, sticky } of notificationsFor(eventName, payload)) {
+          this.notifications.push(text, this.game.getState().tick, { sticky });
+        }
+      });
+    }
   }
 
   /**
@@ -148,9 +134,7 @@ export class GameInterface {
     this.hud.render([...inventoryEntries(state.inventory), experienceEntry(state.experience)]);
     this.toolbar.render(toolbarView(windows));
     this.dialogue.render(dialogueView(state.dialogue));
-    this.journal.render(
-      windows.journalOpen ? journalView(state.journal, state.books, state.quests) : undefined,
-    );
-    this.notificationList.render(this.notifications.visible(state.tick));
+    this.journal.render(windows.journalOpen ? journalView(state.journal, state.quests) : undefined);
+    this.notificationList.render(this.notifications.entries(state.tick));
   }
 }

@@ -1,10 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { Game } from '../../src/core/Game.js';
-import { CONTENT_TEXTS } from '../../src/presentation/i18n/frContent.js';
 import { findingsMessages } from '../../src/presentation/ui/findingsMessages.js';
 import { InspectionController } from '../../src/presentation/ui/InspectionController.js';
-import { journalView } from '../../src/presentation/ui/journalView.js';
 import { createTestGame, searchAt } from '../helpers/testGame.js';
 
 /** Juste au sud de la tuile (7, 6) (centre (240, 208)) : distance 28 px, à portée. */
@@ -192,10 +190,9 @@ describe('R-IHM-INS-006 · Désigner un élément à fouiller', () => {
 });
 
 describe('R-IHM-NOT-002 · Trouvailles', () => {
-  it('ex.1 — un livre et 2 silex : deux notifications', () => {
+  it('ex.1 — un livre et 2 silex : une seule notification', () => {
     assert.deepEqual(findingsMessages({ books: ['flint-knapping'], resources: { flint: 2 } }), [
-      'Livre trouvé : Le Tailleur de silex',
-      'Trouvé : 2 silex',
+      'Trouvé : livre « Le Tailleur de silex », 2 silex',
     ]);
   });
 
@@ -209,27 +206,10 @@ describe('R-IHM-NOT-002 · Trouvailles', () => {
     assert.deepEqual(findingsMessages({ books: [], resources: {} }), ["Rien d'intéressant."]);
   });
 
-  it('ex.4 — la poupée et 2 silex : « Objet trouvé » puis « Trouvé : 2 silex »', () => {
+  it('ex.4 — la poupée et 2 silex : « Trouvé : poupée de chiffon bleue, 2 silex »', () => {
     assert.deepEqual(
       findingsMessages({ books: [], items: ['blue-doll'], resources: { flint: 2 } }),
-      ['Objet trouvé : Poupée de chiffon bleue', 'Trouvé : 2 silex'],
+      ['Trouvé : poupée de chiffon bleue, 2 silex'],
     );
-  });
-});
-
-describe('R-IHM-JRN-002 · Livres au journal', () => {
-  it("ex.1 — aucun livre : « Aucun livre pour l'instant. »", () => {
-    const view = journalView([], []);
-
-    assert.deepEqual(view.books, []);
-    assert.equal(view.noBook, "Aucun livre pour l'instant.");
-  });
-
-  it('ex.2 — « Le Tailleur de silex » : titre, texte et plans', () => {
-    const [book] = journalView([], ['flint-knapping']).books;
-
-    assert.equal(book.title, 'Le Tailleur de silex');
-    assert.equal(book.text, CONTENT_TEXTS.books['flint-knapping'].text);
-    assert.equal(book.plans, 'Plans : hache en silex, pioche en silex');
   });
 });

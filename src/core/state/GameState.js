@@ -72,6 +72,8 @@ import { TOOLS } from '../../../data/tools.js';
  * @property {string[]} items Objets possédés, dans l'ordre (R-INV-OBJ-001).
  * @property {QuestEntry[]} quests Quêtes reçues, dans l'ordre (R-PNJ-QUE-001).
  * @property {number} experience Points d'expérience (R-JOU-EXP-001).
+ * @property {string[]} currentPlaces Lieux qui contenaient le joueur à la fin du tick précédent
+ *   (R-MON-LIE-003).
  */
 
 /**
@@ -122,6 +124,7 @@ export function createEmptyInventory() {
  * @param {string[]} [params.items]
  * @param {QuestEntry[]} [params.quests]
  * @param {number} [params.experience]
+ * @param {string[]} [params.currentPlaces]
  * @param {number} [params.tick]
  * @returns {GameState}
  */
@@ -139,14 +142,15 @@ export function createGameState(params) {
 }
 
 /**
- * PNJ et journal, copiés.
- * @param {{ npcs?: Npc[], journal?: JournalEntry[] }} params
- * @returns {{ npcs: Npc[], journal: JournalEntry[] }}
+ * PNJ, journal et lieux où se trouve le joueur, copiés.
+ * @param {{ npcs?: Npc[], journal?: JournalEntry[], currentPlaces?: string[] }} params
+ * @returns {Pick<GameState, 'npcs' | 'journal' | 'currentPlaces'>}
  */
-function copyWorld({ npcs = [], journal = [] }) {
+function copyWorld({ npcs = [], journal = [], currentPlaces = [] }) {
   return {
     npcs: npcs.map((npc) => ({ ...npc, position: { ...npc.position } })),
     journal: journal.map((entry) => ({ ...entry })),
+    currentPlaces: [...currentPlaces],
   };
 }
 

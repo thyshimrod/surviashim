@@ -6,6 +6,8 @@ import { CONTENT_TEXTS } from '../../src/presentation/i18n/frContent.js';
 import { dialogueCommandForKey, dialogueView } from '../../src/presentation/ui/dialogueView.js';
 import { InspectionController } from '../../src/presentation/ui/InspectionController.js';
 import { journalView } from '../../src/presentation/ui/journalView.js';
+import { GAME_EVENTS } from '../../src/core/events/gameEvents.js';
+import { notificationsFor } from '../../src/presentation/ui/gameNotifications.js';
 import { NotificationQueue } from '../../src/presentation/ui/NotificationQueue.js';
 import { WindowsController } from '../../src/presentation/ui/WindowsController.js';
 import { createTestGame, makeMap } from '../helpers/testGame.js';
@@ -173,6 +175,33 @@ describe('R-IHM-NOT-001 · Notifications', () => {
     assert.deepEqual(queue.visible(150), [
       'Lieu découvert : Le Vallon',
       'Nouvel indice : Les Ruines du Guet',
+    ]);
+  });
+
+  it('ex.3 — clic sur le × de « Lieu découvert : Le Vallon » : elle disparaît', () => {
+    const queue = new NotificationQueue(240);
+    const id = queue.push('Lieu découvert : Le Vallon', 100);
+
+    queue.dismiss(id);
+
+    assert.deepEqual(queue.visible(150), []);
+  });
+
+  it('ex.4 — « Quête terminée » au tick 100 : toujours affichée au tick 400', () => {
+    const queue = new NotificationQueue(240);
+    const [completed] = notificationsFor(GAME_EVENTS.QUEST_COMPLETED, {
+      questId: 'blue-doll',
+      experience: 50,
+    });
+
+    queue.push(completed.text, 100, completed);
+
+    assert.deepEqual(queue.visible(400), ['Quête terminée : La poupée de Maëlle']);
+  });
+
+  it('ex.5 — retour aux Ruines du Guet : « Les Ruines du Guet »', () => {
+    assert.deepEqual(notificationsFor(GAME_EVENTS.PLACE_ENTERED, { placeId: 'watchtower-ruins' }), [
+      { text: 'Les Ruines du Guet', sticky: false },
     ]);
   });
 });

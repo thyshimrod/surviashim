@@ -1,5 +1,4 @@
 // @ts-check
-import { BOOKS } from '../../../data/books.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
 import { questTitle } from './questMessages.js';
@@ -24,38 +23,23 @@ import { questTitle } from './questMessages.js';
  */
 
 /**
- * Livre affiché au journal (R-IHM-JRN-002).
- * @typedef {object} JournalBook
- * @property {string} id
- * @property {string} title
- * @property {string} text
- * @property {string} plans « Plans : hache en silex, pioche en silex ».
- * @property {string} icon Icône (clé de ICONS).
- */
-
-/**
  * Contenu du journal.
  * @typedef {object} JournalContent
  * @property {JournalLine[]} lines Lieux, dans l'ordre d'arrivée.
  * @property {string | undefined} empty Message si aucun lieu.
- * @property {JournalBook[]} books Livres, dans l'ordre où ils ont été trouvés.
- * @property {string | undefined} noBook Message si aucun livre.
  * @property {JournalQuest[]} quests Quêtes reçues, dans l'ordre.
  * @property {string | undefined} noQuest Message si aucune quête.
  */
 
 /**
  * @param {readonly JournalEntry[]} journal
- * @param {readonly string[]} [books] Livres trouvés (identifiants).
  * @param {readonly QuestEntry[]} [quests] Quêtes reçues.
  * @returns {JournalContent}
  */
-export function journalView(journal, books = [], quests = []) {
+export function journalView(journal, quests = []) {
   return {
     lines: journal.map(toLine),
     empty: journal.length === 0 ? TEXTS.journalEmpty : undefined,
-    books: books.map(toBook),
-    noBook: books.length === 0 ? TEXTS.booksEmpty : undefined,
     quests: quests.map(({ questId, status }) => ({
       id: questId,
       heading: `${questTitle(questId)} — ${TEXTS.questStatus[status]}`,
@@ -80,20 +64,4 @@ function toLine(entry) {
   }
   const name = CONTENT_TEXTS.npcNames[entry.hint?.npcId]?.short ?? entry.hint?.npcId ?? '';
   return { place, status: TEXTS.journalHintFrom(name), hint };
-}
-
-/**
- * @param {string} id
- * @returns {JournalBook}
- */
-function toBook(id) {
-  const texts = CONTENT_TEXTS.books[id];
-  const plans = (BOOKS[id]?.plans ?? []).map((plan) => CONTENT_TEXTS.plans[plan] ?? plan);
-  return {
-    id,
-    title: texts?.title ?? id,
-    text: texts?.text ?? '',
-    plans: TEXTS.plansLabel(plans.join(', ')),
-    icon: BOOKS[id]?.icon ?? 'book-red',
-  };
 }

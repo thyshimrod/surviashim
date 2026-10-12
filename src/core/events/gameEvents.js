@@ -16,6 +16,7 @@
  * | DIALOGUE_ENDED     | { npcId }                                                 |
  * | PLACE_RUMORED      | { placeId, npcId, pageId } — indice reçu                  |
  * | PLACE_DISCOVERED   | { placeId }                                               |
+ * | PLACE_ENTERED      | { placeId } — retour dans un lieu déjà découvert          |
  * | COMMAND_REJECTED   | { command, reason }                                       |
  */
 export const GAME_EVENTS = Object.freeze({
@@ -30,5 +31,6 @@ export const GAME_EVENTS = Object.freeze({
   DIALOGUE_ENDED: 'dialogue-ended',
   PLACE_RUMORED: 'place-rumored',
   PLACE_DISCOVERED: 'place-discovered',
+  PLACE_ENTERED: 'place-entered',
   COMMAND_REJECTED: 'command-rejected',
 });
