@@ -30,6 +30,7 @@ export function createGameRules(parameters) {
     walkSpeed: parameters.PLAYER_WALK_SPEED,
     hitbox: { width: parameters.PLAYER_HITBOX_WIDTH, height: parameters.PLAYER_HITBOX_HEIGHT },
     harvestReach: parameters.HARVEST_REACH,
+    handHarvestTicks: parameters.HAND_HARVEST_TICKS,
     talkReach: parameters.TALK_REACH,
     tiles: TILE_DEFINITIONS,
     npcs: NPCS,

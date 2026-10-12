@@ -1,11 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  craftItem,
-  harvestTile,
-  researchPlan,
-  searchTile,
-} from '../../src/core/commands/commands.js';
+import { craftItem, researchPlan, searchTile } from '../../src/core/commands/commands.js';
 import { GAME_EVENTS } from '../../src/core/events/gameEvents.js';
 import { levelOf, researchPoints } from '../../src/core/systems/experience.js';
 import { craftView } from '../../src/presentation/ui/craftView.js';
@@ -13,7 +8,7 @@ import { notificationsFor } from '../../src/presentation/ui/gameNotifications.js
 import { experienceEntry } from '../../src/presentation/ui/inventoryEntries.js';
 import { researchView } from '../../src/presentation/ui/researchView.js';
 import { WindowsController } from '../../src/presentation/ui/WindowsController.js';
-import { at, createTestGame, readAt, walk } from '../helpers/testGame.js';
+import { at, createTestGame, readAt, walk, harvestAt } from '../helpers/testGame.js';
 
 /** Le joueur au centre de la tuile (10, 10), orienté à droite. */
 const CENTER_10_10 = { x: 336, y: 336 };
@@ -32,7 +27,7 @@ function beside(tile, options = {}) {
 /** Récolte l'élément en (11, 10) et renvoie l'inventaire. */
 function harvestBeside(tile, tools) {
   const { game, state } = beside(tile, { tools });
-  game.execute(harvestTile({ column: 11, row: 10 }));
+  harvestAt(game, 11, 10);
   return state.inventory;
 }
 
@@ -40,7 +35,7 @@ describe("R-JOU-EXP-002 · Gagner de l'expérience", () => {
   it('ex.1 — récolter un arbre : 1 expérience', () => {
     const { game, state } = beside('tree');
 
-    game.execute(harvestTile({ column: 11, row: 10 }));
+    harvestAt(game, 11, 10);
 
     assert.equal(state.experience, 1);
   });
@@ -84,7 +79,7 @@ describe("R-JOU-EXP-002 · Gagner de l'expérience", () => {
       player: { position: CENTER_10_10 },
     });
 
-    game.execute(harvestTile({ column: 20, row: 20 }));
+    harvestAt(game, 20, 20);
 
     assert.equal(state.experience, 0);
   });
@@ -182,16 +177,20 @@ describe('R-INV-LIV-002 · Lire un livre', () => {
 });
 
 describe('R-RES-OUT-002 · Meilleurs outils', () => {
-  it('ex.1 — la hache en silex : 3 bois', () => {
-    assert.equal(harvestBeside('tree', ['flint-axe']).wood, 3);
+  it('ex.1 — la hache en silex : 1 bois et 2 branches', () => {
+    const inventory = harvestBeside('tree', ['flint-axe']);
+
+    assert.deepEqual([inventory.wood, inventory.branch], [1, 2]);
   });
 
-  it('ex.2 — les haches en silex et en pierre : 4 bois', () => {
-    assert.equal(harvestBeside('tree', ['flint-axe', 'stone-axe']).wood, 4);
+  it('ex.2 — les haches en silex et en pierre : 3 bois et 2 branches', () => {
+    const inventory = harvestBeside('tree', ['flint-axe', 'stone-axe']);
+
+    assert.deepEqual([inventory.wood, inventory.branch], [3, 2]);
   });
 
-  it('ex.3 — la pioche en pierre : 3 pierres', () => {
-    assert.equal(harvestBeside('rock', ['stone-pickaxe']).stone, 3);
+  it('ex.3 — la pioche en pierre : 2 pierres', () => {
+    assert.equal(harvestBeside('rock', ['stone-pickaxe']).stone, 2);
   });
 
   it('ex.4 — le sac du cueilleur, un buisson : 4 baies', () => {
@@ -338,7 +337,7 @@ describe('R-IHM-NOT-004 · Niveau gagné', () => {
     game.events.on(GAME_EVENTS.LEVEL_UP, (payload) =>
       messages.push(...notificationsFor(GAME_EVENTS.LEVEL_UP, payload)),
     );
-    game.execute(harvestTile({ column: 11, row: 10 }));
+    harvestAt(game, 11, 10);
     return messages;
   };
 

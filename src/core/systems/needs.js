@@ -77,6 +77,7 @@ function faint(state, rules, events) {
   const vitals = /** @type {VitalRules} */ (rules.vitals);
   const time = /** @type {import('./time.js').TimeRules} */ (rules.time);
   state.dialogue = undefined;
+  state.harvesting = undefined; // R-RES-REC-006
   state.clock = nextMorning(state.clock, time);
   state.player.position = { ...vitals.startPosition };
   state.player.moveIntent = { dx: 0, dy: 0 };

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { harvestTile, placeItem, rekindle } from '../../src/core/commands/commands.js';
+import { placeItem, rekindle } from '../../src/core/commands/commands.js';
 import { Game } from '../../src/core/Game.js';
 import { darknessAt } from '../../src/core/systems/time.js';
 import { clockLabel } from '../../src/presentation/ui/clockLabel.js';
@@ -9,7 +9,7 @@ import { InspectionController } from '../../src/presentation/ui/InspectionContro
 import { inventoryView } from '../../src/presentation/ui/inventoryView.js';
 import { nightView } from '../../src/presentation/ui/nightView.js';
 import { WindowsController } from '../../src/presentation/ui/WindowsController.js';
-import { at, craftAt, createTestGame, walk } from '../helpers/testGame.js';
+import { at, craftAt, createTestGame, walk, harvestAt } from '../helpers/testGame.js';
 
 /** Le joueur au centre de la tuile (10, 10), orienté à droite : la tuile devant est (11, 10). */
 const CENTER_10_10 = { x: 336, y: 336 };
@@ -206,16 +206,17 @@ describe("R-IHM-ART-001 · Fenêtre d'artisanat", () => {
 });
 
 describe('R-ART-FAB-001 · Fabriquer', () => {
-  it('ex.3 — un feu de camp de plus : 0 pierre, 1 bois, 2 feux à poser', () => {
-    const { game, state } = createTestGame({
+  it("ex.3 — de l'herbe en (11, 10) : 0 pierre, 1 bois, un feu allumé en (11, 10)", () => {
+    const { game, state } = standing({
       knownRecipes: ['campfire'],
       inventory: { stone: 3, wood: 3 },
-      placeables: { campfire: 1 },
     });
 
     assert.deepEqual(craftAt(game, 'campfire'), { ok: true });
     assert.deepEqual([state.inventory.stone, state.inventory.wood], [0, 1]);
-    assert.equal(state.placeables.campfire, 2);
+    assert.equal(state.map.tileIdAt(11, 10), 'campfire');
+    assert.equal(game.inspect({ column: 11, row: 10 }).campfire.isLit, true);
+    assert.equal(state.placeables.campfire ?? 0, 0);
   });
 });
 
@@ -330,7 +331,7 @@ describe('R-RES-REC-005 · Repousse des arbres', () => {
   const cutAt10 = () => {
     // Sans faim ni santé : trois jours sans manger feraient s'évanouir le héros.
     const result = standing({ tiles: [[11, 10, 'tree']], clock: at(1, '10:00'), needs: false });
-    result.game.execute(harvestTile({ column: 11, row: 10 }));
+    harvestAt(result.game, 11, 10);
     return result;
   };
 

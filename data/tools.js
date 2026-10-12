@@ -17,28 +17,39 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  * @property {ToolKind} kind
  * @property {string} icon Icône (clé de ICONS, data/icons.js).
  * @property {number} bonus Rendement en plus (R-RES-OUT-002).
+ * @property {number} [harvestTicks] Durée d'une récolte avec cet outil (R-RES-REC-006) ; absente
+ *   pour un outil qui ne récolte pas (le sac).
  */
 
 /** @type {Readonly<Record<string, Readonly<ToolDefinition>>>} */
 export const TOOLS = Object.freeze({
-  'flint-axe': Object.freeze({ id: 'flint-axe', kind: 'axe', icon: 'axe', bonus: 0 }),
+  'flint-axe': Object.freeze({
+    id: 'flint-axe',
+    kind: 'axe',
+    icon: 'axe',
+    bonus: 0,
+    harvestTicks: GAME_PARAMETERS.FLINT_HARVEST_TICKS,
+  }),
   'flint-pickaxe': Object.freeze({
     id: 'flint-pickaxe',
     kind: 'pickaxe',
     icon: 'pickaxe',
     bonus: 0,
+    harvestTicks: GAME_PARAMETERS.FLINT_HARVEST_TICKS,
   }),
   'stone-axe': Object.freeze({
     id: 'stone-axe',
     kind: 'axe',
     icon: 'battle-axe',
-    bonus: GAME_PARAMETERS.STONE_TOOL_BONUS,
+    bonus: GAME_PARAMETERS.STONE_AXE_BONUS,
+    harvestTicks: GAME_PARAMETERS.STONE_HARVEST_TICKS,
   }),
   'stone-pickaxe': Object.freeze({
     id: 'stone-pickaxe',
     kind: 'pickaxe',
     icon: 'pickaxe',
-    bonus: GAME_PARAMETERS.STONE_TOOL_BONUS,
+    bonus: GAME_PARAMETERS.STONE_PICKAXE_BONUS,
+    harvestTicks: GAME_PARAMETERS.STONE_HARVEST_TICKS,
   }),
   'gatherer-bag': Object.freeze({
     id: 'gatherer-bag',

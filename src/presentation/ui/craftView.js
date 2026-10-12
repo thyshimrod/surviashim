@@ -61,7 +61,7 @@ function toEntry(id, inspection) {
       )
       .join(' · '),
     button: TEXTS.craftButton,
-    isEnabled: !inspection.isOwned && !inspection.needsFire && inspection.hasIngredients,
+    isEnabled: warningOf(inspection) === undefined,
     warning: warningOf(inspection),
   };
 }
@@ -78,7 +78,7 @@ function warningOf(inspection) {
     return TEXTS.needsFire;
   }
   if (inspection.hasIngredients) {
-    return undefined;
+    return inspection.needsRoom ? TEXTS.needsRoom : undefined;
   }
   const missing = inspection.ingredients
     .filter(({ owned, required }) => owned < required)

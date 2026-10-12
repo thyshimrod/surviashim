@@ -7,7 +7,7 @@ import { burnSage } from './commands/sage.js';
 import { COMMAND_TYPES } from './commands/commands.js';
 import { craft, inspectRecipe, readBook } from './commands/crafting.js';
 import { finishDialogue, inspectNpc, talk, talkRefusal, turnPage } from './commands/dialogue.js';
-import { harvest, inspectTile } from './commands/harvest.js';
+import { harvest, inspectTile, updateHarvest } from './commands/harvest.js';
 import { give } from './commands/quests.js';
 import { search } from './commands/search.js';
 import { EventBus } from './events/EventBus.js';
@@ -153,6 +153,7 @@ export class Game {
   update() {
     this.state.tick += 1;
     advanceClock(this.state);
+    updateHarvest(this.state, this.rules, this.events);
     movePlayer(this.state, this.rules);
     discoverPlaces(this.state, this.rules, this.events);
     regrowTrees(this.state, this.rules, this.events);

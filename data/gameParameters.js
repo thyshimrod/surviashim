@@ -67,7 +67,8 @@
  * @property {number} LEVEL_FIRST_XP Expérience pour passer au niveau 2.
  * @property {number} LEVEL_XP_STEP Expérience demandée en plus à chaque niveau suivant.
  * @property {number} RESEARCH_COST Coût d'un plan en points de recherche.
- * @property {number} STONE_TOOL_BONUS Rendement en plus d'un outil en pierre.
+ * @property {number} STONE_AXE_BONUS Bois en plus avec une hache en pierre.
+ * @property {number} STONE_PICKAXE_BONUS Pierre en plus avec une pioche en pierre.
  * @property {number} BAG_BONUS Baies et champignons en plus avec le sac du cueilleur.
  * @property {number} GRILLED_MUSHROOM_FOOD Faim rendue par un champignon grillé.
  * @property {number} ENERGY_MAX Énergie maximale.
@@ -86,6 +87,9 @@
  * @property {number} TALL_GRASS_FIBER_YIELD Fibres données par des hautes herbes.
  * @property {number} TALL_GRASS_REGROW_DAYS Jours avant que les hautes herbes repoussent.
  * @property {number} SAGE_SMOKE_LEVEL Niveau requis pour rechercher la fumée de sauge.
+ * @property {number} FLINT_HARVEST_TICKS Durée d'une récolte avec un outil en silex (ticks).
+ * @property {number} STONE_HARVEST_TICKS Durée d'une récolte avec un outil en pierre (ticks).
+ * @property {number} HAND_HARVEST_TICKS Durée d'une récolte à la main (ticks).
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -102,8 +106,8 @@ export const GAME_PARAMETERS = Object.freeze({
   WALK_FRAME_SEQUENCE: Object.freeze([3, 2, 1, 2]),
   IDLE_FRAME: 2,
   HARVEST_REACH: 48,
-  TREE_WOOD_YIELD: 3,
-  ROCK_STONE_YIELD: 2,
+  TREE_WOOD_YIELD: 1,
+  ROCK_STONE_YIELD: 1,
   FLOWERS_YIELD: 1,
   TALK_REACH: 64,
   NOTIFICATION_TICKS: 240,
@@ -143,7 +147,8 @@ export const GAME_PARAMETERS = Object.freeze({
   LEVEL_FIRST_XP: 100,
   LEVEL_XP_STEP: 50,
   RESEARCH_COST: 1,
-  STONE_TOOL_BONUS: 1,
+  STONE_AXE_BONUS: 2,
+  STONE_PICKAXE_BONUS: 1,
   BAG_BONUS: 1,
   GRILLED_MUSHROOM_FOOD: 35,
   ENERGY_MAX: 100,
@@ -162,4 +167,7 @@ export const GAME_PARAMETERS = Object.freeze({
   TALL_GRASS_FIBER_YIELD: 2,
   TALL_GRASS_REGROW_DAYS: 2,
   SAGE_SMOKE_LEVEL: 10,
+  FLINT_HARVEST_TICKS: 180,
+  STONE_HARVEST_TICKS: 90,
+  HAND_HARVEST_TICKS: 60,
 });

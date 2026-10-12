@@ -40,6 +40,8 @@ export class WindowsController {
     this.bookId = undefined;
     /** @type {InventoryTab} Onglet affiché de l'inventaire (R-IHM-INV-001). */
     this.inventoryTab = 'resources';
+    /** @type {'inventory' | 'journal' | undefined} Fenêtre d'où le livre affiché a été ouvert. */
+    this.bookOrigin = undefined;
   }
 
   /** `true` si le journal est ouvert. */
@@ -118,8 +120,10 @@ export class WindowsController {
   read(bookId, game) {
     const result = game.execute(readBook(bookId));
     if (result.ok) {
+      const origin = this.panel === 'journal' ? 'journal' : 'inventory';
       this.show('book');
       this.bookId = bookId;
+      this.bookOrigin = origin;
     }
     return result;
   }
@@ -188,9 +192,16 @@ export class WindowsController {
     this.confirmingNewGame = false;
   }
 
-  /** Ferme la fenêtre ouverte (× ou Échap). */
+  /**
+   * Ferme la fenêtre ouverte (× ou Échap). Fermer la lecture ramène à la fenêtre d'origine :
+   * l'inventaire sur l'onglet « Livres », ou le journal (R-IHM-LIV-001).
+   */
   close() {
-    this.show(undefined);
+    const origin = this.panel === 'book' ? this.bookOrigin : undefined;
+    this.show(origin);
+    if (origin === 'inventory') {
+      this.inventoryTab = 'books';
+    }
   }
 
   /**
@@ -200,6 +211,7 @@ export class WindowsController {
     this.inspection.close();
     this.panel = panel;
     this.bookId = undefined;
+    this.bookOrigin = undefined;
     this.inventoryTab = 'resources'; // R-IHM-INV-001 : l'inventaire s'ouvre sur « Ressources »
     this.confirmingNewGame = false;
   }

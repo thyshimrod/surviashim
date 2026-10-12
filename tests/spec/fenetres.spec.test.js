@@ -29,7 +29,7 @@ describe('R-IHM-INS-007 · Outil manquant', () => {
   it('ex.1 — aucun outil, un arbre à portée : « Il faut une hache »', () => {
     const view = viewOf('tree');
 
-    assert.equal(view.action, 'Couper : 3 bois, 2 branches');
+    assert.equal(view.action, 'Couper : 1 bois, 2 branches');
     assert.equal(view.isActionEnabled, false);
     assert.equal(view.warning, 'Il faut une hache');
   });
@@ -147,7 +147,7 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
         'Fibres 0',
         'Baies 0',
         'Champignons 0',
-        'Champignons grillés 0',
+        'Champ. grillés 0',
         'Sauge 0',
       ],
     );
@@ -234,12 +234,23 @@ describe('R-IHM-LIV-001 · Lire un livre', () => {
     assert.deepEqual(notifications, []);
   });
 
-  it('ex.3 — la fenêtre de lecture ouverte, touche Échap : elle se ferme', () => {
+  it("ex.3 — ouverte depuis l'inventaire, touche Échap : l'inventaire, onglet « Livres »", () => {
     const { windows } = reading();
 
     windows.handleKey('Escape');
 
-    assert.equal(windows.open, undefined);
+    assert.deepEqual([windows.open, windows.inventoryTab], ['inventory', 'books']);
+  });
+
+  it('ex.4 — ouverte depuis les archives du journal, clic sur × : le journal', () => {
+    const { game } = createTestGame({ books: ['flint-knapping'], readBooks: ['flint-knapping'] });
+    const windows = new WindowsController();
+    windows.toggle('journal');
+    windows.read('flint-knapping', game);
+
+    windows.close();
+
+    assert.equal(windows.open, 'journal');
   });
 });
 

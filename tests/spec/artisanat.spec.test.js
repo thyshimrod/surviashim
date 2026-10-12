@@ -32,12 +32,12 @@ describe('R-RES-OUT-001 · Outil requis pour récolter', () => {
     assert.equal(state.inventory.wood, 0);
   });
 
-  it('ex.2 — la hache en silex, un arbre à portée : 3 bois', () => {
+  it('ex.2 — la hache en silex, un arbre à portée : 1 bois', () => {
     const { game, state } = withElement('tree', { tools: ['flint-axe'] });
 
     harvestAt(game, 7, 6);
 
-    assert.equal(state.inventory.wood, 3);
+    assert.equal(state.inventory.wood, 1);
   });
 
   it('ex.3 — la hache seule, un rocher à portée : refus MISSING_TOOL', () => {
@@ -46,12 +46,12 @@ describe('R-RES-OUT-001 · Outil requis pour récolter', () => {
     assert.deepEqual(harvestAt(game, 7, 6), { ok: false, reason: 'MISSING_TOOL' });
   });
 
-  it('ex.4 — la pioche en silex, un rocher à portée : 2 pierres', () => {
+  it('ex.4 — la pioche en silex, un rocher à portée : 1 pierre', () => {
     const { game, state } = withElement('rock', { tools: ['flint-pickaxe'] });
 
     harvestAt(game, 7, 6);
 
-    assert.equal(state.inventory.stone, 2);
+    assert.equal(state.inventory.stone, 1);
   });
 
   it('ex.5 — aucun outil, des fleurs à portée : 1 fleur', () => {

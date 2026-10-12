@@ -1,3 +1,4 @@
+import { updateHarvest } from '../../src/core/commands/harvest.js';
 import { BOOKS } from '../../data/books.js';
 import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { ITEMS } from '../../data/items.js';
@@ -147,6 +148,7 @@ export function createTestGame({
       walkSpeed,
       hitbox,
       harvestReach,
+      handHarvestTicks: rules.handHarvestTicks,
       talkReach,
       tiles: TILE_DEFINITIONS,
       npcs: npcDefinitions,
@@ -202,7 +204,22 @@ export function isCloseTo(actual, expected) {
  * @param {number} row
  */
 export function harvestAt(game, column, row) {
-  return game.execute(harvestTile({ column, row }));
+  const result = game.execute(harvestTile({ column, row }));
+  finishHarvest(game);
+  return result;
+}
+
+/**
+ * Mène la récolte en cours à son terme sans faire passer le temps (R-RES-REC-006) : les exemples
+ * qui ne portent pas sur la durée « récoltent » d'un coup.
+ * @param {Game} game
+ */
+export function finishHarvest(game) {
+  const { harvesting } = game.getState();
+  if (harvesting !== undefined) {
+    harvesting.endTick = game.getState().tick;
+    updateHarvest(game.getState(), game.rules, game.events);
+  }
 }
 
 /**

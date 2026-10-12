@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.14** | 2026-10-12 | Brouillon — retours de test de la v0.10 : bandeau essentiel, inventaire en onglets, archives, fibres et branches, fumée de sauge au niveau 10 |
+| **v0.15** | 2026-10-12 | Brouillon — retours de test de la v0.10 (suite) : durée de récolte selon l'outil, feu de camp posé en le fabriquant, fenêtres ancrées en haut, arbre de compétences proposé |
 
 > *Surshim* est un nom de travail.
 
@@ -178,6 +178,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-JOU-10` | **Faim et santé en v0.8** : la faim baisse d'environ 40 par journée (deux à trois repas) ; rassasié, on récupère des PV ; affamé, on en perd lentement. L'énergie (C-JOU-06) attendra la Flétrissure. | VALIDÉ — v0.8 (précise C-JOU-02, C-JOU-05) |
 | `C-JOU-09` | **Expérience** : le joueur gagne des points d'expérience en jouant (récolter, fouiller, fabriquer, découvrir un lieu) et en accomplissant des quêtes, affichés en permanence. Des **niveaux**, de plus en plus espacés, donnent chacun un point de recherche (C-TEC-03). Plus tard : niveaux requis pour certaines compétences. | VALIDÉ — compteur en v0.6, niveaux en v0.9 |
 | `C-JOU-07` | *Hypothèse à tester* : l'énergie sert aussi d'endurance (esquive, travail). Risque : rendre le jeu trop dur ; à n'essayer qu'une fois la Flétrissure jouable. | PROPOSÉ — hypothèse (G13) |
+| `C-JOU-11` | **Arbre de compétences** (précise C-JOU-04) : des points à dépenser dans des passifs — récolter 10 % plus vite, une chance d'obtenir un matériau rare, des objets… | PROPOSÉ — idée des retours de test de la v0.10, à préciser |
 | `C-JOU-08` | **La lumière protège** : à la lumière du Foyer, des braseros et des torches, la Flétrissure ne ronge plus l'énergie. Poser des braseros permet d'avancer en zone flétrie par points d'appui. | VALIDÉ (G14) |
 
 ### 6.2 MON — Monde
@@ -206,8 +207,9 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-RES-04` | **Trois façons de récolter** : **ramasser** à la main (fleurs, branches, cailloux, silex, baies, champignons), **couper** à la hache (arbres → bois), **piocher** à la pioche (rochers → pierre, filons → minerais). | VALIDÉ — outils exigés en v0.5 |
 | `C-RES-09` | **Cueillette** : des buissons à baies et des champignons se ramassent à la main, puis repoussent ; c'est la première nourriture. La cuisine viendra plus tard (C-ART-03). | VALIDÉ — v0.8 |
 | `C-RES-10` | **Branches et fibres** : couper un arbre donne aussi des branches ; des **hautes herbes**, nombreuses, se coupent à la main pour des fibres et repoussent. Les cachettes n'en sont plus la seule source. | VALIDÉ — v0.10 |
+| `C-RES-11` | **La récolte prend du temps** : le héros frappe avec son outil (animation et barre de progression) ; s'il bouge, il s'interrompt sans rien gagner. Un outil en silex est lent et peu efficace (environ 3 s, 1 bois ou 1 pierre) ; en pierre, il va deux fois plus vite et rapporte plus (environ 1,5 s, 3 bois ou 2 pierres). À la main, la cueillette prend environ 1 s. | VALIDÉ — v0.10 |
 | `C-RES-08` | **Progression par les outils** : au départ, on ne peut que ramasser. Les premiers matériaux (silex, branches, fibres) se trouvent dans les ruines ; ils permettent de fabriquer la hache et la pioche, qui ouvrent le bois et la pierre, puis la suite. | VALIDÉ |
-| `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite ou davantage. | PROPOSÉ — en v0.9, seul « un meilleur outil récolte davantage » est validé (outils en pierre, sac du cueilleur) |
+| `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite et davantage. | PROPOSÉ — validé en v0.9 : « récolte davantage » ; en v0.10 : « récolte plus vite » (C-RES-11) ; le reste plus tard |
 | `C-RES-06` | **Ressources de départ** : bois, pierre, branche, silex, fibre végétale, fleurs. Puis : minerais, herbes médicinales, plantes rares des zones flétries. | VALIDÉ — silex, branches et fibres arrivent en v0.4 par la fouille |
 | `C-RES-07` | Les arbres repoussent depuis leur souche au bout de quelques jours ; les rochers et les filons réapparaissent ailleurs. | VALIDÉ (Q14) — les arbres en v0.7 (3 jours), les rochers plus tard |
 
@@ -231,7 +233,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-ART-04` | **Premier artisanat, à la main**, sans établi : une **hache en silex** (silex, branches, fibres), une **pioche en silex**, un **feu de camp** (pierres + bois). C'est le premier pas avant la recherche. On ne fabrique que les recettes **apprises** (C-TEC-07). | VALIDÉ — hache et pioche en v0.5 ; le feu de camp attend C-ART-05 |
 | `C-ART-06` | **Fenêtre d'artisanat** (touche C) : les recettes apprises, ce qu'elles demandent (possédé / requis) et un bouton **Fabriquer**. | VALIDÉ |
 | `C-ART-05` | Le **feu de camp** est la première source de lumière que le joueur fabrique (pierres et bois) : posé au sol, il éclaire la nuit ; il brûle une dizaine d'heures puis s'éteint, et se ravive avec du bois. Plus tard : il protège de la Flétrissure (C-JOU-08) et permet de cuire. | VALIDÉ — v0.7 (lumière et combustible) |
-| `C-ART-07` | **Objets à poser** : certaines recettes (le feu de camp) donnent un objet qu'on garde dans l'inventaire, puis qu'on **pose** sur la tuile devant le héros. | VALIDÉ — v0.7 |
+| `C-ART-07` | **Objets à poser** : certaines recettes donnent un objet que l'on **pose** sur la tuile devant le héros. Le feu de camp est posé dès qu'on le fabrique : sans place libre devant le héros, on ne peut pas le fabriquer. | VALIDÉ — v0.7 ; v0.10 : le feu est posé en le fabriquant, il ne passe plus par l'inventaire |
 
 ### 6.6 CON — Construction
 
@@ -339,7 +341,7 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-IHM-09` | **Journal** : les **quêtes**, la liste des lieux découverts et des **indices** reçus (qui l'a dit, ce qu'il a dit), pour savoir où aller, et les **archives** : les livres déjà lus, que l'on peut relire. | VALIDÉ |
 | `C-IHM-10` | **Notifications** au-dessus du héros, là où le regard se porte, chacune avec une croix : « Lieu découvert », le nom du lieu à chaque retour, « Nouvel indice », « Trouvé : … » (une seule par fouille). Les plus importantes (quêtes, niveau, évanouissement) restent plus longtemps. | VALIDÉ |
 | `C-IHM-11` | **Atlas d'icônes** : chaque objet, ressource et livre a une icône tirée de la planche d'icônes (24 px). | VALIDÉ |
-| `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent **au milieu de l'écran**, près du héros, et se ferment par × ou Échap. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ |
+| `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent au centre de l'écran, près du héros, **le haut toujours à la même place** : elles grandissent vers le bas, pour que les onglets et les boutons ne bougent pas. Elles se ferment par × ou Échap ; fermer un livre ramène à la fenêtre d'où on l'a ouvert. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ — v0.10 : haut fixe, retour après lecture |
 | `C-IHM-15` | **Jauges** de santé (PV) et de faim au bandeau ; un bouton « Manger » sur la nourriture de l'inventaire ; une fenêtre « Partie » (sauvegarde, nouvelle partie). | VALIDÉ — v0.8 |
 | `C-IHM-14` | **Horloge** au bandeau : le jour et l'heure (« Jour 1 · 6:00 »). | VALIDÉ — v0.7 |
 | `C-IHM-13` | **Barre d'actions** verticale, à gauche sous le bandeau : une icône par fenêtre (inventaire, artisanat, journal). Survoler une icône affiche son nom et sa touche ; un clic ouvre ou ferme la fenêtre. On n'a pas à connaître les touches. | VALIDÉ |
@@ -463,3 +465,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.12 | 2026-10-12 | Périmètre de la v0.9 choisi : expérience gagnée en jouant (C-JOU-09), niveaux croissants à 1 point de recherche, livres de recherche dans les cachettes (C-TEC-08), plans à 1 point, prérequis « plan précédent » (C-TEC-04), outils en pierre, sac du cueilleur, champignons grillés au feu (C-TEC-09, C-ART-08). |
 | v0.13 | 2026-10-12 | La v0.10 est découpée : Foyer, Flétrissure, énergie et sauge d'abord (C-MON-04 et C-UNI-03 validés pour le Foyer, C-MEN-09), le monstre, le combat et la mort en v0.11. Feuille de route décalée d'une version. |
 | v0.14 | 2026-10-12 | Retours de test de la v0.10 : bandeau essentiel (C-IHM-06), inventaire en onglets et livres lus aux archives du journal (C-INV-03, C-IHM-09), notifications importantes plus longues (C-IHM-10), branches à la coupe et hautes herbes à fibres (C-RES-10), fumée de sauge en plan de recherche au niveau 10 (C-MEN-08, C-TEC-04). |
+| v0.15 | 2026-10-12 | Retours de test de la v0.10 (suite) : la récolte prend du temps selon l'outil, en silex lente et maigre, en pierre rapide et riche (C-RES-11, précise C-RES-05) ; le feu de camp se pose en le fabriquant (C-ART-07) ; fenêtres au haut fixe, retour à la fenêtre d'origine après lecture (C-IHM-12) ; arbre de compétences proposé (C-JOU-11). |

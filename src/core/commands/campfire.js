@@ -108,18 +108,44 @@ export function place(state, rules, events, itemId) {
   if (definition === undefined || (state.placeables[itemId] ?? 0) <= 0) {
     return { ok: false, reason: REJECTION_REASONS.NOTHING_TO_PLACE };
   }
-  const tile = tileAhead(state);
-  if (!canPlaceOn(state, rules, tile)) {
+  if (!canPlaceAhead(state, rules)) {
     return { ok: false, reason: REJECTION_REASONS.CANNOT_PLACE };
   }
   state.placeables[itemId] -= 1;
+  putDown(state, rules, events, itemId);
+  return { ok: true };
+}
+
+/**
+ * R-ART-POS-001 : la tuile devant le joueur accepte-t-elle un objet posé ?
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @returns {boolean}
+ */
+export function canPlaceAhead(state, rules) {
+  return canPlaceOn(state, rules, tileAhead(state));
+}
+
+/**
+ * Pose l'objet sur la tuile devant le joueur, sans rien vérifier ; un feu de camp posé est
+ * allumé (R-ART-POS-001, R-ART-FAB-001).
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {EventBus} events
+ * @param {string} itemId
+ */
+export function putDown(state, rules, events, itemId) {
+  const definition = rules.placeables?.[itemId];
+  if (definition === undefined) {
+    return;
+  }
+  const tile = tileAhead(state);
   state.map.setTile(tile.column, tile.row, rules.tiles[definition.tile]);
   if (rules.tiles[definition.tile]?.isCampfire && rules.time !== undefined) {
     const burnsUntil = state.clock + ticksFor(rules.time.campfireBurnMinutes, rules.time);
     state.campfires.push({ ...tile, burnsUntil });
   }
   events.emit(GAME_EVENTS.TILE_CHANGED, { ...tile, tileId: definition.tile });
-  return { ok: true };
 }
 
 /**

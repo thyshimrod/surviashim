@@ -25,6 +25,8 @@ import { CharacterRenderer } from './presentation/renderers/CharacterRenderer.js
 import { GameInterface } from './presentation/ui/GameInterface.js';
 import { drawBlight } from './presentation/renderers/BlightRenderer.js';
 import { NightRenderer } from './presentation/renderers/NightRenderer.js';
+import { HarvestRenderer } from './presentation/renderers/HarvestRenderer.js';
+import { harvestView } from './presentation/ui/harvestView.js';
 import { nightView } from './presentation/ui/nightView.js';
 
 /** Minutes de jeu par heure (raccourci de debug « h »). */
@@ -162,7 +164,9 @@ function createInterface(game, renderer, store) {
  */
 function createLoop(game, renderer, ui) {
   const debugOverlay = isDebugEnabled ? new DebugOverlay() : undefined;
-  const night = new NightRenderer({ doc: document, icons: assets.getImage(ICON_SET.image) });
+  const icons = assets.getImage(ICON_SET.image);
+  const night = new NightRenderer({ doc: document, icons });
+  const harvesting = new HarvestRenderer({ icons });
   const loop = new GameLoop({
     stepMs: MS_PER_SECOND / GAME_PARAMETERS.TICK_RATE,
     update: () => game.update(),
@@ -170,6 +174,13 @@ function createLoop(game, renderer, ui) {
       renderer.render(game.getState());
       drawBlight(screen.context, renderer.origin, game);
       night.render(screen.context, renderer.origin, nightView(game), game.getState().tick);
+      // R-IHM-RCL-001 : par-dessus la nuit, pour que le geste reste visible.
+      harvesting.render(
+        screen.context,
+        renderer.origin,
+        harvestView(game.getState()),
+        game.getState().tick,
+      );
       ui.render();
       if (debugOverlay !== undefined) {
         debugOverlay.drawWorld(screen.context, game.getState(), game.rules, renderer.origin);

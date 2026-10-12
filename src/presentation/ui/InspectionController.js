@@ -1,4 +1,5 @@
 // @ts-check
+import { harvestLabel } from './harvestView.js';
 import {
   giveTo,
   harvestTile,
@@ -225,13 +226,10 @@ function tileView(tile, game) {
   if (inspection.harvest === undefined) {
     return undefined;
   }
-  const { action, resource, amount, tool, extra } = inspection.harvest;
-  const gains = [{ resource, amount }, ...(extra === undefined ? [] : [extra])]
-    .map((gain) => `${gain.amount} ${resourceNoun(gain.resource, gain.amount)}`)
-    .join(', ');
+  const { tool } = inspection.harvest;
   return {
     title,
-    action: `${TEXTS.harvestActions[action]} : ${gains}`,
+    action: harvestLabel({ ...inspection, harvest: inspection.harvest }),
     button: TEXTS.harvestButton,
     // R-IHM-INS-007 : l'outil manquant passe avant la distance.
     ...(inspection.hasTool || tool === undefined

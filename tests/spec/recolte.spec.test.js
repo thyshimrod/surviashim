@@ -16,26 +16,26 @@ describe('R-RES-ELE-001 · Éléments récoltables', () => {
     return game.inspect({ column: 3, row: 3 }).harvest;
   };
 
-  it('ex.1 — un arbre se coupe et donne 3 bois et 2 branches', () => {
+  it('ex.1 — un arbre se coupe et donne 1 bois et 2 branches', () => {
     assert.deepEqual(inspect('tree'), {
       action: 'cut',
       tool: 'axe',
       boostedBy: 'axe',
       resource: 'wood',
-      amount: 3,
+      amount: 1,
       extra: { resource: 'branch', amount: 2 },
       becomes: 'stump',
       regrowDays: 3,
     });
   });
 
-  it('ex.2 — un rocher se pioche et donne 2 pierres', () => {
+  it('ex.2 — un rocher se pioche et donne 1 pierre', () => {
     assert.deepEqual(inspect('rock'), {
       action: 'mine',
       tool: 'pickaxe',
       boostedBy: 'pickaxe',
       resource: 'stone',
-      amount: 2,
+      amount: 1,
       becomes: 'grass',
     });
   });
@@ -85,25 +85,25 @@ describe('R-RES-REC-001 · Portée de récolte', () => {
 });
 
 describe('R-RES-REC-002 · Gain de ressources', () => {
-  it("ex.1 — 0 bois, récolte d'un arbre : 3 bois", () => {
+  it("ex.1 — 0 bois, récolte d'un arbre : 1 bois", () => {
     const { game, state } = withTreeAt76(SOUTH_OF_TREE);
 
     harvestAt(game, 7, 6);
 
-    assert.equal(state.inventory.wood, 3);
+    assert.equal(state.inventory.wood, 1);
   });
 
-  it("ex.2 — 3 bois, récolte d'un autre arbre : 6 bois", () => {
+  it("ex.2 — 3 bois, récolte d'un autre arbre : 4 bois", () => {
     const { game, state } = withTreeAt76(SOUTH_OF_TREE, {
       inventory: { wood: 3, stone: 0, flower: 0 },
     });
 
     harvestAt(game, 7, 6);
 
-    assert.equal(state.inventory.wood, 6);
+    assert.equal(state.inventory.wood, 4);
   });
 
-  it("ex.3 — 3 bois et 0 pierre, récolte d'un rocher : 3 bois et 2 pierres", () => {
+  it("ex.3 — 3 bois et 0 pierre, récolte d'un rocher : 3 bois et 1 pierre", () => {
     const { game, state } = createTestGame({
       map: { rocks: [[7, 6]] },
       player: { position: SOUTH_OF_TREE },
@@ -112,7 +112,7 @@ describe('R-RES-REC-002 · Gain de ressources', () => {
 
     harvestAt(game, 7, 6);
 
-    assert.deepEqual([state.inventory.wood, state.inventory.stone], [3, 2]);
+    assert.deepEqual([state.inventory.wood, state.inventory.stone], [3, 1]);
   });
 });
 

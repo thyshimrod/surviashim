@@ -2,9 +2,9 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { startGame } from '../../src/app/startGame.js';
 import { createSaveStore } from '../../src/app/saveStore.js';
-import { eat, harvestTile, sleepBy, talkTo } from '../../src/core/commands/commands.js';
+import { eat, sleepBy, talkTo } from '../../src/core/commands/commands.js';
 import { Game } from '../../src/core/Game.js';
-import { at, createTestGame } from '../helpers/testGame.js';
+import { at, createTestGame, harvestAt } from '../helpers/testGame.js';
 
 /** Le joueur au centre de la tuile (10, 10), orienté à droite. */
 const CENTER_10_10 = { x: 336, y: 336 };
@@ -198,7 +198,7 @@ describe('R-RES-REC-003 · Après la récolte', () => {
       player: { position: CENTER_10_10 },
     });
 
-    game.execute(harvestTile({ column: 11, row: 10 }));
+    harvestAt(game, 11, 10);
 
     assert.equal(state.map.tileIdAt(11, 10), 'bush');
     assert.equal(state.map.isBlocking(11, 10), true);
@@ -214,7 +214,7 @@ describe('R-RES-REC-005 · Repousse des arbres', () => {
       hunger: 100,
       health: 100,
     });
-    game.execute(harvestTile({ column: 11, row: 10 }));
+    harvestAt(game, 11, 10);
 
     game.advanceTicks(at(3, '8:00') - at(1, '8:00'));
 
@@ -237,7 +237,7 @@ describe('R-SAU-SAV-001 · Sauvegarde au réveil', () => {
     });
     const store = createSaveStore(storage);
     store.attach(game);
-    game.execute(harvestTile({ column: 10, row: 11 }));
+    harvestAt(game, 10, 11);
     game.execute(sleepBy({ column: 11, row: 10 }));
 
     const resumed = startGame({ store: createSaveStore(storage) });

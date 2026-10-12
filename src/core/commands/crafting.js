@@ -1,7 +1,7 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
 import { gainExperience } from '../systems/experience.js';
-import { hasLitFireInReach } from './campfire.js';
+import { canPlaceAhead, hasLitFireInReach, putDown } from './campfire.js';
 import { REJECTION_REASONS } from './commands.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
@@ -26,6 +26,8 @@ import { REJECTION_REASONS } from './commands.js';
  * @property {boolean} isOwned `true` si cet outil est déjà possédé.
  * @property {IngredientStatus[]} ingredients Dans l'ordre de la recette.
  * @property {boolean} hasIngredients `true` si aucun ingrédient ne manque.
+ * @property {boolean} needsRoom `true` si la recette donne un objet à poser et que la tuile devant
+ *   le joueur ne l'accepte pas (R-ART-FAB-002).
  * @property {boolean} needsFire `true` si la recette se cuisine et qu'aucun feu allumé n'est à
  *   portée (R-ART-FAB-003).
  */
@@ -77,6 +79,7 @@ export function inspectRecipe(state, rules, recipeId) {
       ingredients: [],
       hasIngredients: true,
       needsFire: false,
+      needsRoom: false,
     };
   }
   const ingredients = Object.entries(recipe.ingredients).map(([resource, required]) => ({
@@ -92,12 +95,13 @@ export function inspectRecipe(state, rules, recipeId) {
     ingredients,
     hasIngredients: ingredients.every(({ owned, required }) => owned >= required),
     needsFire: recipe.station === 'campfire' && !hasLitFireInReach(state, rules),
+    needsRoom: recipe.placeable !== undefined && !canPlaceAhead(state, rules),
   };
 }
 
 /**
  * R-ART-FAB-001, R-ART-FAB-002 : vérifie les motifs de refus dans l'ordre, retire les ingrédients
- * et donne l'outil ou l'objet à poser.
+ * et donne l'outil, la ressource, ou pose l'objet.
  * @param {GameState} state
  * @param {GameRules} rules
  * @param {EventBus} events
@@ -113,7 +117,7 @@ export function craft(state, rules, events, recipeId) {
   for (const { resource, required } of inspection.ingredients) {
     state.inventory[resource] -= required;
   }
-  deliver(state, rules.recipes?.[recipeId]);
+  deliver(state, rules, events, rules.recipes?.[recipeId]);
   const { tool, placeable } = inspection;
   events.emit(GAME_EVENTS.ITEM_CRAFTED, { recipeId, tool, placeable });
   gainExperience(state, rules, events, rules.experience?.craft ?? 0); // R-JOU-EXP-002
@@ -135,20 +139,25 @@ function refusalOf(inspection) {
   if (inspection.needsFire) {
     return REJECTION_REASONS.NEEDS_FIRE;
   }
-  return inspection.hasIngredients ? undefined : REJECTION_REASONS.MISSING_INGREDIENTS;
+  if (!inspection.hasIngredients) {
+    return REJECTION_REASONS.MISSING_INGREDIENTS;
+  }
+  return inspection.needsRoom ? REJECTION_REASONS.CANNOT_PLACE : undefined;
 }
 
 /**
- * R-ART-FAB-001 : donne ce que produit la recette : outil, objet à poser ou ressource.
+ * R-ART-FAB-001 : donne ce que produit la recette : outil, ressource, ou objet posé aussitôt.
  * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {EventBus} events
  * @param {Readonly<import('../../../data/recipes.js').RecipeDefinition> | undefined} recipe
  */
-function deliver(state, recipe) {
+function deliver(state, rules, events, recipe) {
   if (recipe?.tool !== undefined) {
     state.tools.push(recipe.tool);
   }
   if (recipe?.placeable !== undefined) {
-    state.placeables[recipe.placeable] = (state.placeables[recipe.placeable] ?? 0) + 1; // R-INV-POS-001
+    putDown(state, rules, events, recipe.placeable);
   }
   if (recipe?.resource !== undefined) {
     state.inventory[recipe.resource] = (state.inventory[recipe.resource] ?? 0) + 1;

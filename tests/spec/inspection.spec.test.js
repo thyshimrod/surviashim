@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { screenToWorld } from '../../src/presentation/camera/camera.js';
 import { designateTile } from '../../src/presentation/input/designateTile.js';
 import { InspectionController } from '../../src/presentation/ui/InspectionController.js';
-import { createTestGame, makeMap, walk } from '../helpers/testGame.js';
+import { createTestGame, makeMap, walk, finishHarvest } from '../helpers/testGame.js';
 
 const map = makeMap();
 
@@ -72,28 +72,28 @@ describe('R-IHM-INS-001 · Désigner une tuile au clic', () => {
 });
 
 describe("R-IHM-INS-002 · Fenêtre d'information", () => {
-  it('ex.1 — un arbre : « Arbre », « Couper : 3 bois, 2 branches »', () => {
+  it('ex.1 — la hache en silex, un arbre : « Couper : 1 bois, 2 branches · 3 s »', () => {
     const { game } = gameWithElements();
 
     const view = openOn(game, 7, 6).view(game);
 
-    assert.deepEqual([view.title, view.action], ['Arbre', 'Couper : 3 bois, 2 branches']);
+    assert.deepEqual([view.title, view.action], ['Arbre', 'Couper : 1 bois, 2 branches · 3 s']);
   });
 
-  it('ex.2 — un rocher : « Rocher », « Piocher : 2 pierres »', () => {
+  it('ex.2 — la pioche en silex, un rocher : « Piocher : 1 pierre · 3 s »', () => {
     const { game } = gameWithElements();
 
     const view = openOn(game, 10, 6).view(game);
 
-    assert.deepEqual([view.title, view.action], ['Rocher', 'Piocher : 2 pierres']);
+    assert.deepEqual([view.title, view.action], ['Rocher', 'Piocher : 1 pierre · 3 s']);
   });
 
-  it('ex.3 — des fleurs : « Fleurs », « Ramasser : 1 fleur »', () => {
+  it('ex.3 — des fleurs : « Fleurs », « Ramasser : 1 fleur · 1 s »', () => {
     const { game } = gameWithElements();
 
     const view = openOn(game, 12, 6).view(game);
 
-    assert.deepEqual([view.title, view.action], ['Fleurs', 'Ramasser : 1 fleur']);
+    assert.deepEqual([view.title, view.action], ['Fleurs', 'Ramasser : 1 fleur · 1 s']);
   });
 
   it("ex.4 — fenêtre ouverte, on désigne de l'herbe : la fenêtre est fermée", () => {
@@ -135,14 +135,15 @@ describe('R-IHM-INS-003 · Bouton « Récolter »', () => {
     assert.equal(controller.view(game).isActionEnabled, true);
   });
 
-  it('ex.4 — clic sur « Récolter » : 3 bois, fenêtre fermée', () => {
+  it('ex.4 — clic sur « Récolter » : fenêtre fermée ; à la fin de la récolte, 1 bois', () => {
     const { game, state } = gameWithElements({ x: 240, y: 236 });
     const controller = openOn(game, 7, 6);
 
     controller.confirm(game);
+    finishHarvest(game);
 
-    assert.equal(state.inventory.wood, 3);
     assert.equal(controller.isOpen, false);
+    assert.equal(state.inventory.wood, 1);
   });
 });
 

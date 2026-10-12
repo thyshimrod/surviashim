@@ -60,10 +60,13 @@ export const TEXTS = Object.freeze({
     fiber: 'Fibres',
     berry: 'Baies',
     mushroom: 'Champignons',
-    'grilled-mushroom': 'Champignons grillés',
+    'grilled-mushroom': 'Champ. grillés',
     sage: 'Sauge',
   }),
   harvestButton: 'Récolter',
+  // Durée de récolte (R-IHM-INS-002) : « Couper : 1 bois · 1,5 s ».
+  harvestDuration: (/** @type {string} */ label, /** @type {number} */ seconds) =>
+    label + ' · ' + String(seconds).replace('.', ',') + ' s',
   closeButton: 'Fermer',
   tooFar: 'Trop loin : approchez-vous',
   // Feu de camp (R-IHM-INS-008).
@@ -139,6 +142,7 @@ export const TEXTS = Object.freeze({
   craftButton: 'Fabriquer',
   craftEmpty: 'Aucune recette connue : lisez des livres pour en apprendre.',
   alreadyOwned: 'Déjà possédé',
+  needsRoom: 'Il faut une place libre devant vous',
   missingIngredients: (/** @type {string} */ list) => 'Il manque : ' + list,
   crafted: (/** @type {string} */ name) => 'Fabriqué : ' + name,
   /** Nom des objets (data/items.js) : avec majuscule, et dans une phrase. */

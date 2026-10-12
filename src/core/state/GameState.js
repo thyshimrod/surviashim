@@ -79,6 +79,7 @@ export { createGameRules } from './rules.js';
  * @property {Inventory} inventory
  * @property {Npc[]} npcs
  * @property {Dialogue | undefined} dialogue
+ * @property {Harvesting | undefined} harvesting Récolte en cours (R-RES-REC-006).
  * @property {JournalEntry[]} journal Dans l'ordre d'arrivée.
  * @property {string[]} books Livres trouvés, dans l'ordre (R-INV-LIV-001).
  * @property {string[]} tools Outils possédés, dans l'ordre d'obtention (R-INV-OUT-001).
@@ -103,12 +104,24 @@ export { createGameRules } from './rules.js';
  */
 
 /**
+ * Récolte en cours (R-RES-REC-006).
+ * @typedef {object} Harvesting
+ * @property {number} column
+ * @property {number} row
+ * @property {string | undefined} toolId Outil utilisé ; `undefined` à la main.
+ * @property {number} startTick
+ * @property {number} endTick Tick où la récolte s'achève.
+ */
+
+/**
  * Valeurs des règles, tirées des paramètres (spécification, partie C) et des données.
  * Elles ne font pas partie de l'état : une sauvegarde ne les contient pas.
  * @typedef {object} GameRules
  * @property {number} walkSpeed Distance parcourue par tick de marche (px).
  * @property {Size} hitbox Taille de la boîte de collision du joueur et des PNJ (px).
  * @property {number} harvestReach Portée de récolte (px, R-RES-REC-001).
+ * @property {number} [handHarvestTicks] Durée d'une récolte à la main (R-RES-REC-006) ; absente,
+ *   elle est immédiate.
  * @property {number} [talkReach] Portée de parole (px, R-PNJ-DIA-001).
  * @property {Readonly<Record<string, Readonly<TileDefinition>>>} tiles Types de tuiles.
  * @property {Readonly<Record<string, Readonly<NpcDefinition>>>} [npcs] PNJ et leurs dialogues.
@@ -155,6 +168,7 @@ export function createEmptyInventory() {
  * @param {Inventory} [params.inventory]
  * @param {Npc[]} [params.npcs]
  * @param {Dialogue} [params.dialogue]
+ * @param {Harvesting} [params.harvesting]
  * @param {JournalEntry[]} [params.journal]
  * @param {string[]} [params.books]
  * @param {string[]} [params.tools]
@@ -176,7 +190,14 @@ export function createEmptyInventory() {
  * @returns {GameState}
  */
 export function createGameState(params) {
-  const { map, player, inventory = createEmptyInventory(), dialogue, tick = 0 } = params;
+  const {
+    map,
+    player,
+    inventory = createEmptyInventory(),
+    dialogue,
+    tick = 0,
+    harvesting,
+  } = params;
   const { health = 100, hunger = 100, energy = 100, purified = [], inBlight = false } = params;
   return {
     tick,
@@ -189,6 +210,7 @@ export function createGameState(params) {
     inBlight,
     inventory: { ...inventory },
     dialogue: dialogue === undefined ? undefined : copyDialogue(dialogue),
+    harvesting: harvesting === undefined ? undefined : { ...harvesting },
     ...copyWorld(params),
     ...copyProgress(params),
     ...copyTime(params),
