@@ -5,7 +5,7 @@ import { CenterWindow } from './CenterWindow.js';
 /** @typedef {import('./inventoryView.js').InventoryContent} InventoryContent */
 
 /**
- * Fenêtre d'inventaire (R-IHM-INV-001), en DOM : ressources, outils, livres avec « Lire ».
+ * Fenêtre d'inventaire (R-IHM-INV-001), en DOM : des onglets, puis le contenu de l'onglet affiché.
  * @augments {CenterWindow<InventoryContent>}
  */
 export class InventoryPanel extends CenterWindow {
@@ -18,19 +18,39 @@ export class InventoryPanel extends CenterWindow {
    * @param {(itemId: string) => void} params.onPlace Clic sur « Poser ».
    * @param {(resource: string) => void} params.onEat Clic sur « Manger ».
    * @param {(resource: string) => void} params.onUse Clic sur « Brûler ».
+   * @param {(tab: import('./inventoryView.js').InventoryTab) => void} params.onTab Clic sur un
+   *   onglet.
    */
-  constructor({ doc, container, onClose, onRead, onPlace, onEat, onUse }) {
+  constructor({ doc, container, onClose, onRead, onPlace, onEat, onUse, onTab }) {
     super({ doc, container, title: TEXTS.inventoryTitle, className: 'inventory-panel', onClose });
     this.onRead = onRead;
     this.onPlace = onPlace;
     this.onEat = onEat;
     this.onUse = onUse;
+    this.onTab = onTab;
   }
 
   /**
    * @param {InventoryContent} content
    */
   fill(content) {
+    const tabs = this.element('div', undefined, 'tabs');
+    tabs.append(
+      ...content.tabs.map((tab) => {
+        const button = this.button(tab.label, () => this.onTab(tab.id));
+        button.classList.toggle('active', tab.isActive);
+        return button;
+      }),
+    );
+    this.body.replaceChildren(tabs, this.tabContent(content));
+  }
+
+  /**
+   * Contenu de l'onglet affiché.
+   * @param {InventoryContent} content
+   * @returns {HTMLElement}
+   */
+  tabContent(content) {
     const resources = content.resources.map((entry) =>
       this.line(entry.icon, `${entry.label} ${entry.amount}`, this.resourceButton(entry)),
     );
@@ -50,18 +70,18 @@ export class InventoryPanel extends CenterWindow {
         this.button(entry.button, () => this.onPlace(entry.id)),
       ),
     );
+    if (content.tab === 'tools') {
+      return this.list(tools, content.noTool);
+    }
+    if (content.tab === 'books') {
+      return this.list(books, content.noBook);
+    }
+    if (content.tab === 'items') {
+      return this.list([...items, ...placeables], content.noItem);
+    }
     const resourceList = this.list(resources, undefined);
     resourceList.className = 'resources';
-    this.body.replaceChildren(
-      this.element('h3', TEXTS.resourcesTitle),
-      resourceList,
-      this.element('h3', TEXTS.toolsTitle),
-      this.list(tools, content.noTool),
-      this.element('h3', TEXTS.booksTitle),
-      this.list(books, content.noBook),
-      this.element('h3', TEXTS.itemsTitle),
-      this.list([...items, ...placeables], content.noItem),
-    );
+    return resourceList;
   }
 
   /**

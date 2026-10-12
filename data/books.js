@@ -41,4 +41,10 @@ export const BOOKS = Object.freeze({
     kind: 'research',
     plans: Object.freeze(['gatherer-bag', 'grilled-mushroom']),
   }),
+  'dawn-ritual': Object.freeze({
+    id: 'dawn-ritual',
+    icon: 'book-blue',
+    kind: 'research',
+    plans: Object.freeze(['sage-smoke']),
+  }),
 });

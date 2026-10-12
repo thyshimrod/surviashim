@@ -1,4 +1,5 @@
 // @ts-check
+import { BOOKS } from '../../../data/books.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
 import { questTitle } from './questMessages.js';
@@ -29,14 +30,26 @@ import { questTitle } from './questMessages.js';
  * @property {string | undefined} empty Message si aucun lieu.
  * @property {JournalQuest[]} quests Quêtes reçues, dans l'ordre.
  * @property {string | undefined} noQuest Message si aucune quête.
+ * @property {ArchivedBook[]} archives Livres lus, dans l'ordre (R-IHM-JRN-004).
+ * @property {string | undefined} noArchive Message si aucun livre lu.
+ */
+
+/**
+ * Livre des archives (R-IHM-JRN-004).
+ * @typedef {object} ArchivedBook
+ * @property {string} id
+ * @property {string} title
+ * @property {string} icon Icône (clé de ICONS).
+ * @property {string} button « Relire ».
  */
 
 /**
  * @param {readonly JournalEntry[]} journal
  * @param {readonly QuestEntry[]} [quests] Quêtes reçues.
+ * @param {readonly string[]} [readBooks] Livres lus.
  * @returns {JournalContent}
  */
-export function journalView(journal, quests = []) {
+export function journalView(journal, quests = [], readBooks = []) {
   return {
     lines: journal.map(toLine),
     empty: journal.length === 0 ? TEXTS.journalEmpty : undefined,
@@ -46,6 +59,13 @@ export function journalView(journal, quests = []) {
       description: CONTENT_TEXTS.quests[questId]?.description ?? '',
     })),
     noQuest: quests.length === 0 ? TEXTS.questsEmpty : undefined,
+    archives: readBooks.map((id) => ({
+      id,
+      title: CONTENT_TEXTS.books[id]?.title ?? id,
+      icon: BOOKS[id]?.icon ?? 'book-red',
+      button: TEXTS.rereadButton,
+    })),
+    noArchive: readBooks.length === 0 ? TEXTS.archivesEmpty : undefined,
   };
 }
 

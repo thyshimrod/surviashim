@@ -9,12 +9,16 @@
 
 /**
  * Notifications (R-IHM-NOT-001), comptées en ticks de jeu : elles ne s'écoulent pas quand le jeu
- * est en pause. Une notification « persistante » reste jusqu'à ce qu'on la ferme.
+ * est en pause. Une notification importante reste plus longtemps.
  */
 export class NotificationQueue {
-  /** @param {number} durationTicks Durée d'affichage d'une notification ordinaire. */
-  constructor(durationTicks) {
+  /**
+   * @param {number} durationTicks Durée d'affichage d'une notification ordinaire.
+   * @param {number} [importantTicks] Durée d'une notification importante.
+   */
+  constructor(durationTicks, importantTicks = durationTicks) {
     this.durationTicks = durationTicks;
+    this.importantTicks = importantTicks;
     /** @type {{ id: number, text: string, untilTick: number }[]} */
     this.items = [];
     this.nextId = 1;
@@ -23,13 +27,17 @@ export class NotificationQueue {
   /**
    * @param {string} text
    * @param {number} tick Tick où la notification apparaît.
-   * @param {{ sticky?: boolean }} [options] `sticky` : reste jusqu'à ce qu'on la ferme.
+   * @param {{ important?: boolean }} [options] `important` : reste `importantTicks` ticks.
    * @returns {number} Identifiant de la notification.
    */
-  push(text, tick, { sticky = false } = {}) {
+  push(text, tick, { important = false } = {}) {
     const id = this.nextId;
     this.nextId += 1;
-    this.items.push({ id, text, untilTick: sticky ? Infinity : tick + this.durationTicks });
+    this.items.push({
+      id,
+      text,
+      untilTick: tick + (important ? this.importantTicks : this.durationTicks),
+    });
     return id;
   }
 

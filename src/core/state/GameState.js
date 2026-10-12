@@ -95,6 +95,7 @@ export { createGameRules } from './rules.js';
  * @property {number} health PV (R-JOU-VIE-001).
  * @property {number} hunger Faim, de 0 à HUNGER_MAX (R-JOU-VIE-002).
  * @property {string[]} discoveredPlans Plans des livres de recherche lus (R-INV-LIV-002).
+ * @property {string[]} readBooks Livres lus, dans l'ordre : les archives (R-IHM-JRN-004).
  * @property {string[]} researched Plans recherchés, dans l'ordre (R-TEC-REC-002).
  * @property {number} energy Énergie, de 0 à ENERGY_MAX (R-JOU-ENE-001).
  * @property {number[]} purified Tuiles purifiées (indices ligne × colonnes + colonne).
@@ -230,9 +231,9 @@ function copyTime({ clock = 0, placeables = {}, campfires = [], regrowth = [] })
  * Ce que le joueur a acquis (livres, outils, recettes, objets, quêtes, expérience), copié.
  * @param {{ books?: string[], tools?: string[], knownRecipes?: string[], items?: string[],
  *   quests?: QuestEntry[], experience?: number, discoveredPlans?: string[],
- *   researched?: string[] }} params
+ *   researched?: string[], readBooks?: string[] }} params
  * @returns {Pick<GameState, 'books' | 'tools' | 'knownRecipes' | 'items' | 'quests'
- *   | 'experience' | 'discoveredPlans' | 'researched'>}
+ *   | 'experience' | 'discoveredPlans' | 'researched' | 'readBooks'>}
  */
 function copyProgress({
   books = [],
@@ -243,8 +244,10 @@ function copyProgress({
   experience = 0,
   discoveredPlans = [],
   researched = [],
+  readBooks = [],
 }) {
   return {
+    readBooks: [...readBooks],
     discoveredPlans: [...discoveredPlans],
     researched: [...researched],
     books: [...books],

@@ -29,7 +29,7 @@ describe('R-IHM-INS-007 · Outil manquant', () => {
   it('ex.1 — aucun outil, un arbre à portée : « Il faut une hache »', () => {
     const view = viewOf('tree');
 
-    assert.equal(view.action, 'Couper : 3 bois');
+    assert.equal(view.action, 'Couper : 3 bois, 2 branches');
     assert.equal(view.isActionEnabled, false);
     assert.equal(view.warning, 'Il faut une hache');
   });
@@ -118,7 +118,7 @@ describe('R-IHM-FEN-001 · Une fenêtre à la fois', () => {
 });
 
 describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
-  it('ex.1 — une nouvelle partie, touche I : dix ressources à 0, ni outil ni livre', () => {
+  it('ex.1 — une nouvelle partie, touche I : onglet « Ressources », dix ressources à 0', () => {
     const { state } = createTestGame({ tools: [] });
     const windows = new WindowsController();
 
@@ -126,6 +126,16 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
     const view = inventoryView(state);
 
     assert.equal(windows.open, 'inventory');
+    assert.equal(windows.inventoryTab, 'resources');
+    assert.deepEqual(
+      view.tabs.map(({ label, isActive }) => [label, isActive]),
+      [
+        ['Ressources', true],
+        ['Outils', false],
+        ['Objets', false],
+        ['Livres', false],
+      ],
+    );
     assert.deepEqual(
       view.resources.map(({ label, amount }) => `${label} ${amount}`),
       [
@@ -142,15 +152,21 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
       ],
     );
     assert.equal(view.noTool, 'Aucun outil.');
-    assert.equal(view.noBook, "Aucun livre pour l'instant.");
+    assert.equal(view.noBook, 'Aucun livre à lire.');
     assert.equal(view.noItem, 'Aucun objet.');
   });
 
-  it('ex.2 — la hache en silex possédée : « Hache en silex »', () => {
+  it('ex.2 — la hache en silex possédée, onglet « Outils » : « Hache en silex »', () => {
     const { state } = createTestGame({ tools: ['flint-axe'] });
+    const windows = new WindowsController();
+    windows.toggle('inventory');
 
+    windows.showTab('tools');
+    const view = inventoryView(state, undefined, windows.inventoryTab);
+
+    assert.equal(view.tab, 'tools');
     assert.deepEqual(
-      inventoryView(state).tools.map((tool) => tool.name),
+      view.tools.map((tool) => tool.name),
       ['Hache en silex'],
     );
   });

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { screenToWorld } from '../../src/presentation/camera/camera.js';
 import { designateTile } from '../../src/presentation/input/designateTile.js';
 import { InspectionController } from '../../src/presentation/ui/InspectionController.js';
-import { inventoryEntries } from '../../src/presentation/ui/inventoryEntries.js';
 import { createTestGame, makeMap, walk } from '../helpers/testGame.js';
 
 const map = makeMap();
@@ -73,12 +72,12 @@ describe('R-IHM-INS-001 · Désigner une tuile au clic', () => {
 });
 
 describe("R-IHM-INS-002 · Fenêtre d'information", () => {
-  it('ex.1 — un arbre : « Arbre », « Couper : 3 bois »', () => {
+  it('ex.1 — un arbre : « Arbre », « Couper : 3 bois, 2 branches »', () => {
     const { game } = gameWithElements();
 
     const view = openOn(game, 7, 6).view(game);
 
-    assert.deepEqual([view.title, view.action], ['Arbre', 'Couper : 3 bois']);
+    assert.deepEqual([view.title, view.action], ['Arbre', 'Couper : 3 bois, 2 branches']);
   });
 
   it('ex.2 — un rocher : « Rocher », « Piocher : 2 pierres »', () => {
@@ -164,54 +163,5 @@ describe("R-IHM-INS-004 · Fermer la fenêtre d'information", () => {
     controller.close();
 
     assert.equal(controller.view(game), undefined);
-  });
-});
-
-describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
-  const labels = (inventory) =>
-    inventoryEntries(inventory).map((entry) => `${entry.label} ${entry.amount}`);
-
-  it('ex.1 — 3 bois, 0 pierre, 1 fleur, 2 silex, 0 branche, 4 fibres, 5 baies, 1 champignon', () => {
-    assert.deepEqual(
-      labels({
-        wood: 3,
-        stone: 0,
-        flower: 1,
-        flint: 2,
-        branch: 0,
-        fiber: 4,
-        berry: 5,
-        mushroom: 1,
-      }),
-      [
-        'Bois 3',
-        'Pierre 0',
-        'Fleurs 1',
-        'Silex 2',
-        'Branches 0',
-        'Fibres 4',
-        'Baies 5',
-        'Champignons 1',
-        'Champignons grillés 0',
-        'Sauge 0',
-      ],
-    );
-  });
-
-  it('ex.2 — nouvelle partie : tout à 0', () => {
-    const { state } = createTestGame();
-
-    assert.deepEqual(labels(state.inventory), [
-      'Bois 0',
-      'Pierre 0',
-      'Fleurs 0',
-      'Silex 0',
-      'Branches 0',
-      'Fibres 0',
-      'Baies 0',
-      'Champignons 0',
-      'Champignons grillés 0',
-      'Sauge 0',
-    ]);
   });
 });

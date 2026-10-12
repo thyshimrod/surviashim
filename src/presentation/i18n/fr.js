@@ -33,6 +33,7 @@ export const TEXTS = Object.freeze({
     mushrooms: 'Champignons',
     hearth: 'Le Foyer',
     'dawn-sage': "Sauge de l'aube",
+    'tall-grass': 'Hautes herbes',
   }),
   /** Verbe de chaque action de récolte. */
   harvestActions: Object.freeze({ cut: 'Couper', mine: 'Piocher', pick: 'Ramasser' }),
@@ -49,7 +50,7 @@ export const TEXTS = Object.freeze({
     'grilled-mushroom': Object.freeze({ one: 'champignon grillé', many: 'champignons grillés' }),
     sage: Object.freeze({ one: 'sauge', many: 'sauges' }),
   }),
-  /** Libellés du bandeau d'inventaire (R-IHM-HUD-001). */
+  /** Libellés des ressources (R-IHM-INV-001). */
   hudLabels: Object.freeze({
     wood: 'Bois',
     stone: 'Pierre',
@@ -86,6 +87,7 @@ export const TEXTS = Object.freeze({
   researched: 'Recherché',
   requires: (/** @type {string} */ plan) => "Il faut d'abord : " + plan,
   notEnoughPoints: 'Pas assez de points',
+  levelRequired: (/** @type {number} */ level) => 'Niveau ' + level + ' requis',
   researchEmpty: 'Aucun plan à rechercher : trouvez des livres de recherche dans les ruines.',
   levelLabel: (/** @type {number} */ level, /** @type {number} */ xp, /** @type {number} */ next) =>
     'Niveau ' + level + ' · ' + xp + '/' + next,
@@ -175,7 +177,11 @@ export const TEXTS = Object.freeze({
   nothingFound: "Rien d'intéressant.",
   // Partie « Livres » du journal (R-IHM-JRN-002).
   booksTitle: 'Livres',
-  booksEmpty: "Aucun livre pour l'instant.",
+  booksEmpty: 'Aucun livre à lire.',
+  // Archives du journal (R-IHM-JRN-004).
+  archivesTitle: 'Archives',
+  archivesEmpty: 'Aucun livre archivé.',
+  rereadButton: 'Relire',
   plansLabel: (/** @type {string} */ list) => 'Plans : ' + list,
   placesTitle: 'Lieux',
   /** Indicateur de suite d'un dialogue (R-IHM-DIA-001). */

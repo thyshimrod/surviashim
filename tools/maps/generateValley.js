@@ -9,7 +9,6 @@ import { GAME_PARAMETERS } from '../../data/gameParameters.js';
 import { NPCS } from '../../data/npcs.js';
 import { PLACES } from '../../data/places.js';
 import { SEARCH_SPOTS } from '../../data/searchSpots.js';
-import { BLIGHTED_PLACES } from '../../data/blight.js';
 import { TILE_DEFINITIONS } from '../../data/tilesets.js';
 import {
   around,
@@ -20,9 +19,9 @@ import {
   inEllipse,
   isIn,
   line,
-  distanceOutside,
 } from './mapGrid.js';
 import { findUnreachable } from './reachability.js';
+import { addPlants } from './vegetation.js';
 
 /** Le Foyer (B.12). */
 const HEARTH = { column: GAME_PARAMETERS.HEARTH_TILE.x, row: GAME_PARAMETERS.HEARTH_TILE.y };
@@ -203,44 +202,6 @@ function clearInFront(grid, { column, row }) {
   }
 }
 
-// Cueillette (B.10) : quelques buissons à baies dans le Vallon, d'autres épars dans la vallée ;
-// des champignons en lisière des bois. Tirage à part, pour ne pas changer le reste de la carte.
-function addFood(grid) {
-  const random = createRng(SEED + 1);
-  grid.forEach((column, row) => {
-    if (
-      grid.get(column, row) !== S.grass ||
-      Math.hypot(column - START.column, row - START.row) < 4
-    ) {
-      return;
-    }
-    const inVale = isIn(PLACES.vale.area, column, row);
-    const nearTrees = around({ column, row }, 1).some(
-      (tile) => grid.get(tile.column, tile.row) === S.tree,
-    );
-    if (random() < (inVale ? 0.02 : 0.003)) {
-      grid.set(column, row, S['berry-bush']);
-    } else if (nearTrees && random() < 0.04) {
-      grid.set(column, row, S.mushrooms);
-    }
-  });
-}
-
-// Sauge de l'aube (B.12) : sur l'herbe, à 1 ou 2 tuiles des lieux flétris, à l'extérieur. Tirage à
-// part, pour ne pas changer le reste de la carte.
-function addSage(grid) {
-  const random = createRng(SEED + 2);
-  const areas = BLIGHTED_PLACES.map((id) => PLACES[id].area);
-  grid.forEach((column, row) => {
-    const gaps = areas.map((area) => distanceOutside(area, column, row));
-    const nearEdge =
-      gaps.some((value) => value >= 1 && value <= 2) && gaps.every((value) => value >= 1);
-    if (grid.get(column, row) === S.grass && nearEdge && random() < 0.08) {
-      grid.set(column, row, S['dawn-sage']);
-    }
-  });
-}
-
 // Le départ, les abords des PNJ et leurs promenades (R-PNJ-POS-003) restent dégagés.
 function clearPeople(grid) {
   const walks = Object.values(NPCS).flatMap((npc) =>
@@ -266,8 +227,7 @@ function generate() {
   addPaths(grid);
   addRuins(grid, random);
   addPaths(grid);
-  addFood(grid);
-  addSage(grid);
+  addPlants(grid, { seed: SEED, start: START, symbols: S });
   grid.set(HEARTH.column, HEARTH.row, S.hearth); // le Foyer (R-MON-FOY-001)
   for (const { column, row, tile } of SEARCH_SPOTS) {
     grid.set(column, row, S[tile]); // cachettes des ruines (B.7)

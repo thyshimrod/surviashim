@@ -16,13 +16,14 @@ describe('R-RES-ELE-001 · Éléments récoltables', () => {
     return game.inspect({ column: 3, row: 3 }).harvest;
   };
 
-  it('ex.1 — un arbre se coupe et donne 3 bois', () => {
+  it('ex.1 — un arbre se coupe et donne 3 bois et 2 branches', () => {
     assert.deepEqual(inspect('tree'), {
       action: 'cut',
       tool: 'axe',
       boostedBy: 'axe',
       resource: 'wood',
       amount: 3,
+      extra: { resource: 'branch', amount: 2 },
       becomes: 'stump',
       regrowDays: 3,
     });

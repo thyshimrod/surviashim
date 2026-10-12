@@ -3,6 +3,7 @@ import { RESOURCES } from '../../../data/resources.js';
 import { GAME_PARAMETERS } from '../../../data/gameParameters.js';
 import { levelOf, levelThreshold } from '../../core/systems/experience.js';
 import { TEXTS } from '../i18n/fr.js';
+import { clockLabel } from './clockLabel.js';
 
 /** Règles des niveaux (R-JOU-EXP-003), pour l'affichage. */
 const LEVEL_RULES = Object.freeze({
@@ -17,7 +18,7 @@ const LEVEL_RULES = Object.freeze({
 });
 
 /**
- * Ligne du bandeau d'inventaire.
+ * Ligne du bandeau, ou ressource de l'inventaire.
  * @typedef {object} InventoryEntry
  * @property {string} id Ressource, ou « experience ».
  * @property {string} label Libellé affiché (« Bois »).
@@ -26,7 +27,7 @@ const LEVEL_RULES = Object.freeze({
  */
 
 /**
- * R-IHM-HUD-001 : contenu du bandeau d'inventaire, dans l'ordre de data/resources.js.
+ * R-IHM-INV-001 : ressources de l'inventaire, dans l'ordre de data/resources.js.
  * @param {Readonly<Record<string, number>>} inventory
  * @returns {InventoryEntry[]}
  */
@@ -48,6 +49,20 @@ export function experienceEntry(experience) {
   const level = levelOf(experience, LEVEL_RULES);
   const next = levelThreshold(level + 1, LEVEL_RULES.experience);
   return { id: 'experience', label: TEXTS.levelLabel(level, experience, next), icon: 'experience' };
+}
+
+/**
+ * R-IHM-HUD-003 : le bandeau, réduit à l'essentiel : PV, faim, énergie, niveau, heure.
+ * @param {{ health: number, hunger: number, energy: number, experience: number }} state
+ * @param {{ day: number, minute: number }} time
+ * @returns {InventoryEntry[]}
+ */
+export function hudEntries(state, time) {
+  return [
+    ...vitalEntries(state),
+    experienceEntry(state.experience),
+    { id: 'clock', label: clockLabel(time), icon: 'hourglass' },
+  ];
 }
 
 /**

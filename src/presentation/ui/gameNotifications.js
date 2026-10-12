@@ -10,7 +10,7 @@ import { questCompletedMessages, questStartedMessage } from './questMessages.js'
  * Notification à afficher.
  * @typedef {object} NotificationSpec
  * @property {string} text
- * @property {boolean} sticky `true` : reste jusqu'à ce qu'on la ferme (quêtes, R-IHM-NOT-003).
+ * @property {boolean} important `true` : reste plus longtemps (quêtes, niveau, évanouissement).
  */
 
 /**
@@ -23,13 +23,13 @@ const placeName = (id) => CONTENT_TEXTS.placeNames[id] ?? id;
  * @param {string[]} texts
  * @returns {NotificationSpec[]}
  */
-const brief = (texts) => texts.map((text) => ({ text, sticky: false }));
+const brief = (texts) => texts.map((text) => ({ text, important: false }));
 
 /**
  * @param {string[]} texts
  * @returns {NotificationSpec[]}
  */
-const sticky = (texts) => texts.map((text) => ({ text, sticky: true }));
+const important = (texts) => texts.map((text) => ({ text, important: true }));
 
 /**
  * Données des événements notifiés (catalogue : src/core/events/gameEvents.js).
@@ -67,13 +67,13 @@ const BY_EVENT = Object.freeze({
   [GAME_EVENTS.BLIGHT_ENTERED]: () => brief([TEXTS.blightEntered]),
   [GAME_EVENTS.PURIFIED]: () => brief([TEXTS.purified]),
   // R-IHM-NOT-004, R-IHM-REC-001
-  [GAME_EVENTS.LEVEL_UP]: ({ level = 0 }) => sticky([TEXTS.levelUp(level)]),
+  [GAME_EVENTS.LEVEL_UP]: ({ level = 0 }) => important([TEXTS.levelUp(level)]),
   [GAME_EVENTS.RESEARCHED]: ({ recipes = [] }) => brief(learnedMessages(recipes)),
-  [GAME_EVENTS.FAINTED]: () => sticky([TEXTS.faintedMessage]),
+  [GAME_EVENTS.FAINTED]: () => important([TEXTS.faintedMessage]),
   // R-IHM-NOT-003
-  [GAME_EVENTS.QUEST_STARTED]: ({ questId = '' }) => sticky([questStartedMessage(questId)]),
+  [GAME_EVENTS.QUEST_STARTED]: ({ questId = '' }) => important([questStartedMessage(questId)]),
   [GAME_EVENTS.QUEST_COMPLETED]: ({ questId = '', experience = 0 }) =>
-    sticky(questCompletedMessages(questId, experience)),
+    important(questCompletedMessages(questId, experience)),
 });
 
 /** Événements qui donnent lieu à une notification. */

@@ -35,6 +35,10 @@ export const CONTENT_TEXTS = Object.freeze({
       title: 'Le Guide du cueilleur',
       text: "Tresse un sac de fibres, large et souple : rien ne se perd plus quand on cueille. Et ne mange pas les champignons crus quand un feu brûle à côté : grillés, ils tiennent au corps jusqu'au soir.",
     }),
+    'dawn-ritual': Object.freeze({
+      title: "Le Rituel de l'aube",
+      text: "Seul un esprit aguerri sait lier la sauge de l'aube au feu. Jette-la dans les flammes et laisse la fumée claire courir sur la terre malade : là où elle passe, la Flétrissure recule pour de bon.",
+    }),
     'watchman-notebook': Object.freeze({
       title: 'Carnet du guetteur',
       text: "Troisième nuit sans relève. Des feux partout sur les collines, et ce silence… Le vieux prêtre dit que la fumée de la sauge de l'aube les tient à distance. J'ai allumé un feu de camp au pied de la tour. Pourvu qu'il tienne jusqu'au matin.",
@@ -58,6 +62,7 @@ export const CONTENT_TEXTS = Object.freeze({
     'stone-pickaxe': 'pioche en pierre',
     'gatherer-bag': 'sac du cueilleur',
     'grilled-mushroom': 'champignons grillés',
+    'sage-smoke': 'fumée de sauge',
   }),
   /** @type {Readonly<Record<string, string>>} */
   pages: Object.freeze({

@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.13** | 2026-10-12 | Brouillon — le Foyer, la Flétrissure, l'énergie et la sauge de l'aube |
+| **v0.14** | 2026-10-12 | Brouillon — retours de test de la v0.10 : bandeau essentiel, inventaire en onglets, archives, fibres et branches, fumée de sauge au niveau 10 |
 
 > *Surshim* est un nom de travail.
 
@@ -205,6 +205,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-RES-03` | Les ressources rares sont dans les zones flétries et sur les monstres. | PROPOSÉ |
 | `C-RES-04` | **Trois façons de récolter** : **ramasser** à la main (fleurs, branches, cailloux, silex, baies, champignons), **couper** à la hache (arbres → bois), **piocher** à la pioche (rochers → pierre, filons → minerais). | VALIDÉ — outils exigés en v0.5 |
 | `C-RES-09` | **Cueillette** : des buissons à baies et des champignons se ramassent à la main, puis repoussent ; c'est la première nourriture. La cuisine viendra plus tard (C-ART-03). | VALIDÉ — v0.8 |
+| `C-RES-10` | **Branches et fibres** : couper un arbre donne aussi des branches ; des **hautes herbes**, nombreuses, se coupent à la main pour des fibres et repoussent. Les cachettes n'en sont plus la seule source. | VALIDÉ — v0.10 |
 | `C-RES-08` | **Progression par les outils** : au départ, on ne peut que ramasser. Les premiers matériaux (silex, branches, fibres) se trouvent dans les ruines ; ils permettent de fabriquer la hache et la pioche, qui ouvrent le bois et la pierre, puis la suite. | VALIDÉ |
 | `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite ou davantage. | PROPOSÉ — en v0.9, seul « un meilleur outil récolte davantage » est validé (outils en pierre, sac du cueilleur) |
 | `C-RES-06` | **Ressources de départ** : bois, pierre, branche, silex, fibre végétale, fleurs. Puis : minerais, herbes médicinales, plantes rares des zones flétries. | VALIDÉ — silex, branches et fibres arrivent en v0.4 par la fouille |
@@ -216,7 +217,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 |---|---|---|
 | `C-INV-01` | Sac à emplacements limités, objets empilables, barre d'accès rapide pour les outils. | PROPOSÉ |
 | `C-INV-02` | Coffres au village ; un coffre peut être réservé à une catégorie pour que les villageois y rangent leur production. | PROPOSÉ |
-| `C-INV-03` | **Fenêtre d'inventaire** (touche I) : les ressources, les **outils** possédés et les **livres** trouvés, que l'on peut **lire**. Sans limite de place pour l'instant (C-INV-01 viendra plus tard). | VALIDÉ |
+| `C-INV-03` | **Fenêtre d'inventaire** (touche I), en **onglets** : Ressources, Outils, Objets, Livres. Les livres lus quittent l'inventaire pour les archives du journal. Sans limite de place pour l'instant (C-INV-01 viendra plus tard). | VALIDÉ — onglets en v0.10 |
 | `C-INV-04` | **Outils** : un outil possédé sert tant qu'on l'a ; on n'en garde qu'un de chaque sorte. Pas d'usure pour l'instant. | VALIDÉ |
 
 ### 6.5 ART — Artisanat
@@ -296,7 +297,7 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-MEN-06` | Les totems non détruits **se renforcent** avec le temps (camps plus gardés, monstres plus forts) : on peut prendre son temps, mais pas indéfiniment. | VALIDÉ (G6) |
 | `C-MEN-07` | En mode Survie uniquement, la Flétrissure **reprend** une zone purifiée si un raid réussit. | VALIDÉ (G6) |
 | `C-MEN-09` | **Zones flétries en v0.10** : le Bois des Murmures et les Collines rocheuses, aux couleurs ternies d'une brume violette. Dedans, l'énergie s'épuise ; à zéro, les PV baissent. Hors des zones, la nuit n'est pas dangereuse. Les tuiles purifiées par la sauge le restent. | VALIDÉ — v0.10 (précise C-JOU-06) |
-| `C-MEN-08` | **La sauge de l'aube** (nom provisoire) : une plante rare, qui pousse en lisière des zones flétries. Jetée dans un feu, elle dégage une fumée claire qui **purifie définitivement** les tuiles flétries autour du feu. On en cultive plus tard au village. | VALIDÉ (G17) — v0.10 : on la cueille à la main et on la brûle depuis l'inventaire, près d'un feu allumé (rayon de 5 tuiles) |
+| `C-MEN-08` | **La sauge de l'aube** (nom provisoire) : une plante rare, qui pousse en lisière des zones flétries. Jetée dans un feu, elle dégage une fumée claire qui **purifie définitivement** les tuiles flétries autour du feu. On en cultive plus tard au village. | VALIDÉ (G17) — v0.10 : la purification est un plan de recherche, « Fumée de sauge », découvert dans « Le Rituel de l'aube » (Chapelle) et réservé au niveau 10 |
 
 ### 6.12 PRO — Progression
 
@@ -332,11 +333,11 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-IHM-03` | Boîtes de dialogue à l'ancienne (portrait + texte qui défile). | PROPOSÉ |
 | `C-IHM-04` | Commandes : déplacement (flèches / ZQSD), action, utiliser l'objet, esquive, inventaire. Remappables. | PROPOSÉ |
 | `C-IHM-05` | **Inspection** : un clic sur un élément du décor (arbre, rocher, fleurs…) ouvre une fenêtre d'information : son nom, ce qu'on peut en faire, ce qu'il rapporte, et un bouton **Récolter**. D'abord simple ; plus tard : description, outil requis, état (repousse). | VALIDÉ — décliné en v0.2 |
-| `C-IHM-06` | **Inventaire** affiché en permanence (ressources et quantités, avec leur icône). | VALIDÉ — décliné en v0.2 |
+| `C-IHM-06` | **Bandeau** réduit à l'essentiel, en permanence : PV, faim, énergie, niveau et expérience, heure. Les ressources se consultent dans l'inventaire. | VALIDÉ — v0.2 (ressources), v0.10 (essentiel seulement) |
 | `C-IHM-07` | La caméra garde **toujours le joueur au centre de l'écran** : le décor défile autour de lui. L'affichage s'adapte à la taille de chaque écran. | VALIDÉ — décliné en v0.2 |
 | `C-IHM-08` | **Dialogues** à l'ancienne : une boîte en bas de l'écran avec le nom de celui qui parle et son texte, page par page. | VALIDÉ |
-| `C-IHM-09` | **Journal** : les **quêtes**, la liste des lieux découverts et des **indices** reçus (qui l'a dit, ce qu'il a dit), pour savoir où aller. Les livres se lisent dans l'inventaire, pas au journal. | VALIDÉ |
-| `C-IHM-10` | **Notifications** au-dessus du héros, là où le regard se porte, chacune avec une croix : « Lieu découvert », le nom du lieu à chaque retour, « Nouvel indice », « Trouvé : … » (une seule par fouille). Celles des quêtes restent jusqu'à ce qu'on les ferme. | VALIDÉ |
+| `C-IHM-09` | **Journal** : les **quêtes**, la liste des lieux découverts et des **indices** reçus (qui l'a dit, ce qu'il a dit), pour savoir où aller, et les **archives** : les livres déjà lus, que l'on peut relire. | VALIDÉ |
+| `C-IHM-10` | **Notifications** au-dessus du héros, là où le regard se porte, chacune avec une croix : « Lieu découvert », le nom du lieu à chaque retour, « Nouvel indice », « Trouvé : … » (une seule par fouille). Les plus importantes (quêtes, niveau, évanouissement) restent plus longtemps. | VALIDÉ |
 | `C-IHM-11` | **Atlas d'icônes** : chaque objet, ressource et livre a une icône tirée de la planche d'icônes (24 px). | VALIDÉ |
 | `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent **au milieu de l'écran**, près du héros, et se ferment par × ou Échap. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ |
 | `C-IHM-15` | **Jauges** de santé (PV) et de faim au bandeau ; un bouton « Manger » sur la nourriture de l'inventaire ; une fenêtre « Partie » (sauvegarde, nouvelle partie). | VALIDÉ — v0.8 |
@@ -352,7 +353,7 @@ Inspiré des *engrammes* d'*ARK: Survival Evolved* : on ne sait pas tout faire d
 | `C-TEC-01` | **Arbre de recherche** : des **plans** (blueprints) se débloquent avec des **points de recherche** ; chaque plan apprend une ou plusieurs recettes d'artisanat ou de construction. Une fenêtre « Recherche » présente l'arbre. | VALIDÉ |
 | `C-TEC-02` | **Branches** de l'arbre, dans un monde médiéval fantastique : **Survie** (outils, feu, abris, cuisine), **Armes et armures** (hache, épée, arc, bouclier), **Habitat** (maisons, mobilier, confort), **Agriculture et élevage**, **Défense** (palissades, tours, pièges), **Magie** (runes, alchimie, purification de la Flétrissure), **Commandement** (gestion du village, métiers, leadership, ordres aux villageois). | PROPOSÉ |
 | `C-TEC-03` | Les **points de recherche** se gagnent par l'**expérience** (niveaux du personnage). Les **plans** eux-mêmes se **découvrent dans des livres** trouvés en explorant (ruines, bibliothèques, PNJ) : un plan n'est recherchable que si on a trouvé le livre qui le décrit. | VALIDÉ (G15) |
-| `C-TEC-04` | Un plan exige des **prérequis** : plans précédents de sa branche, matériau déjà découvert (on ne recherche pas la hache en fer avant d'avoir trouvé du fer), parfois un bâtiment ou un villageois. | VALIDÉ — en v0.9, seulement « plan précédent » (la hache en pierre demande la hache en silex) ; le reste plus tard |
+| `C-TEC-04` | Un plan exige des **prérequis** : plans précédents de sa branche, matériau déjà découvert (on ne recherche pas la hache en fer avant d'avoir trouvé du fer), parfois un bâtiment ou un villageois, ou un **niveau** minimal. | VALIDÉ — v0.9 : « plan précédent » ; v0.10 : niveau minimal (Fumée de sauge : niveau 10) ; le reste plus tard |
 | `C-TEC-08` | **Livres de recherche** : lire un livre de recherche **découvre** ses plans ; on les apprend ensuite dans la fenêtre « Recherche » avec des points de recherche (1 point par plan pour commencer). | VALIDÉ — v0.9 |
 | `C-TEC-09` | **Premiers plans de recherche** (branche Survie) : outils en pierre (meilleur rendement), sac du cueilleur (cueillette plus riche), champignons grillés (cuits au feu de camp, plus nourrissants). | VALIDÉ — v0.9 |
 | `C-TEC-06` | **Livres** : chaque livre a un titre et un texte (souvent un fragment de l'histoire de la vallée) et décrit un ou plusieurs **plans**. On les relit au journal. | VALIDÉ |
@@ -461,3 +462,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.11 | 2026-10-12 | Périmètre de la v0.8 choisi : baies et champignons (C-RES-09), faim et PV sans énergie (C-JOU-10), dormir près d'un feu allumé dès 18:00 (C-SAU-03), s'évanouir sans perte (C-SAU-04), sauvegarde au coucher et reprise automatique (C-SAU-01 validé), PNJ qui se promènent (C-VIL-08), jauges et fenêtre « Partie » (C-IHM-15). |
 | v0.12 | 2026-10-12 | Périmètre de la v0.9 choisi : expérience gagnée en jouant (C-JOU-09), niveaux croissants à 1 point de recherche, livres de recherche dans les cachettes (C-TEC-08), plans à 1 point, prérequis « plan précédent » (C-TEC-04), outils en pierre, sac du cueilleur, champignons grillés au feu (C-TEC-09, C-ART-08). |
 | v0.13 | 2026-10-12 | La v0.10 est découpée : Foyer, Flétrissure, énergie et sauge d'abord (C-MON-04 et C-UNI-03 validés pour le Foyer, C-MEN-09), le monstre, le combat et la mort en v0.11. Feuille de route décalée d'une version. |
+| v0.14 | 2026-10-12 | Retours de test de la v0.10 : bandeau essentiel (C-IHM-06), inventaire en onglets et livres lus aux archives du journal (C-INV-03, C-IHM-09), notifications importantes plus longues (C-IHM-10), branches à la coupe et hautes herbes à fibres (C-RES-10), fumée de sauge en plan de recherche au niveau 10 (C-MEN-08, C-TEC-04). |

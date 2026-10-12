@@ -1,6 +1,6 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
-import { researchPoints } from '../systems/experience.js';
+import { levelOf, researchPoints } from '../systems/experience.js';
 import { REJECTION_REASONS } from './commands.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
@@ -14,6 +14,7 @@ import { REJECTION_REASONS } from './commands.js';
  * @property {boolean} isDiscovered
  * @property {boolean} isResearched
  * @property {string | undefined} missingPrerequisite Recette prérequise encore inconnue.
+ * @property {number | undefined} missingLevel Niveau requis, s'il n'est pas atteint.
  * @property {number} cost
  * @property {boolean} canAfford `true` si le joueur a assez de points.
  */
@@ -34,13 +35,25 @@ export function inspectPlan(state, rules, planId) {
     isResearched: state.researched.includes(planId),
     missingPrerequisite:
       requires !== undefined && !state.knownRecipes.includes(requires) ? requires : undefined,
+    missingLevel: missingLevelOf(state, rules, plan?.level),
     cost,
     canAfford: researchPoints(state, rules) >= cost,
   };
 }
 
 /**
- * R-TEC-REC-002 : paie un plan découvert et apprend sa recette.
+ * Niveau requis par un plan, s'il n'est pas atteint.
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {number | undefined} level
+ * @returns {number | undefined}
+ */
+function missingLevelOf(state, rules, level) {
+  return level !== undefined && levelOf(state.experience, rules) < level ? level : undefined;
+}
+
+/**
+ * R-TEC-REC-002 : paie un plan découvert et apprend sa recette, ou sa technique.
  * @param {GameState} state
  * @param {GameRules} rules
  * @param {EventBus} events
@@ -58,11 +71,15 @@ export function research(state, rules, events, planId) {
   if (plan.missingPrerequisite !== undefined) {
     return { ok: false, reason: REJECTION_REASONS.MISSING_PREREQUISITE };
   }
+  if (plan.missingLevel !== undefined) {
+    return { ok: false, reason: REJECTION_REASONS.LEVEL_TOO_LOW };
+  }
   if (!plan.canAfford) {
     return { ok: false, reason: REJECTION_REASONS.NOT_ENOUGH_POINTS };
   }
   state.researched.push(planId);
-  const recipes = state.knownRecipes.includes(planId) ? [] : [planId];
+  const isRecipe = rules.recipes?.[planId] !== undefined; // sinon, une technique
+  const recipes = !isRecipe || state.knownRecipes.includes(planId) ? [] : [planId];
   state.knownRecipes.push(...recipes);
   events.emit(GAME_EVENTS.RESEARCHED, { planId, recipes });
   return { ok: true };

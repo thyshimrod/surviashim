@@ -107,6 +107,7 @@ export function createTestGame({
   researched = [],
   energy = 100,
   purified = [],
+  readBooks = [],
 } = {}) {
   const rules = createGameRules(GAME_PARAMETERS);
   const pauseUntil = clock + rules.npcWalk.pauseMinutes * rules.time.ticksPerMinute;
@@ -139,6 +140,7 @@ export function createTestGame({
     researched,
     energy,
     purified,
+    readBooks,
   });
   const game = new Game(state, {
     rules: {

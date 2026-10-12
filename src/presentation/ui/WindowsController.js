@@ -18,6 +18,8 @@ import { InspectionController } from './InspectionController.js';
  * @typedef {'inspection' | 'inventory' | 'book' | 'craft' | 'journal' | 'research' | 'game'} WindowName
  */
 
+/** @typedef {import('./inventoryView.js').InventoryTab} InventoryTab */
+
 /** Touches qui ouvrent et ferment une fenêtre (R-IHM-INV-001, R-IHM-ART-001, R-IHM-JRN-001). */
 const TOGGLE_KEYS = Object.freeze({ i: 'inventory', c: 'craft', j: 'journal', r: 'research' });
 const CLOSE_KEY = 'Escape';
@@ -36,6 +38,8 @@ export class WindowsController {
     this.confirmingNewGame = false;
     /** @type {string | undefined} Livre affiché par la fenêtre de lecture. */
     this.bookId = undefined;
+    /** @type {InventoryTab} Onglet affiché de l'inventaire (R-IHM-INV-001). */
+    this.inventoryTab = 'resources';
   }
 
   /** `true` si le journal est ouvert. */
@@ -90,6 +94,14 @@ export class WindowsController {
     this.show(this.panel === name ? undefined : name);
   }
 
+  /**
+   * R-IHM-INV-001 : affiche un onglet de l'inventaire.
+   * @param {InventoryTab} tab
+   */
+  showTab(tab) {
+    this.inventoryTab = tab;
+  }
+
   /** R-IHM-JRN-001 : ferme le journal (bouton ×). */
   closeJournal() {
     if (this.journalOpen) {
@@ -98,7 +110,7 @@ export class WindowsController {
   }
 
   /**
-   * R-IHM-LIV-001 : lit un livre et ouvre la fenêtre de lecture.
+   * R-IHM-LIV-001 : lit (ou relit, R-IHM-JRN-004) un livre et ouvre la fenêtre de lecture.
    * @param {string} bookId
    * @param {InspectableGame} game
    * @returns {CommandResult}
@@ -188,6 +200,7 @@ export class WindowsController {
     this.inspection.close();
     this.panel = panel;
     this.bookId = undefined;
+    this.inventoryTab = 'resources'; // R-IHM-INV-001 : l'inventaire s'ouvre sur « Ressources »
     this.confirmingNewGame = false;
   }
 }

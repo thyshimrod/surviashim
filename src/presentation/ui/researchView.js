@@ -38,6 +38,29 @@ function planName(id) {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+/** Ressource dont un plan qui n'est pas une recette prend l'icône. */
+const PLAN_RESOURCES = Object.freeze({ 'sage-smoke': 'sage' });
+
+/**
+ * Pourquoi un plan ne peut pas être recherché, dans l'ordre de R-TEC-REC-002.
+ * @param {import('../../core/commands/research.js').PlanInspection} plan
+ * @returns {string | undefined}
+ */
+function warningOf(plan) {
+  if (plan.isResearched) {
+    return TEXTS.researched;
+  }
+  if (plan.missingPrerequisite !== undefined) {
+    return TEXTS.requires(
+      CONTENT_TEXTS.plans[plan.missingPrerequisite] ?? plan.missingPrerequisite,
+    );
+  }
+  if (plan.missingLevel !== undefined) {
+    return TEXTS.levelRequired(plan.missingLevel);
+  }
+  return plan.canAfford ? undefined : TEXTS.notEnoughPoints;
+}
+
 /**
  * @param {{ getState: () => GameState, rules: GameRules }} game
  * @returns {ResearchContent}
@@ -46,20 +69,11 @@ export function researchView(game) {
   const state = game.getState();
   const entries = state.discoveredPlans.map((id) => {
     const plan = inspectPlan(state, game.rules, id);
-    let warning;
-    if (plan.isResearched) {
-      warning = TEXTS.researched;
-    } else if (plan.missingPrerequisite !== undefined) {
-      warning = TEXTS.requires(
-        CONTENT_TEXTS.plans[plan.missingPrerequisite] ?? plan.missingPrerequisite,
-      );
-    } else if (!plan.canAfford) {
-      warning = TEXTS.notEnoughPoints;
-    }
+    const warning = warningOf(plan);
     return {
       id,
       name: planName(id),
-      icon: TOOLS[id]?.icon ?? RESOURCES[id]?.icon ?? 'scroll',
+      icon: TOOLS[id]?.icon ?? RESOURCES[PLAN_RESOURCES[id] ?? id]?.icon ?? 'scroll',
       cost: TEXTS.researchCost(plan.cost),
       button: TEXTS.researchButton,
       isEnabled: warning === undefined,

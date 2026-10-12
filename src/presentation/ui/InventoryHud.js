@@ -4,7 +4,7 @@ import { iconElement } from './iconElement.js';
 /** @typedef {import('./inventoryEntries.js').InventoryEntry} InventoryEntry */
 
 /**
- * Bandeau d'inventaire (R-IHM-HUD-001), en DOM en haut à gauche, avec les icônes de l'atlas.
+ * Bandeau de l'essentiel (R-IHM-HUD-003), en DOM en haut à gauche, avec les icônes de l'atlas.
  */
 export class InventoryHud {
   /**

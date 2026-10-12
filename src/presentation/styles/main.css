@@ -35,7 +35,7 @@ body {
   text-shadow: 1px 1px 0 #10121e;
 }
 
-/* Bandeau d'inventaire (R-IHM-HUD-001). */
+/* Bandeau de l'essentiel (R-IHM-HUD-003). */
 .inventory-hud {
   position: absolute;
   top: 12px;
@@ -239,6 +239,24 @@ body {
   font-style: italic;
 }
 
+/* Onglets de l'inventaire (R-IHM-INV-001). */
+.center-window .tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #6b6252;
+}
+
+.center-window .tabs button {
+  border-radius: 4px 4px 0 0;
+  opacity: 0.7;
+}
+
+.center-window .tabs button.active {
+  opacity: 1;
+  font-weight: bold;
+}
+
 .center-window .resources {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -288,6 +306,17 @@ body {
   color: #f4f1e8;
   font-size: 22px;
   cursor: pointer;
+}
+
+/* Archives du journal (R-IHM-JRN-004). */
+.journal-panel .archive {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journal-panel .archive span {
+  flex: 1;
 }
 
 /* Journal (R-IHM-JRN-001). */

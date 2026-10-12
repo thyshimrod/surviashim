@@ -132,6 +132,7 @@ function createInterface(game, renderer, store) {
     container: /** @type {HTMLElement} */ (document.getElementById('interface')),
     game,
     notificationTicks: GAME_PARAMETERS.NOTIFICATION_TICKS,
+    importantNotificationTicks: GAME_PARAMETERS.IMPORTANT_NOTIFICATION_TICKS,
     savedDay: () => store.savedDay(),
     // R-IHM-SAU-001 : « Recommencer » efface la sauvegarde et relance le jeu.
     onRestart: () => {

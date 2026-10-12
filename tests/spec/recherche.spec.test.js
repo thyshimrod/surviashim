@@ -342,8 +342,8 @@ describe('R-IHM-NOT-004 · Niveau gagné', () => {
     return messages;
   };
 
-  it('ex.1 — 99 expérience, +1 : « Niveau 2 ! +1 point de recherche », qui reste', () => {
-    assert.deepEqual(levelUps(99), [{ text: 'Niveau 2 ! +1 point de recherche', sticky: true }]);
+  it('ex.1 — 99 expérience, +1 : « Niveau 2 ! +1 point de recherche », importante', () => {
+    assert.deepEqual(levelUps(99), [{ text: 'Niveau 2 ! +1 point de recherche', important: true }]);
   });
 
   it('ex.2 — 50 expérience, +1 : aucune notification de niveau', () => {

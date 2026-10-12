@@ -81,6 +81,11 @@
  * @property {number} SAGE_YIELD Sauge ramassée par plant.
  * @property {number} SAGE_REGROW_DAYS Jours avant que la sauge repousse.
  * @property {number} SAGE_RADIUS Rayon de purification de la sauge (tuiles).
+ * @property {number} IMPORTANT_NOTIFICATION_TICKS Durée d'une notification importante (ticks).
+ * @property {number} TREE_BRANCH_YIELD Branches données par un arbre coupé.
+ * @property {number} TALL_GRASS_FIBER_YIELD Fibres données par des hautes herbes.
+ * @property {number} TALL_GRASS_REGROW_DAYS Jours avant que les hautes herbes repoussent.
+ * @property {number} SAGE_SMOKE_LEVEL Niveau requis pour rechercher la fumée de sauge.
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -152,4 +157,9 @@ export const GAME_PARAMETERS = Object.freeze({
   SAGE_YIELD: 1,
   SAGE_REGROW_DAYS: 3,
   SAGE_RADIUS: 5,
+  IMPORTANT_NOTIFICATION_TICKS: 600,
+  TREE_BRANCH_YIELD: 2,
+  TALL_GRASS_FIBER_YIELD: 2,
+  TALL_GRASS_REGROW_DAYS: 2,
+  SAGE_SMOKE_LEVEL: 10,
 });

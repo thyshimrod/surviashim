@@ -3,7 +3,7 @@ import { GAME_PARAMETERS } from './gameParameters.js';
 
 /**
  * Ressources que le joueur accumule dans son inventaire, dans l'ordre d'affichage
- * (R-IHM-HUD-001). Les noms affichés sont dans src/presentation/i18n/fr.js.
+ * (R-IHM-INV-001). Les noms affichés sont dans src/presentation/i18n/fr.js.
  */
 
 /**

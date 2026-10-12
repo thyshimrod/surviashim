@@ -41,7 +41,7 @@ const misc = family('divers');
 
 /** @type {Readonly<Record<string, Readonly<IconDefinition>>>} */
 export const ICONS = Object.freeze({
-  // Ressources de l'inventaire (R-IHM-HUD-001).
+  // Ressources de l'inventaire (R-IHM-INV-001).
   wood: material(64, 9),
   stone: material(9, 2),
   flower: plant(68, 10),

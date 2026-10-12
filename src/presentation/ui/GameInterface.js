@@ -2,7 +2,6 @@
 import { nextPage } from '../../core/commands/commands.js';
 import { TEXTS } from '../i18n/fr.js';
 import { BookPanel } from './BookPanel.js';
-import { clockLabel } from './clockLabel.js';
 import { bookView } from './bookView.js';
 import { CraftPanel } from './CraftPanel.js';
 import { craftView } from './craftView.js';
@@ -12,7 +11,7 @@ import { GamePanel } from './GamePanel.js';
 import { dialogueCommandForKey, dialogueView } from './dialogueView.js';
 import { NOTIFIED_EVENTS, notificationsFor } from './gameNotifications.js';
 import { InspectPanel } from './InspectPanel.js';
-import { experienceEntry, inventoryEntries, vitalEntries } from './inventoryEntries.js';
+import { hudEntries } from './inventoryEntries.js';
 import { InventoryHud } from './InventoryHud.js';
 import { InventoryPanel } from './InventoryPanel.js';
 import { inventoryView } from './inventoryView.js';
@@ -30,7 +29,7 @@ import { WindowsController } from './WindowsController.js';
 /** @typedef {import('../input/designateTile.js').Target} Target */
 
 /**
- * Interface en DOM au-dessus du canvas : bandeau d'inventaire (R-IHM-HUD-001), fenêtres centrales
+ * Interface en DOM au-dessus du canvas : bandeau de l'essentiel (R-IHM-HUD-003), fenêtres centrales
  * (R-IHM-FEN-001 : information, inventaire, lecture, artisanat), boîte de dialogue
  * (R-IHM-DIA-001), journal (R-IHM-JRN-001), notifications (R-IHM-NOT-001), barre d'actions
  * (R-IHM-BAR-001). Elle lit l'état et envoie des commandes ; elle ne décide d'aucune règle.
@@ -42,10 +41,19 @@ export class GameInterface {
    * @param {HTMLElement} params.container
    * @param {Game} params.game
    * @param {number} params.notificationTicks Durée d'une notification (ticks).
+   * @param {number} [params.importantNotificationTicks] Durée d'une notification importante.
    * @param {() => number | undefined} [params.savedDay] Jour de la sauvegarde (R-IHM-SAU-001).
    * @param {() => void} [params.onRestart] Efface la sauvegarde et relance une partie.
    */
-  constructor({ doc, container, game, notificationTicks, savedDay = () => undefined, onRestart }) {
+  constructor({
+    doc,
+    container,
+    game,
+    notificationTicks,
+    importantNotificationTicks,
+    savedDay = () => undefined,
+    onRestart,
+  }) {
     this.game = game;
     this.savedDay = savedDay;
     this.windows = new WindowsController();
@@ -53,7 +61,7 @@ export class GameInterface {
     this.hud = new InventoryHud({ doc, container });
     this.toolbar = new Toolbar({ doc, container, onToggle: (id) => this.windows.toggle(id) });
     this.dialogue = new DialogueBox({ doc, container, onNext: () => game.execute(nextPage()) });
-    this.notifications = new NotificationQueue(notificationTicks);
+    this.notifications = new NotificationQueue(notificationTicks, importantNotificationTicks);
     this.notificationList = new NotificationList({
       doc,
       container,
@@ -76,15 +84,7 @@ export class GameInterface {
       onSecondary: () => this.windows.inspection.secondary(game),
       onClose,
     });
-    this.inventory = new InventoryPanel({
-      doc,
-      container,
-      onClose,
-      onRead: (bookId) => this.windows.read(bookId, game),
-      onPlace: (itemId) => this.windows.place(itemId, game),
-      onEat: (resource) => this.windows.eat(resource, game),
-      onUse: (resource) => this.windows.use(resource, game),
-    });
+    this.inventory = this.createInventory(doc, container);
     this.book = new BookPanel({ doc, container, onClose });
     this.craft = new CraftPanel({
       doc,
@@ -98,12 +98,37 @@ export class GameInterface {
       onClose,
       onButton: (label) => this.onGameButton(label, onRestart),
     });
-    this.journal = new JournalPanel({ doc, container, onClose: () => this.windows.closeJournal() });
+    this.journal = new JournalPanel({
+      doc,
+      container,
+      onClose: () => this.windows.closeJournal(),
+      onReread: (bookId) => this.windows.read(bookId, game),
+    });
     this.research = new ResearchPanel({
       doc,
       container,
       onClose,
       onResearch: (planId) => this.windows.research(planId, game),
+    });
+  }
+
+  /**
+   * Fenêtre d'inventaire (R-IHM-INV-001).
+   * @param {Document} doc
+   * @param {HTMLElement} container
+   * @returns {InventoryPanel}
+   */
+  createInventory(doc, container) {
+    const { game, windows } = this;
+    return new InventoryPanel({
+      doc,
+      container,
+      onClose: () => windows.close(),
+      onRead: (bookId) => windows.read(bookId, game),
+      onPlace: (itemId) => windows.place(itemId, game),
+      onEat: (resource) => windows.eat(resource, game),
+      onUse: (resource) => windows.use(resource, game),
+      onTab: (tab) => windows.showTab(tab),
     });
   }
 
@@ -114,8 +139,8 @@ export class GameInterface {
   listenToGame() {
     for (const eventName of NOTIFIED_EVENTS) {
       this.game.events.on(eventName, (payload) => {
-        for (const { text, sticky } of notificationsFor(eventName, payload)) {
-          this.notifications.push(text, this.game.getState().tick, { sticky });
+        for (const { text, important } of notificationsFor(eventName, payload)) {
+          this.notifications.push(text, this.game.getState().tick, { important });
         }
       });
     }
@@ -170,7 +195,9 @@ export class GameInterface {
     const { windows } = this;
     this.panel.render(windows.inspection.view(this.game));
     this.inventory.render(
-      windows.open === 'inventory' ? inventoryView(state, this.game.rules) : undefined,
+      windows.open === 'inventory'
+        ? inventoryView(state, this.game.rules, windows.inventoryTab)
+        : undefined,
     );
     this.book.render(windows.bookId === undefined ? undefined : bookView(windows.bookId));
     this.craft.render(windows.open === 'craft' ? craftView(this.game) : undefined);
@@ -187,15 +214,12 @@ export class GameInterface {
     const state = this.game.getState();
     const { windows } = this;
     this.renderWindows(state);
-    this.hud.render([
-      ...vitalEntries(state),
-      ...inventoryEntries(state.inventory),
-      experienceEntry(state.experience),
-      { id: 'clock', label: clockLabel(this.game.time()), icon: 'hourglass' },
-    ]);
+    this.hud.render(hudEntries(state, this.game.time()));
     this.toolbar.render(toolbarView(windows));
     this.dialogue.render(dialogueView(state.dialogue));
-    this.journal.render(windows.journalOpen ? journalView(state.journal, state.quests) : undefined);
+    this.journal.render(
+      windows.journalOpen ? journalView(state.journal, state.quests, state.readBooks) : undefined,
+    );
     this.notificationList.render(this.notifications.entries(state.tick));
   }
 }

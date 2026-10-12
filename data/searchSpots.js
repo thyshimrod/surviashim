@@ -39,7 +39,7 @@ export const SEARCH_SPOTS = Object.freeze([
   spot([26, 25], 'ruin-bookshelf', { books: ['flint-knapping'], resources: { flint: 2 } }),
   spot([32, 29], 'ruin-chest', { resources: { branch: 4, fiber: 2 } }),
   // La Chapelle engloutie.
-  spot([120, 58], 'ruin-bookshelf', { books: ['watchman-notebook'] }),
+  spot([120, 58], 'ruin-bookshelf', { books: ['watchman-notebook', 'dawn-ritual'] }),
   spot([123, 64], 'ruin-crate', { books: ['forager-guide'], resources: { flint: 1, fiber: 3 } }),
   // Le Hameau abandonné.
   spot([115, 97], 'ruin-crate', { resources: { branch: 2, fiber: 1 } }),

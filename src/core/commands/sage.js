@@ -9,6 +9,9 @@ import { REJECTION_REASONS } from './commands.js';
 /** @typedef {import('../events/EventBus.js').EventBus} EventBus */
 /** @typedef {import('./commands.js').CommandResult} CommandResult */
 
+/** Technique de purification, à rechercher (B.11). */
+export const SAGE_SMOKE = 'sage-smoke';
+
 /**
  * R-MEN-SAU-002 : brûle une sauge dans un feu allumé à portée et purifie autour du feu.
  * @param {GameState} state
@@ -17,6 +20,9 @@ import { REJECTION_REASONS } from './commands.js';
  * @returns {CommandResult}
  */
 export function burnSage(state, rules, events) {
+  if (!state.researched.includes(SAGE_SMOKE)) {
+    return { ok: false, reason: REJECTION_REASONS.UNKNOWN_TECHNIQUE };
+  }
   if ((state.inventory.sage ?? 0) <= 0) {
     return { ok: false, reason: REJECTION_REASONS.NOTHING_TO_BURN };
   }

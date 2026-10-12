@@ -45,6 +45,7 @@ export const TERRAIN_APPEARANCE = Object.freeze({
   stump: Object.freeze({ autotile: 'grass', decor: Object.freeze(['stump-cut']) }),
   campfire: Object.freeze({ autotile: 'grass', decor: Object.freeze(['campfire']) }),
   hearth: Object.freeze({ autotile: 'grass', decor: Object.freeze(['campfire-ring']) }),
+  'tall-grass': Object.freeze({ autotile: 'grass', decor: Object.freeze(['grass-tall']) }),
   'dawn-sage': Object.freeze({ autotile: 'grass', decor: Object.freeze(['flowers-pink-bush']) }),
   'berry-bush': Object.freeze({ autotile: 'grass', standing: Object.freeze(['crop-tomato']) }),
   bush: Object.freeze({ autotile: 'grass', standing: Object.freeze(['bush-dense']) }),

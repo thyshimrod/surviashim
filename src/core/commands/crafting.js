@@ -52,6 +52,9 @@ export function readBook(state, rules, events, bookId) {
   const recipes =
     book?.kind === 'survival' ? plans.filter((plan) => !state.knownRecipes.includes(plan)) : [];
   state.knownRecipes.push(...recipes);
+  if (!state.readBooks.includes(bookId)) {
+    state.readBooks.push(bookId); // rangé aux archives (R-IHM-JRN-004)
+  }
   events.emit(GAME_EVENTS.BOOK_READ, { bookId, recipes });
   return { ok: true };
 }

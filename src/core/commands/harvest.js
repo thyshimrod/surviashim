@@ -94,16 +94,13 @@ export function harvest(state, rules, events, tile) {
   if (!inspection.isInReach) {
     return { ok: false, reason: REJECTION_REASONS.OUT_OF_REACH };
   }
-  const { resource, becomes, regrowDays, boostedBy } = inspection.harvest;
+  const { resource, becomes, regrowDays, boostedBy, extra } = inspection.harvest;
   const amount = inspection.harvest.amount + bestBonus(state, rules, boostedBy); // R-RES-OUT-002
-  state.inventory[resource] = (state.inventory[resource] ?? 0) + amount;
-  state.map.setTile(tile.column, tile.row, rules.tiles[becomes]);
-  if (regrowDays !== undefined && rules.time !== undefined) {
-    // R-RES-REC-005 : l'élément repoussera.
-    const days = regrowDays * MINUTES_PER_DAY;
-    const at = state.clock + ticksFor(days, rules.time);
-    state.regrowth.push({ ...tile, tile: /** @type {string} */ (inspection.tileId), at });
+  for (const gain of [{ resource, amount }, ...(extra === undefined ? [] : [extra])]) {
+    state.inventory[gain.resource] = (state.inventory[gain.resource] ?? 0) + gain.amount;
   }
+  state.map.setTile(tile.column, tile.row, rules.tiles[becomes]);
+  scheduleRegrowth(state, rules, { ...tile, tileId: inspection.tileId, regrowDays });
   events.emit(GAME_EVENTS.RESOURCE_HARVESTED, {
     ...tile,
     resource,
@@ -113,6 +110,20 @@ export function harvest(state, rules, events, tile) {
   events.emit(GAME_EVENTS.TILE_CHANGED, { ...tile, tileId: becomes });
   gainExperience(state, rules, events, rules.experience?.harvest ?? 0); // R-JOU-EXP-002
   return { ok: true };
+}
+
+/**
+ * R-RES-REC-005 : l'élément récolté repoussera, s'il repousse.
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {TileCoordinates & { tileId: string | undefined, regrowDays: number | undefined }} harvested
+ */
+function scheduleRegrowth(state, rules, { column, row, tileId, regrowDays }) {
+  if (regrowDays === undefined || rules.time === undefined || tileId === undefined) {
+    return;
+  }
+  const at = state.clock + ticksFor(regrowDays * MINUTES_PER_DAY, rules.time);
+  state.regrowth.push({ column, row, tile: tileId, at });
 }
 
 /**

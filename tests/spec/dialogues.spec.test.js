@@ -187,8 +187,8 @@ describe('R-IHM-NOT-001 · Notifications', () => {
     assert.deepEqual(queue.visible(150), []);
   });
 
-  it('ex.4 — « Quête terminée » au tick 100 : toujours affichée au tick 400', () => {
-    const queue = new NotificationQueue(240);
+  it('ex.4 — « Quête terminée » au tick 100 : affichée au tick 400, disparue au tick 700', () => {
+    const queue = new NotificationQueue(240, 600);
     const [completed] = notificationsFor(GAME_EVENTS.QUEST_COMPLETED, {
       questId: 'blue-doll',
       experience: 50,
@@ -197,23 +197,24 @@ describe('R-IHM-NOT-001 · Notifications', () => {
     queue.push(completed.text, 100, completed);
 
     assert.deepEqual(queue.visible(400), ['Quête terminée : La poupée de Maëlle']);
+    assert.deepEqual(queue.visible(700), []);
   });
 
   it('ex.5 — retour aux Ruines du Guet : « Les Ruines du Guet »', () => {
     assert.deepEqual(notificationsFor(GAME_EVENTS.PLACE_ENTERED, { placeId: 'watchtower-ruins' }), [
-      { text: 'Les Ruines du Guet', sticky: false },
+      { text: 'Les Ruines du Guet', important: false },
     ]);
   });
 
   it('ex.6 — le joueur dort : « Bonjour ! Partie sauvegardée. »', () => {
     assert.deepEqual(notificationsFor(GAME_EVENTS.SLEPT, { day: 2 }), [
-      { text: 'Bonjour ! Partie sauvegardée.', sticky: false },
+      { text: 'Bonjour ! Partie sauvegardée.', important: false },
     ]);
   });
 
-  it("ex.7 — le joueur s'évanouit : message qui reste jusqu'à ce qu'on le ferme", () => {
+  it("ex.7 — le joueur s'évanouit : notification importante", () => {
     assert.deepEqual(notificationsFor(GAME_EVENTS.FAINTED, {}), [
-      { text: 'Vous vous êtes évanoui… Vous vous réveillez dans le Vallon.', sticky: true },
+      { text: 'Vous vous êtes évanoui… Vous vous réveillez dans le Vallon.', important: true },
     ]);
   });
 });

@@ -180,11 +180,15 @@ describe('R-MEN-FLE-001 · Tuiles flétries', () => {
 });
 
 describe('R-MEN-SAU-002 · Brûler la sauge', () => {
-  /** Un feu de camp allumé en (50, 20), dans le Bois ; le joueur juste à l'ouest. */
-  const byFire = ({ sage = 1, fire = true } = {}) =>
+  /**
+   * Un feu de camp allumé en (50, 20), dans le Bois ; le joueur juste à l'ouest ; la fumée de
+   * sauge recherchée.
+   */
+  const byFire = ({ sage = 1, fire = true, researched = ['sage-smoke'] } = {}) =>
     inValley({
       position: center(49, 20),
       inventory: { sage },
+      researched,
       tiles: fire ? [[50, 20, 'campfire']] : [],
       campfires: fire ? [{ column: 50, row: 20, burnsUntil: at(9, '0:00') }] : [],
     });
@@ -211,6 +215,12 @@ describe('R-MEN-SAU-002 · Brûler la sauge', () => {
 
     assert.deepEqual(game.execute(burnSage()), { ok: false, reason: 'NEEDS_FIRE' });
     assert.equal(state.inventory.sage, 1);
+  });
+
+  it('ex.4 — un feu à portée, la fumée de sauge pas recherchée : refus UNKNOWN_TECHNIQUE', () => {
+    const { game } = byFire({ researched: [] });
+
+    assert.deepEqual(game.execute(burnSage()), { ok: false, reason: 'UNKNOWN_TECHNIQUE' });
   });
 });
 
@@ -239,14 +249,22 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
   const sageEntry = (state, game) =>
     inventoryView(state, game.rules).resources.find(({ id }) => id === 'sage');
 
-  it('ex.10 — 1 sauge, aucun feu : « Brûler » inactif', () => {
-    const { game, state } = inValley({ position: center(34, 92), inventory: { sage: 1 } });
+  it('ex.10 — 1 sauge, la fumée de sauge recherchée, aucun feu : « Brûler » inactif', () => {
+    const { game, state } = inValley({
+      position: center(34, 92),
+      inventory: { sage: 1 },
+      researched: ['sage-smoke'],
+    });
 
     assert.deepEqual(sageEntry(state, game).use, { button: 'Brûler', isEnabled: false });
   });
 
-  it('ex.11 — 1 sauge, un feu à portée, clic sur « Brûler » : 0 sauge, fenêtre ouverte', () => {
-    const { game, state } = inValley({ position: center(32, 92), inventory: { sage: 1 } });
+  it('ex.11 — 1 sauge, recherchée, un feu à portée, « Brûler » : 0 sauge, fenêtre ouverte', () => {
+    const { game, state } = inValley({
+      position: center(32, 92),
+      inventory: { sage: 1 },
+      researched: ['sage-smoke'],
+    });
     const windows = new WindowsController();
     windows.toggle('inventory');
 
@@ -254,6 +272,12 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
 
     assert.equal(state.inventory.sage, 0);
     assert.equal(windows.open, 'inventory');
+  });
+
+  it('ex.12 — 1 sauge, un feu à portée, la fumée de sauge pas recherchée : « Brûler » inactif', () => {
+    const { game, state } = inValley({ position: center(32, 92), inventory: { sage: 1 } });
+
+    assert.deepEqual(sageEntry(state, game).use, { button: 'Brûler', isEnabled: false });
   });
 });
 
@@ -325,12 +349,12 @@ describe('R-IHM-NOT-005 · Flétrissure et purification', () => {
 
     walk(game, 'droite', 12);
 
-    assert.deepEqual(messages, [{ text: 'La Flétrissure ronge votre énergie…', sticky: false }]);
+    assert.deepEqual(messages, [{ text: 'La Flétrissure ronge votre énergie…', important: false }]);
   });
 
   it('ex.2 — brûler la sauge : « La fumée de la sauge purifie la terre. »', () => {
     assert.deepEqual(notificationsFor(GAME_EVENTS.PURIFIED, { count: 80 }), [
-      { text: 'La fumée de la sauge purifie la terre.', sticky: false },
+      { text: 'La fumée de la sauge purifie la terre.', important: false },
     ]);
   });
 });

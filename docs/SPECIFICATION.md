@@ -224,7 +224,10 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 | **Niveau** | Rang du joueur, déduit de son expérience ; chaque niveau au-dessus du premier donne un point de recherche (R-JOU-EXP-003, R-TEC-REC-001). |
 | **Plan découvert** | Plan d'un livre de recherche lu : on peut le rechercher (R-INV-LIV-002). |
 | **Rechercher** un plan | Le payer en points de recherche pour apprendre sa recette (R-TEC-REC-002). |
-| **Prérequis** | Plan qu'il faut connaître avant d'en rechercher un autre (B.11). |
+| **Prérequis** | Plan qu'il faut connaître, ou niveau à atteindre, avant de rechercher un plan (B.11). |
+| **Technique** | Plan recherché qui n'est pas une recette : il permet une action (la fumée de sauge). |
+| **Archives** | Partie du journal qui garde les livres déjà lus, pour les relire (R-IHM-JRN-004). |
+| **Notification importante** | Notification qui reste `IMPORTANT_NOTIFICATION_TICKS` ticks : quêtes, niveau, évanouissement (R-IHM-NOT-001). |
 | **PV** | Points de vie (santé) du joueur, de 0 à `HEALTH_MAX` (R-JOU-VIE-001). |
 | **Faim** | Jauge de 0 (affamé) à `HUNGER_MAX` (rassasié) ; elle baisse avec le temps et remonte en mangeant (R-JOU-VIE-002, R-JOU-MAN-001). |
 | **Nourriture** | Ressource qui se mange : baies, champignons (B.10). |
@@ -282,8 +285,8 @@ Les commandes sont traitées immédiatement, entre deux ticks.
 | Raviver un feu | Rallume un feu de camp avec du bois (R-ART-FEU-001) | `NOTHING_TO_REKINDLE` : la tuile n'est pas un feu de camp ; `MISSING_INGREDIENTS` : pas assez de bois ; `OUT_OF_REACH` : le feu est hors de portée |
 | Manger | Mange une ressource (R-JOU-MAN-001) | `NOT_EDIBLE` : elle ne se mange pas ; `NOTHING_TO_EAT` : le joueur n'en a pas ; `ALREADY_FULL` : la faim est déjà au maximum |
 | Dormir | Dort près d'un feu de camp jusqu'au prochain matin (R-JOU-SOM-001) | `NOTHING_TO_SLEEP_BY` : la tuile n'est ni un feu de camp allumé ni le Foyer ; `TOO_EARLY` : il n'est pas encore `SLEEP_START` ; `OUT_OF_REACH` : le feu est hors de portée |
-| Brûler la sauge | Brûle une sauge dans un feu allumé à portée et purifie autour (R-MEN-SAU-002) | `NOTHING_TO_BURN` : le joueur n'a pas de sauge ; `NEEDS_FIRE` : aucun feu allumé (feu de camp ou Foyer) à portée |
-| Rechercher un plan | Paie le plan en points de recherche et apprend sa recette (R-TEC-REC-002) | `UNKNOWN_PLAN` : le plan n'est pas découvert ; `ALREADY_RESEARCHED` : il est déjà recherché ; `MISSING_PREREQUISITE` : son prérequis n'est pas connu ; `NOT_ENOUGH_POINTS` : pas assez de points |
+| Brûler la sauge | Brûle une sauge dans un feu allumé à portée et purifie autour (R-MEN-SAU-002) | `UNKNOWN_TECHNIQUE` : la fumée de sauge n'est pas recherchée ; `NOTHING_TO_BURN` : le joueur n'a pas de sauge ; `NEEDS_FIRE` : aucun feu allumé (feu de camp ou Foyer) à portée |
+| Rechercher un plan | Paie le plan en points de recherche et apprend sa recette (R-TEC-REC-002) | `UNKNOWN_PLAN` : le plan n'est pas découvert ; `ALREADY_RESEARCHED` : il est déjà recherché ; `MISSING_PREREQUISITE` : son plan prérequis n'est pas connu ; `LEVEL_TOO_LOW` : le niveau requis n'est pas atteint ; `NOT_ENOUGH_POINTS` : pas assez de points |
 | Lire un livre | Apprend ou découvre les plans du livre (R-INV-LIV-002) | `BOOK_NOT_OWNED` : le livre n'est pas dans la bibliothèque |
 | Fabriquer | Fabrique l'objet d'une recette (R-ART-FAB-001, 002) | `UNKNOWN_RECIPE` : la recette n'existe pas ou n'a pas été apprise ; `ALREADY_OWNED` : l'outil est déjà possédé (un objet à poser se fabrique autant de fois qu'on veut) ; `NEEDS_FIRE` : la recette se cuisine et aucun feu allumé n'est à portée ; `MISSING_INGREDIENTS` : il manque des ingrédients |
 
@@ -360,6 +363,7 @@ Contenu défini dans `data/books.js`, `data/research.js`, `data/recipes.js`, `da
 |---|---|---|
 | « L'Art de la pierre » | caisse du Hameau abandonné (115, 105), auparavant vide | hache en pierre, pioche en pierre |
 | « Le Guide du cueilleur » | caisse de la Chapelle engloutie (123, 64) | sac du cueilleur, champignons grillés |
+| « Le Rituel de l'aube » (v0.10) | bibliothèque de la Chapelle engloutie (120, 58), avec le « Carnet du guetteur » | fumée de sauge |
 
 | Plan | Coût | Prérequis | Recette | Effet |
 |---|---|---|---|---|
@@ -367,6 +371,7 @@ Contenu défini dans `data/books.js`, `data/research.js`, `data/recipes.js`, `da
 | Pioche en pierre | `RESEARCH_COST` | pioche en silex | 2 pierres, 2 branches, 1 fibre | pioche : +`STONE_TOOL_BONUS` pierre par rocher |
 | Sac du cueilleur | `RESEARCH_COST` | — | 5 fibres, 1 branche | +`BAG_BONUS` baie et champignon par cueillette |
 | Champignons grillés | `RESEARCH_COST` | — | 1 champignon, au feu de camp | 1 champignon grillé, qui rassasie de `GRILLED_MUSHROOM_FOOD` |
+| Fumée de sauge (v0.10) | `RESEARCH_COST` | niveau `SAGE_SMOKE_LEVEL` | — (une technique, pas une recette) | permet de brûler la sauge pour purifier (R-MEN-SAU-002) |
 
 ## B.12 Le Foyer et la Flétrissure (v0.10)
 
@@ -377,6 +382,7 @@ Contenu défini dans `data/blight.js`, `data/gameParameters.js` et la carte (`to
 | Le Foyer | tuile `HEARTH_TILE` (32, 91), au Vallon, deux tuiles à l'ouest du départ |
 | Lieux flétris | le Bois des Murmures, les Collines rocheuses (leurs rectangles, B.6) |
 | Sauge de l'aube | sur l'herbe, à 1 ou 2 tuiles des lieux flétris, à l'extérieur |
+| Hautes herbes | sur l'herbe de toute la vallée, plus rares au Vallon |
 
 ---
 
@@ -455,6 +461,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | `SAGE_YIELD` | 1 | sauge | NOUVEAU | v0.10 | R-RES-ELE-001 |
 | `SAGE_REGROW_DAYS` | 3 | jours de jeu | NOUVEAU | v0.10 | R-RES-REC-005 |
 | `SAGE_RADIUS` | 5 | tuiles | NOUVEAU | v0.10 | R-MEN-SAU-002 |
+| `IMPORTANT_NOTIFICATION_TICKS` | 600 | ticks (= 10 s) | NOUVEAU | v0.10 | R-IHM-NOT-001, 003, 004 |
+| `TREE_BRANCH_YIELD` | 2 | branches | NOUVEAU | v0.10 | R-RES-ELE-001, R-RES-REC-002 |
+| `TALL_GRASS_FIBER_YIELD` | 2 | fibres | NOUVEAU | v0.10 | R-RES-ELE-001 |
+| `TALL_GRASS_REGROW_DAYS` | 2 | jours de jeu | NOUVEAU | v0.10 | R-RES-REC-005 |
+| `SAGE_SMOKE_LEVEL` | 10 | niveau | NOUVEAU | v0.10 | R-TEC-REC-002, B.11 |
 
 ---
 
@@ -1230,7 +1241,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.4 | `TREE_WOOD_YIELD`, `ROCK_STONE_YIELD`, `FLOWERS_YIELD` |
+| MODIFIÉ | v0.10 | `TREE_WOOD_YIELD`, `ROCK_STONE_YIELD`, `FLOWERS_YIELD` |
 
 **Règle** — Désigner un élément récoltable ouvre une fenêtre d'information qui affiche son nom, l'action possible avec le rendement, et un bouton « Récolter ». Désigner une tuile non récoltable ferme la fenêtre. La fenêtre est centrée horizontalement, juste sous le milieu de l'écran : elle reste près du héros, toujours au centre, sans le cacher.
 
@@ -1238,14 +1249,14 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | un arbre, rendement 3 | on le désigne | la fenêtre affiche « Arbre » et « Couper : 3 bois » |
+| 1 | un arbre, rendement 3 bois et 2 branches | on le désigne | la fenêtre affiche « Arbre » et « Couper : 3 bois, 2 branches » |
 | 2 | un rocher, rendement 2 | on le désigne | la fenêtre affiche « Rocher » et « Piocher : 2 pierres » |
 | 3 | des fleurs, rendement 1 | on les désigne | la fenêtre affiche « Fleurs » et « Ramasser : 1 fleur » |
 | 4 | la fenêtre ouverte sur un arbre | on désigne une tuile d'herbe | la fenêtre est fermée |
 
 **Notes** — Concept C-IHM-05. Contenu volontairement simple ; viendront ensuite une description, l'outil requis, l'état de repousse. La position est une affaire de mise en page (CSS) : elle n'a pas d'exemple testé.
 
-**Historique** — v0.2 : création. v0.4 : la fenêtre, d'abord en bas à droite, passe au milieu de l'écran, sous le héros (demande du porteur du projet : trop loin de l'action).
+**Historique** — v0.2 : création. v0.4 : la fenêtre, d'abord en bas à droite, passe au milieu de l'écran, sous le héros (demande du porteur du projet : trop loin de l'action). v0.10 : l'action cite aussi ce que l'élément donne en plus.
 
 #### R-IHM-INS-003 · Bouton « Récolter »
 
@@ -1336,7 +1347,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.5 | — |
+| MODIFIÉ | v0.10 | — |
 
 **Règle** — Quand le joueur n'a pas l'outil que demande un élément récoltable (R-RES-OUT-001), la fenêtre d'information affiche toujours l'action et le rendement, mais le bouton « Récolter » est inactif et la fenêtre affiche « Il faut une hache » ou « Il faut une pioche ». Ce message passe avant « Trop loin : approchez-vous ».
 
@@ -1344,14 +1355,14 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | aucun outil, un arbre à portée | on le désigne | la fenêtre affiche « Couper : 3 bois », le bouton est inactif et « Il faut une hache » est affiché |
+| 1 | aucun outil, un arbre à portée | on le désigne | la fenêtre affiche « Couper : 3 bois, 2 branches », le bouton est inactif et « Il faut une hache » est affiché |
 | 2 | aucun outil, un rocher hors de portée | on le désigne | le bouton est inactif et « Il faut une pioche » est affiché |
 | 3 | la hache en silex, un arbre à portée | on le désigne | le bouton est actif |
 | 4 | aucun outil, des fleurs à portée | on les désigne | le bouton est actif |
 
 **Notes** — Concepts C-IHM-05, C-RES-04. La fenêtre dit ce qu'il manque : c'est l'amorce de la progression (C-RES-08).
 
-**Historique** — v0.5 : création.
+**Historique** — v0.5 : création. v0.10 : exemple 1 avec les branches.
 
 #### R-IHM-INS-008 · Désigner un feu de camp
 
@@ -1396,24 +1407,17 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 ### 3.6 HUD — Bandeau d'informations
 
-#### R-IHM-HUD-001 · Affichage de l'inventaire
+#### R-IHM-HUD-001 · ~~Affichage de l'inventaire~~
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.10 | — |
+| SUPPRIMÉ | v0.10 | — |
 
-**Règle** — En haut à gauche de l'écran, le bandeau d'inventaire affiche en permanence chaque ressource avec son icône (planche d'icônes) et sa quantité, dans l'ordre : bois, pierre, fleurs, silex, branches, fibres, baies, champignons, champignons grillés, sauge.
-
-**Exemples**
-
-| # | Étant donné | Quand | Alors |
-|---|---|---|---|
-| 1 | un inventaire de 3 bois, 0 pierre, 1 fleur, 2 silex, 0 branche, 4 fibres, 5 baies, 1 champignon | l'écran est affiché | le bandeau affiche « Bois 3 », « Pierre 0 », « Fleurs 1 », « Silex 2 », « Branches 0 », « Fibres 4 », « Baies 5 », « Champignons 1 », « Champignons grillés 0 », « Sauge 0 » |
-| 2 | une nouvelle partie | l'écran est affiché | le bandeau affiche les dix ressources à 0 |
+**Règle** — ~~En haut à gauche de l'écran, le bandeau d'inventaire affiche en permanence chaque ressource avec son icône (planche d'icônes) et sa quantité, dans l'ordre : bois, pierre, fleurs, silex, branches, fibres, baies, champignons, champignons grillés, sauge.~~
 
 **Notes** — Concepts C-IHM-06, C-IHM-11.
 
-**Historique** — v0.2 : création, « bois, pierre, fleurs », icônes tirées de la planche de tuiles. v0.4 : silex, branches et fibres ajoutés ; icônes tirées de la planche d'icônes. v0.8 : baies et champignons. v0.9 : champignons grillés. v0.10 : sauge.
+**Historique** — v0.2 : création, « bois, pierre, fleurs », icônes tirées de la planche de tuiles. v0.4 : silex, branches et fibres ajoutés ; icônes tirées de la planche d'icônes. v0.8 : baies et champignons. v0.9 : champignons grillés. v0.10 : sauge. v0.10 : supprimée — le bandeau ne garde que l'essentiel (R-IHM-HUD-003) ; les ressources sont dans l'inventaire (R-IHM-INV-001) (retours de test de la v0.10) : il était trop long et faisait doublon.
 
 #### R-IHM-HUD-002 · Expérience au bandeau
 
@@ -1483,7 +1487,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.10 | — |
 
-**Règle** — Au début du bandeau d'inventaire, avant les ressources, s'affichent les PV, la faim et l'énergie avec leur icône : « PV <n> », « Faim <n> », « Énergie <n> ».
+**Règle** — En haut à gauche, le bandeau affiche en permanence l'essentiel, dans l'ordre, avec les icônes : « PV <n> », « Faim <n> », « Énergie <n> », puis le niveau (R-IHM-HUD-002) et l'heure (R-IHM-HOR-001). Il n'affiche pas les ressources.
 
 **Exemples**
 
@@ -1491,10 +1495,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|---|
 | 1 | une nouvelle partie | l'écran est affiché | « PV 100 », « Faim 100 », « Énergie 100 » |
 | 2 | 45 PV, faim 12, énergie 7 | l'écran est affiché | « PV 45 », « Faim 12 », « Énergie 7 » |
+| 3 | 12 bois | l'écran est affiché | le bandeau n'affiche aucune ressource |
 
 **Notes** — Concepts C-IHM-15, C-JOU-02.
 
-**Historique** — v0.8 : création. v0.10 : énergie.
+**Historique** — v0.8 : création. v0.10 : énergie ; le bandeau n'affiche plus que l'essentiel (retours de test de la v0.10).
 
 ### 3.7 DIA — Dialogues
 
@@ -1542,6 +1547,26 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Historique** — v0.3 : création. v0.6 : bouton × ajouté (retour de test : rien ne permettait de le fermer à la souris).
 
+#### R-IHM-JRN-004 · Archives du journal
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.10 | — |
+
+**Règle** — Le journal a une partie « Archives » : les livres lus, dans l'ordre où ils ont été lus, avec icône, titre et un bouton « Relire » qui ouvre la fenêtre de lecture (R-IHM-LIV-001). Sans livre lu : « Aucun livre archivé. »
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | aucun livre lu | le journal est ouvert | « Archives » affiche « Aucun livre archivé. » |
+| 2 | « Le Tailleur de silex » lu | le journal est ouvert | « Archives » affiche « Le Tailleur de silex » avec « Relire » |
+| 3 | idem | clic sur « Relire » | la fenêtre de lecture affiche « Le Tailleur de silex » |
+
+**Notes** — Concepts C-IHM-09, C-TEC-06.
+
+**Historique** — v0.10 : création.
+
 #### R-IHM-JRN-003 · Quêtes au journal
 
 | Statut | Version | Paramètres |
@@ -1568,9 +1593,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.8 | `NOTIFICATION_TICKS` |
+| MODIFIÉ | v0.10 | `NOTIFICATION_TICKS`, `IMPORTANT_NOTIFICATION_TICKS` |
 
-**Règle** — Les notifications s'affichent au-dessus du héros, au milieu de l'écran, chacune avec un bouton × qui la ferme. Découvrir un lieu affiche « Lieu découvert : <nom> » ; revenir dans un lieu (R-MON-LIE-003) affiche son nom ; recevoir un indice affiche « Nouvel indice : <nom> » ; se réveiller après avoir dormi affiche « Bonjour ! Partie sauvegardée. » ; s'évanouir affiche « Vous vous êtes évanoui… Vous vous réveillez dans le Vallon. », qui reste jusqu'à ce qu'on la ferme. Chaque notification reste affichée `NOTIFICATION_TICKS` ticks, sauf celles des quêtes (R-IHM-NOT-003), qui restent jusqu'à ce qu'on les ferme. Plusieurs notifications s'empilent, la plus récente en bas, près du héros.
+**Règle** — Les notifications s'affichent au-dessus du héros, au milieu de l'écran, chacune avec un bouton × qui la ferme. Découvrir un lieu affiche « Lieu découvert : <nom> » ; revenir dans un lieu (R-MON-LIE-003) affiche son nom ; recevoir un indice affiche « Nouvel indice : <nom> » ; se réveiller après avoir dormi affiche « Bonjour ! Partie sauvegardée. » ; s'évanouir affiche « Vous vous êtes évanoui… Vous vous réveillez dans le Vallon. », notification importante. Chaque notification reste affichée `NOTIFICATION_TICKS` ticks, sauf les notifications importantes (quêtes R-IHM-NOT-003, niveau R-IHM-NOT-004, évanouissement), qui restent `IMPORTANT_NOTIFICATION_TICKS` ticks. Plusieurs notifications s'empilent, la plus récente en bas, près du héros.
 
 **Exemples**
 
@@ -1579,14 +1604,14 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | durée 240 ticks | le Vallon est découvert au tick 100 | « Lieu découvert : Le Vallon » est affiché du tick 100 au tick 339 et a disparu au tick 340 |
 | 2 | une notification affichée depuis le tick 100 | un indice sur les Ruines du Guet est reçu au tick 150 | les deux notifications sont affichées, « Nouvel indice : Les Ruines du Guet » en bas |
 | 3 | « Lieu découvert : Le Vallon » affichée | clic sur son × | elle a disparu |
-| 4 | durée 240 ticks, « Quête terminée : La poupée de Maëlle » affichée au tick 100 | tick 400 | elle est toujours affichée |
+| 4 | durée importante 600 ticks, « Quête terminée : La poupée de Maëlle » affichée au tick 100 | ticks 400, puis 700 | toujours affichée au tick 400, disparue au tick 700 |
 | 5 | les Ruines du Guet découvertes, le joueur en dehors | il y revient | « Les Ruines du Guet » est affiché |
 | 6 | un feu allumé, 22:00 | le joueur dort | « Bonjour ! Partie sauvegardée. » |
-| 7 | 1 PV, faim 0 | le joueur s'évanouit | « Vous vous êtes évanoui… Vous vous réveillez dans le Vallon. », jusqu'à ce qu'on la ferme |
+| 7 | 1 PV, faim 0 | le joueur s'évanouit | « Vous vous êtes évanoui… Vous vous réveillez dans le Vallon. », notification importante |
 
 **Notes** — Concept C-IHM-10.
 
-**Historique** — v0.3 : création. v0.6 : « en haut de l'écran, pendant `NOTIFICATION_TICKS` » → au-dessus du héros, avec un ×, les quêtes jusqu'à fermeture ; nom du lieu à chaque retour (retours de test : les notifications du haut se superposaient au bandeau et passaient inaperçues). v0.8 : réveil et évanouissement.
+**Historique** — v0.3 : création. v0.6 : « en haut de l'écran, pendant `NOTIFICATION_TICKS` » → au-dessus du héros, avec un ×, les quêtes jusqu'à fermeture ; nom du lieu à chaque retour (retours de test : les notifications du haut se superposaient au bandeau et passaient inaperçues). v0.8 : réveil et évanouissement. v0.10 : « jusqu'à ce qu'on la ferme » → `IMPORTANT_NOTIFICATION_TICKS` (retours de test de la v0.10) : elles ne disparaissaient jamais.
 
 #### R-IHM-NOT-002 · Trouvailles
 
@@ -1613,9 +1638,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.6 | `NOTIFICATION_TICKS` |
+| MODIFIÉ | v0.10 | `IMPORTANT_NOTIFICATION_TICKS` |
 
-**Règle** — Recevoir une quête affiche « Nouvelle quête : <titre> ». La terminer affiche « Quête terminée : <titre> » puis « +<points> expérience ». Ces notifications restent affichées jusqu'à ce qu'on les ferme (R-IHM-NOT-001).
+**Règle** — Recevoir une quête affiche « Nouvelle quête : <titre> ». La terminer affiche « Quête terminée : <titre> » puis « +<points> expérience ». Ce sont des notifications importantes (R-IHM-NOT-001).
 
 **Exemples**
 
@@ -1626,26 +1651,26 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Notes** — Concepts C-IHM-10, C-VIL-09, C-JOU-09.
 
-**Historique** — v0.6 : création.
+**Historique** — v0.6 : création. v0.10 : notifications importantes au lieu de « jusqu'à ce qu'on les ferme » (retours de test de la v0.10).
 
 #### R-IHM-NOT-004 · Niveau gagné
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.9 | `NOTIFICATION_TICKS` |
+| MODIFIÉ | v0.10 | `IMPORTANT_NOTIFICATION_TICKS` |
 
-**Règle** — Gagner un niveau affiche « Niveau <n> ! +1 point de recherche », jusqu'à ce qu'on la ferme.
+**Règle** — Gagner un niveau affiche « Niveau <n> ! +1 point de recherche », notification importante (R-IHM-NOT-001).
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | 99 expérience | le joueur gagne 1 expérience | « Niveau 2 ! +1 point de recherche », jusqu'à ce qu'on la ferme |
+| 1 | 99 expérience | le joueur gagne 1 expérience | « Niveau 2 ! +1 point de recherche », notification importante |
 | 2 | 50 expérience | le joueur gagne 1 expérience | aucune notification de niveau |
 
 **Notes** — Concepts C-IHM-10, C-JOU-09.
 
-**Historique** — v0.9 : création.
+**Historique** — v0.9 : création. v0.10 : notification importante (retours de test de la v0.10).
 
 #### R-IHM-NOT-005 · Flétrissure et purification
 
@@ -1730,9 +1755,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.9 | `RESEARCH_COST` |
+| MODIFIÉ | v0.10 | `RESEARCH_COST` |
 
-**Règle** — La touche R (ou l'icône « Recherche ») ouvre et ferme la fenêtre de recherche. Elle affiche « Points de recherche : <n> », puis chaque plan découvert, dans l'ordre : icône et nom, coût (« 1 point »), et un bouton « Rechercher ». Le bouton est inactif si le plan est déjà recherché (« Recherché »), si son prérequis manque (« Il faut d'abord : <plan> ») ou s'il n'y a pas assez de points (« Pas assez de points »), dans cet ordre. Un clic sur le bouton actif recherche le plan (R-TEC-REC-002). Sans plan découvert : « Aucun plan à rechercher : trouvez des livres de recherche dans les ruines. »
+**Règle** — La touche R (ou l'icône « Recherche ») ouvre et ferme la fenêtre de recherche. Elle affiche « Points de recherche : <n> », puis chaque plan découvert, dans l'ordre : icône et nom, coût (« 1 point »), et un bouton « Rechercher ». Le bouton est inactif si le plan est déjà recherché (« Recherché »), si son prérequis manque (« Il faut d'abord : <plan> »), si le niveau requis n'est pas atteint (« Niveau <n> requis ») ou s'il n'y a pas assez de points (« Pas assez de points »), dans cet ordre. Un clic sur le bouton actif recherche le plan (R-TEC-REC-002). Sans plan découvert : « Aucun plan à rechercher : trouvez des livres de recherche dans les ruines. »
 
 **Exemples**
 
@@ -1742,11 +1767,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 2 | niveau 2, la hache en pierre découverte, la hache en silex connue | la fenêtre est ouverte | « Points de recherche : 1 », « Hache en pierre », « 1 point », bouton actif |
 | 3 | niveau 2, la hache en pierre découverte, la hache en silex inconnue | la fenêtre est ouverte | bouton inactif, « Il faut d'abord : hache en silex » |
 | 4 | niveau 1, le sac du cueilleur découvert | la fenêtre est ouverte | bouton inactif, « Pas assez de points » |
+| 6 | niveau 3, la fumée de sauge découverte | la fenêtre est ouverte | « Fumée de sauge », bouton inactif, « Niveau 10 requis » |
 | 5 | niveau 2, la hache en pierre découverte et sa recette prérequise connue | clic sur « Rechercher » | « Recherché », « Points de recherche : 0 » ; notification « Recette apprise : hache en pierre » |
 
 **Notes** — Concepts C-TEC-01, C-TEC-05, C-IHM-12.
 
-**Historique** — v0.9 : création.
+**Historique** — v0.9 : création. v0.10 : niveau requis.
 
 ### 3.17 FLE — Flétrissure à l'écran
 
@@ -1803,27 +1829,29 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.10 | — |
 
-**Règle** — La touche I ouvre et ferme la fenêtre d'inventaire. Elle a trois parties : « Ressources » (chaque ressource avec son icône et sa quantité, dans l'ordre du bandeau ; la nourriture a un bouton « Manger », actif si le joueur en a et que sa faim n'est pas au maximum ; la sauge a un bouton « Brûler », actif s'il en a et qu'un feu allumé est à portée), « Outils » (les outils possédés, avec icône et nom, ou « Aucun outil. ») « Livres » (les livres de la bibliothèque, avec icône, titre et un bouton « Lire », ou « Aucun livre pour l'instant. ») et « Objets » (les objets possédés, avec icône et nom, puis les objets à poser, avec icône, nom, quantité « ×<n> » et un bouton « Poser » ; ou « Aucun objet. »). Un clic sur « Poser » pose l'objet (R-ART-POS-001) et ferme la fenêtre s'il a été posé. Elle s'ouvre aussi par la barre d'actions (R-IHM-BAR-001).
+**Règle** — La touche I (ou l'icône « Inventaire ») ouvre et ferme la fenêtre d'inventaire. Elle a quatre onglets ; à l'ouverture, « Ressources » est affiché, et un clic sur un onglet l'affiche à son tour. « Ressources » : chaque ressource avec son icône et sa quantité ; la nourriture a un bouton « Manger », actif si le joueur en a et que sa faim n'est pas au maximum ; la sauge a un bouton « Brûler », actif s'il en a, que la fumée de sauge est recherchée et qu'un feu allumé est à portée. « Outils » : les outils possédés, avec icône et nom, ou « Aucun outil. ». « Objets » : les objets possédés, avec icône et nom, puis les objets à poser, avec icône, nom, quantité « ×<n> » et un bouton « Poser » (qui pose l'objet, R-ART-POS-001, et ferme la fenêtre s'il a été posé), ou « Aucun objet. ». « Livres » : les livres pas encore lus, avec icône, titre et un bouton « Lire », ou « Aucun livre à lire. » ; un livre lu passe aux archives du journal (R-IHM-JRN-004).
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | une nouvelle partie, la fenêtre fermée | touche I | la fenêtre est ouverte ; « Ressources » liste les six ressources à 0, « Outils » affiche « Aucun outil. », « Livres » affiche « Aucun livre pour l'instant. », « Objets » affiche « Aucun objet. » |
-| 2 | la hache en silex possédée | la fenêtre est ouverte | « Outils » affiche « Hache en silex » |
-| 3 | le livre « Le Tailleur de silex » trouvé | la fenêtre est ouverte | « Livres » affiche « Le Tailleur de silex » avec un bouton « Lire » |
+| 1 | une nouvelle partie, la fenêtre fermée | touche I | la fenêtre est ouverte sur l'onglet « Ressources », qui liste les ressources à 0 |
+| 2 | la hache en silex possédée, la fenêtre ouverte | clic sur l'onglet « Outils » | « Hache en silex » |
+| 3 | le livre « Le Tailleur de silex » trouvé, pas lu | onglet « Livres » | « Le Tailleur de silex » avec un bouton « Lire » |
 | 4 | la fenêtre ouverte | touche I | la fenêtre est fermée |
-| 5 | la poupée de chiffon bleue possédée | la fenêtre est ouverte | « Objets » affiche « Poupée de chiffon bleue » |
-| 6 | 2 feux de camp à poser | la fenêtre est ouverte | « Objets » affiche « Feu de camp ×2 » avec un bouton « Poser » |
+| 5 | la poupée de chiffon bleue possédée | onglet « Objets » | « Poupée de chiffon bleue » |
+| 6 | 2 feux de camp à poser | onglet « Objets » | « Feu de camp ×2 » avec un bouton « Poser » |
 | 7 | 1 feu de camp, de l'herbe devant le joueur | clic sur « Poser » | le feu est posé, la fenêtre est fermée |
 | 8 | 2 baies, faim 50 | clic sur « Manger » à côté de « Baies 2 » | faim 60, « Baies 1 » ; la fenêtre reste ouverte |
-| 9 | 2 baies, faim 100 | la fenêtre est ouverte | le bouton « Manger » des baies est inactif |
-| 10 | 1 sauge, aucun feu à portée | la fenêtre est ouverte | le bouton « Brûler » de la sauge est inactif |
-| 11 | 1 sauge, un feu allumé à portée | clic sur « Brûler » | 0 sauge ; la fenêtre reste ouverte |
+| 9 | 2 baies, faim 100 | onglet « Ressources » | le bouton « Manger » des baies est inactif |
+| 10 | 1 sauge, la fumée de sauge recherchée, aucun feu à portée | onglet « Ressources » | le bouton « Brûler » est inactif |
+| 11 | 1 sauge, la fumée de sauge recherchée, un feu allumé à portée | clic sur « Brûler » | 0 sauge ; la fenêtre reste ouverte |
+| 12 | 1 sauge, un feu allumé à portée, la fumée de sauge pas recherchée | onglet « Ressources » | le bouton « Brûler » est inactif |
+| 13 | « Le Tailleur de silex » lu | onglet « Livres » | « Aucun livre à lire. » |
 
 **Notes** — Concepts C-INV-03, C-IHM-11, C-IHM-12. Pas de limite de place pour l'instant (C-INV-01).
 
-**Historique** — v0.5 : création. v0.6 : partie « Objets » ajoutée (objets de quête). v0.7 : objets à poser, avec « Poser ». v0.8 : « Manger » sur la nourriture. v0.10 : « Brûler » sur la sauge.
+**Historique** — v0.5 : création. v0.6 : partie « Objets » ajoutée (objets de quête). v0.7 : objets à poser, avec « Poser ». v0.8 : « Manger » sur la nourriture. v0.10 : « Brûler » sur la sauge. En onglets ; les livres lus quittent l'inventaire (retours de test de la v0.10).
 
 ### 3.12 LIV — Lecture
 
@@ -1880,15 +1908,15 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.10 | `TREE_WOOD_YIELD`, `ROCK_STONE_YIELD`, `FLOWERS_YIELD`, `BERRY_YIELD`, `MUSHROOM_YIELD`, `SAGE_YIELD` |
+| MODIFIÉ | v0.10 | `TREE_WOOD_YIELD`, `TREE_BRANCH_YIELD`, `ROCK_STONE_YIELD`, `FLOWERS_YIELD`, `BERRY_YIELD`, `MUSHROOM_YIELD`, `SAGE_YIELD`, `TALL_GRASS_FIBER_YIELD` |
 
-**Règle** — Six types de tuiles sont récoltables : un **arbre** se coupe et donne `TREE_WOOD_YIELD` bois ; un **rocher** se pioche et donne `ROCK_STONE_YIELD` pierres ; des **fleurs** se ramassent et donnent `FLOWERS_YIELD` fleurs ; un **buisson à baies** se cueille et donne `BERRY_YIELD` baies ; des **champignons** se ramassent et donnent `MUSHROOM_YIELD` champignon ; la **sauge de l'aube** se ramasse et donne `SAGE_YIELD` sauge. Les autres tuiles (herbe, chemin, eau, souche) ne sont pas récoltables.
+**Règle** — Sept types de tuiles sont récoltables : un **arbre** se coupe et donne `TREE_WOOD_YIELD` bois et `TREE_BRANCH_YIELD` branches ; un **rocher** se pioche et donne `ROCK_STONE_YIELD` pierres ; des **fleurs** se ramassent et donnent `FLOWERS_YIELD` fleurs ; un **buisson à baies** se cueille et donne `BERRY_YIELD` baies ; des **champignons** se ramassent et donnent `MUSHROOM_YIELD` champignon ; la **sauge de l'aube** se ramasse et donne `SAGE_YIELD` sauge ; les **hautes herbes** se ramassent et donnent `TALL_GRASS_FIBER_YIELD` fibres. Les autres tuiles (herbe, chemin, eau, souche) ne sont pas récoltables.
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
-| 1 | un arbre, rendement 3 | on cherche ce qu'il donne | il se coupe et donne 3 bois |
+| 1 | un arbre, rendement 3 bois et 2 branches | on cherche ce qu'il donne | il se coupe et donne 3 bois et 2 branches |
 | 2 | un rocher, rendement 2 | on cherche ce qu'il donne | il se pioche et donne 2 pierres |
 | 3 | des fleurs, rendement 1 | on cherche ce qu'elles donnent | elles se ramassent et donnent 1 fleur |
 | 4 | de l'herbe | on cherche ce qu'elle donne | rien à récolter |
@@ -1896,10 +1924,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 6 | un buisson à baies, rendement 3 | on cherche ce qu'il donne | il se ramasse et donne 3 baies |
 | 7 | des champignons, rendement 1 | on cherche ce qu'ils donnent | ils se ramassent et donnent 1 champignon |
 | 8 | de la sauge de l'aube, rendement 1 | on cherche ce qu'elle donne | elle se ramasse et donne 1 sauge |
+| 9 | des hautes herbes, rendement 2 | on cherche ce qu'elles donnent | elles se ramassent et donnent 2 fibres |
 
 **Notes** — Concepts C-RES-01, C-RES-04. Depuis la v0.5, couper et piocher demandent un outil (R-RES-OUT-001).
 
-**Historique** — v0.2 : création. v0.5 : note mise à jour (outils), règle inchangée. v0.8 : buisson à baies et champignons, la première nourriture (C-RES-09). v0.10 : sauge de l'aube (C-MEN-08).
+**Historique** — v0.2 : création. v0.5 : note mise à jour (outils), règle inchangée. v0.8 : buisson à baies et champignons, la première nourriture (C-RES-09). v0.10 : sauge de l'aube (C-MEN-08) ; branches à la coupe et hautes herbes à fibres (C-RES-10) (retours de test de la v0.10).
 
 ### 4.2 REC — Récolte
 
@@ -1928,9 +1957,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.2 | — |
+| MODIFIÉ | v0.10 | — |
 
-**Règle** — Une récolte acceptée ajoute le rendement de l'élément à l'inventaire.
+**Règle** — Une récolte acceptée ajoute le rendement de l'élément à l'inventaire, y compris ce qu'il donne en plus (les branches d'un arbre).
 
 **Exemples**
 
@@ -1939,10 +1968,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | 0 bois, un arbre à portée (rendement 3) | le joueur le récolte | l'inventaire contient 3 bois |
 | 2 | 3 bois, un autre arbre à portée (rendement 3) | le joueur le récolte | l'inventaire contient 6 bois |
 | 3 | 3 bois et 0 pierre, un rocher à portée (rendement 2) | le joueur le récolte | l'inventaire contient 3 bois et 2 pierres |
+| 4 | 0 branche, un arbre à portée (3 bois et 2 branches) | le joueur le récolte | l'inventaire contient 2 branches |
 
 **Notes** — Concept C-RES-04. La récolte est instantanée en v0.2 ; une durée et une animation viendront avec les outils.
 
-**Historique** — v0.2 : création.
+**Historique** — v0.2 : création. v0.10 : ce que l'élément donne en plus (branches).
 
 #### R-RES-REC-003 · Après la récolte
 
@@ -1950,7 +1980,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.10 | — |
 
-**Règle** — Après une récolte, un arbre devient une souche ; un buisson à baies devient un buisson sans baies, infranchissable ; un rocher, des fleurs, des champignons et la sauge laissent place à de l'herbe. La souche est franchissable ; ni elle ni le buisson sans baies ne sont récoltables.
+**Règle** — Après une récolte, un arbre devient une souche ; un buisson à baies devient un buisson sans baies, infranchissable ; un rocher, des fleurs, des champignons, la sauge et les hautes herbes laissent place à de l'herbe. La souche est franchissable ; ni elle ni le buisson sans baies ne sont récoltables.
 
 **Exemples**
 
@@ -2016,9 +2046,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| MODIFIÉ | v0.10 | `TREE_REGROW_DAYS`, `BUSH_REGROW_DAYS`, `MUSHROOM_REGROW_DAYS`, `SAGE_REGROW_DAYS` |
+| MODIFIÉ | v0.10 | `TREE_REGROW_DAYS`, `BUSH_REGROW_DAYS`, `MUSHROOM_REGROW_DAYS`, `SAGE_REGROW_DAYS`, `TALL_GRASS_REGROW_DAYS` |
 
-**Règle** — Un élément récolté repousse au bout d'un nombre de jours de jeu (même heure) : `TREE_REGROW_DAYS` pour un arbre, `BUSH_REGROW_DAYS` pour un buisson à baies, `MUSHROOM_REGROW_DAYS` pour des champignons, `SAGE_REGROW_DAYS` pour la sauge de l'aube. La tuile redevient l'élément d'origine, sauf si le joueur ou un PNJ se tient dessus ; elle repousse alors dès que la tuile est libre.
+**Règle** — Un élément récolté repousse au bout d'un nombre de jours de jeu (même heure) : `TREE_REGROW_DAYS` pour un arbre, `BUSH_REGROW_DAYS` pour un buisson à baies, `MUSHROOM_REGROW_DAYS` pour des champignons, `SAGE_REGROW_DAYS` pour la sauge de l'aube, `TALL_GRASS_REGROW_DAYS` pour les hautes herbes. La tuile redevient l'élément d'origine, sauf si le joueur ou un PNJ se tient dessus ; elle repousse alors dès que la tuile est libre.
 
 **Exemples**
 
@@ -2186,9 +2216,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.9 | — |
+| MODIFIÉ | v0.10 | — |
 
-**Règle** — Le joueur peut lire un livre de sa bibliothèque. Lire un livre de survie apprend ses plans : ils s'ajoutent aux recettes connues, dans l'ordre du livre, sans doublon. Lire un livre de recherche **découvre** ses plans : ils s'ajoutent aux plans découverts, sans doublon, et se recherchent ensuite (R-TEC-REC-002). Relire un livre n'apprend rien de plus. Un livre absent de la bibliothèque ne se lit pas (`BOOK_NOT_OWNED`). Une nouvelle partie commence sans recette connue.
+**Règle** — Le joueur peut lire un livre de sa bibliothèque. Lire un livre de survie apprend ses plans : ils s'ajoutent aux recettes connues, dans l'ordre du livre, sans doublon. Lire un livre de recherche **découvre** ses plans : ils s'ajoutent aux plans découverts, sans doublon, et se recherchent ensuite (R-TEC-REC-002). Un livre lu est rangé aux archives (R-IHM-JRN-004). Relire un livre n'apprend rien de plus. Un livre absent de la bibliothèque ne se lit pas (`BOOK_NOT_OWNED`). Une nouvelle partie commence sans recette connue.
 
 **Exemples**
 
@@ -2200,10 +2230,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 4 | une bibliothèque vide | le joueur lit « Le Tailleur de silex » | refus `BOOK_NOT_OWNED` ; aucune recette connue |
 | 5 | « Carnet du guetteur » dans la bibliothèque | le joueur le lit | « feu de camp » est une recette connue |
 | 6 | « L'Art de la pierre » dans la bibliothèque | le joueur le lit | la hache et la pioche en pierre sont découvertes, pas connues |
+| 7 | « Le Tailleur de silex » jamais lu | le joueur le lit | il est rangé aux archives |
 
 **Notes** — Concepts C-TEC-06, C-TEC-07. Tous les livres de la v0.5 sont des livres de survie. Le feu de camp se fabrique depuis la v0.7 (B.8).
 
-**Historique** — v0.5 : création. v0.9 : livres de recherche (C-TEC-08).
+**Historique** — v0.5 : création. v0.9 : livres de recherche (C-TEC-08). v0.10 : un livre lu est archivé (retours de test de la v0.10).
 
 ### 5.3 OUT — Outils
 
@@ -2627,7 +2658,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | NOUVEAU | v0.10 | `SAGE_RADIUS`, `HARVEST_REACH` |
 
-**Règle** — Brûler une sauge la retire de l'inventaire et purifie, définitivement, toutes les tuiles flétries à `SAGE_RADIUS` tuiles ou moins (distance entre centres de tuiles) du feu allumé (feu de camp ou Foyer) à portée du joueur. Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `NOTHING_TO_BURN` (pas de sauge), `NEEDS_FIRE` (aucun feu allumé à portée).
+**Règle** — Brûler une sauge la retire de l'inventaire et purifie, définitivement, toutes les tuiles flétries à `SAGE_RADIUS` tuiles ou moins (distance entre centres de tuiles) du feu allumé (feu de camp ou Foyer) à portée du joueur. Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `UNKNOWN_TECHNIQUE` (la fumée de sauge n'est pas recherchée, B.11), `NOTHING_TO_BURN` (pas de sauge), `NEEDS_FIRE` (aucun feu allumé à portée).
 
 **Exemples**
 
@@ -2636,10 +2667,11 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 1 | 1 sauge, un feu de camp allumé à portée en (50, 20), dans le Bois des Murmures | le joueur brûle la sauge | les tuiles flétries à 5 tuiles ou moins de (50, 20) sont purifiées, celles à 6 tuiles ne le sont pas ; 0 sauge |
 | 2 | 0 sauge, un feu allumé à portée | le joueur brûle la sauge | refus `NOTHING_TO_BURN` |
 | 3 | 1 sauge, aucun feu à portée | le joueur brûle la sauge | refus `NEEDS_FIRE` ; toujours 1 sauge |
+| 4 | 1 sauge, un feu à portée, la fumée de sauge pas recherchée | le joueur brûle la sauge | refus `UNKNOWN_TECHNIQUE` |
 
-**Notes** — Concept C-MEN-08. La sauge se cueille en lisière (R-RES-ELE-001).
+**Notes** — Concept C-MEN-08. Dans les exemples 1 à 3, la fumée de sauge est recherchée. La sauge se cueille en lisière (R-RES-ELE-001).
 
-**Historique** — v0.10 : création.
+**Historique** — v0.10 : création ; la purification devient une technique à rechercher, au niveau 10 (retours de test de la v0.10).
 
 ---
 
@@ -2697,9 +2729,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.9 | `RESEARCH_COST` |
+| MODIFIÉ | v0.10 | `RESEARCH_COST`, `SAGE_SMOKE_LEVEL` |
 
-**Règle** — Rechercher un plan découvert le paie en points de recherche et apprend sa recette (elle rejoint les recettes connues). Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `UNKNOWN_PLAN` (le plan n'est pas découvert), `ALREADY_RESEARCHED`, `MISSING_PREREQUISITE` (la recette prérequise n'est pas connue, B.11), `NOT_ENOUGH_POINTS`.
+**Règle** — Rechercher un plan découvert le paie en points de recherche et apprend sa recette (elle rejoint les recettes connues), ou sa technique s'il n'est pas une recette (la fumée de sauge). Une demande refusée n'a aucun effet ; le motif est le premier qui s'applique : `UNKNOWN_PLAN` (le plan n'est pas découvert), `ALREADY_RESEARCHED`, `MISSING_PREREQUISITE` (la recette prérequise n'est pas connue, B.11), `LEVEL_TOO_LOW` (le niveau requis n'est pas atteint), `NOT_ENOUGH_POINTS`.
 
 **Exemples**
 
@@ -2710,10 +2742,12 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | 3 | niveau 3, la hache en pierre déjà recherchée | il la recherche | refus `ALREADY_RESEARCHED` |
 | 4 | niveau 2, la hache en pierre découverte, la hache en silex inconnue | il la recherche | refus `MISSING_PREREQUISITE` |
 | 5 | niveau 1, le sac du cueilleur découvert | il le recherche | refus `NOT_ENOUGH_POINTS` |
+| 6 | niveau 9, la fumée de sauge découverte | il la recherche | refus `LEVEL_TOO_LOW` |
+| 7 | niveau 10, la fumée de sauge découverte | il la recherche | elle est recherchée ; aucune recette nouvelle |
 
 **Notes** — Concepts C-TEC-01, C-TEC-04, C-TEC-05. Rechercher ne fabrique rien : il faut ensuite fabriquer l'objet.
 
-**Historique** — v0.9 : création.
+**Historique** — v0.9 : création. v0.10 : niveau requis et techniques (fumée de sauge) (retours de test de la v0.10).
 
 ---
 
@@ -2759,7 +2793,7 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | Q24 | Détails de la v0.7 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : horloge continue sur 24 h (pas encore de sommeil) ; aube de 4:00 à 6:00, crépuscule de 18:00 à 21:00, voile de nuit à 0,8 ; halos de 3 tuiles (héros) et 6 tuiles (feu) ; feu de camp : 3 pierres + 2 bois, brûle 10 h, se ravive avec 1 bois, posé devant le héros sur herbe, chemin ou dallage, non récupérable ; repousse des arbres en 3 jours. | B.2, B.8, partie C, R-MON-TPS-001, 002, R-ART-POS-001, R-ART-FEU-001, R-RES-REC-005 |
 | Q25 | Détails de la v0.8 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : faim −1 toutes les 30 minutes de jeu, +1 PV toutes les 10 minutes si faim > 50, −1 PV si faim nulle ; baie 10, champignon 20 ; réveil après évanouissement avec 50 PV et au moins 50 de faim ; dormir dès 18:00, réveil 6:00 PV pleins, faim −10 ; repousse des buissons et champignons en 2 jours ; promenades de 2 tuiles, pauses de 20 minutes ; icône « Partie » dans la barre. | B.10, partie C, R-JOU-VIE-002 à 004, R-JOU-SOM-001, R-PNJ-POS-003, R-IHM-SAU-001 |
 | Q26 | Détails de la v0.9 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : deux livres de recherche (« L'Art de la pierre » au Hameau, « Le Guide du cueilleur » à la Chapelle) ; recettes des outils en pierre (2 pierres, 2 branches, 1 fibre), du sac (5 fibres, 1 branche), des champignons grillés (1 champignon au feu) ; bonus de +1 ; champignon grillé à 35 ; touche R pour la recherche ; « Niveau n · xp/seuil » au bandeau ; notification de niveau qui reste. | B.11, partie C, R-TEC-REC-*, R-RES-OUT-002, R-IHM-REC-001, R-IHM-HUD-002 |
-| Q27 | Détails de la v0.10 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : énergie −1 toutes les 3 minutes de jeu en zone flétrie (100 points en 5 h de jeu) ; à 0, −1 PV toutes les 10 minutes et plus de PV regagnés ; +1 toutes les 2 minutes à 5 tuiles du Foyer ; réveil avec au moins 50 d'énergie ; Foyer en (32, 91), halo de 10 tuiles ; zones flétries = rectangles du Bois des Murmures et des Collines ; sauge en lisière, 1 par plant, repousse en 3 jours, purifie à 5 tuiles ; on la brûle depuis l'inventaire. | B.12, partie C, R-JOU-ENE-*, R-MON-FOY-001, R-MEN-*, R-IHM-INV-001 |
+| Q27 | Détails de la v0.10 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : énergie −1 toutes les 3 minutes de jeu en zone flétrie (100 points en 5 h de jeu) ; à 0, −1 PV toutes les 10 minutes et plus de PV regagnés ; +1 toutes les 2 minutes à 5 tuiles du Foyer ; réveil avec au moins 50 d'énergie ; Foyer en (32, 91), halo de 10 tuiles ; zones flétries = rectangles du Bois des Murmures et des Collines ; sauge en lisière, 1 par plant, repousse en 3 jours, purifie à 5 tuiles ; on la brûle depuis l'inventaire, une fois la fumée de sauge recherchée (niveau 10). Retours de test : notifications importantes 10 s ; hautes herbes à 2 fibres, en 2 jours ; arbre à 2 branches ; onglets de l'inventaire. | B.12, partie C, R-JOU-ENE-*, R-MON-FOY-001, R-MEN-*, R-IHM-INV-001 |
 | Q11 | Origine et licence des assets ? | **Ressources de RPG Maker, pour un jeu personnel non publié** : utilisables tant que le jeu n'est pas diffusé. | — (assets/ASSETS.md) |
 
 ---
@@ -2777,4 +2811,4 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | v0.7 | 2026-10-12 | **Livrée.** Le temps passe : horloge (12 minutes réelles de 6:00 à 2:00), nuit sombre avec halos de lumière, feu de camp à fabriquer, poser et raviver, repousse des arbres. | Clôture de la v0.6 : 18 règles passées `EN VIGUEUR`. v0.7 : 9 NOUVEAU (R-MON-TPS-001, 002, R-IHM-HOR-001, R-IHM-NUI-001, R-IHM-INS-008, R-INV-POS-001, R-RES-REC-005, R-ART-POS-001, R-ART-FEU-001), 4 MODIFIÉ (R-IHM-INV-001, R-IHM-ART-001, R-ART-FAB-001, 002). 11 paramètres ajoutés. Q24 tranchée par défaut. |
 | v0.8 | 2026-10-12 | **Livrée.** Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au réveil, PNJ qui se promènent. | Clôture de la v0.7 : 24 règles passées `EN VIGUEUR`. v0.8 : 10 NOUVEAU (R-JOU-VIE-001 à 004, R-JOU-MAN-001, R-JOU-SOM-001, R-IHM-HUD-003, R-IHM-SAU-001, R-SAU-SAV-001, R-PNJ-POS-003), 9 MODIFIÉ (R-IHM-NOT-001, R-RES-ELE-001, R-RES-REC-003, R-RES-REC-005, R-INV-RES-001, R-IHM-HUD-001, R-IHM-INV-001, R-IHM-INS-008, R-IHM-BAR-001). 17 paramètres ajoutés. Q25 tranchée par défaut. |
 | v0.9 | 2026-10-12 | **Livrée.** La recherche : expérience gagnée en jouant, niveaux croissants, points de recherche, livres de recherche, fenêtre « Recherche », outils en pierre, sac du cueilleur, champignons grillés au feu. | Clôture de la v0.8 : 36 règles passées `EN VIGUEUR`. v0.9 : 8 NOUVEAU (R-JOU-EXP-002, 003, R-TEC-REC-001, 002, R-RES-OUT-002, R-ART-FAB-003, R-IHM-REC-001, R-IHM-NOT-004), 8 MODIFIÉ (R-INV-LIV-002, R-ART-FAB-002, R-INV-RES-001, R-IHM-HUD-001, R-IHM-HUD-002, R-IHM-ART-001, R-IHM-BAR-001, R-IHM-FEN-001). 10 paramètres ajoutés. Q26 tranchée par défaut. |
-| v0.10 | 2026-10-12 | *En cours.* Le Foyer et la Flétrissure : le Foyer du Vallon, deux zones flétries, l'énergie qui s'y épuise, la sauge de l'aube qui purifie. Le monstre, le combat et la mort viendront en v0.11. | Clôture de la v0.9 : 26 règles passées `EN VIGUEUR`. v0.10 : 10 NOUVEAU (R-JOU-ENE-001 à 004, R-MON-FOY-001, R-MEN-FLE-001, R-MEN-SAU-002, R-IHM-INS-009, R-IHM-FLE-001, R-IHM-NOT-005), 11 MODIFIÉ (R-JOU-VIE-003, 004, R-JOU-SOM-001, R-RES-ELE-001, R-RES-REC-003, 005, R-INV-RES-001, R-IHM-HUD-001, 003, R-IHM-NUI-001, R-IHM-INV-001). 11 paramètres ajoutés. Q27 tranchée par défaut. |
+| v0.10 | 2026-10-12 | *En cours.* Le Foyer et la Flétrissure : le Foyer du Vallon, deux zones flétries, l'énergie qui s'y épuise, la sauge de l'aube qui purifie. Le monstre, le combat et la mort viendront en v0.11. Retours de test : bandeau essentiel, inventaire en onglets, livres lus aux archives, notifications importantes de 10 s, branches à la coupe, hautes herbes, fumée de sauge au niveau 10. | Clôture de la v0.9 : 26 règles passées `EN VIGUEUR`. v0.10 : 10 NOUVEAU (R-JOU-ENE-001 à 004, R-MON-FOY-001, R-MEN-FLE-001, R-MEN-SAU-002, R-IHM-INS-009, R-IHM-FLE-001, R-IHM-NOT-005, R-IHM-JRN-004), plus de 20 MODIFIÉ (dont R-IHM-INV-001, R-TEC-REC-002, R-IHM-NOT-001, 003, 004, R-RES-ELE-001, R-RES-REC-002), 1 SUPPRIMÉ (R-IHM-HUD-001), en plus des 11 MODIFIÉ (R-JOU-VIE-003, 004, R-JOU-SOM-001, R-RES-ELE-001, R-RES-REC-003, 005, R-INV-RES-001, R-IHM-HUD-001, 003, R-IHM-NUI-001, R-IHM-INV-001). 11 paramètres ajoutés. Q27 tranchée par défaut. |

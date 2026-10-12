@@ -20,6 +20,8 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  *   rendement (R-RES-OUT-002).
  * @property {import('./tools.js').ToolKind} [tool] Sorte d'outil exigée (R-RES-OUT-001) ;
  *   absente, la récolte se fait à la main.
+ * @property {Readonly<{ resource: string, amount: number }>} [extra] Ce que l'élément donne en
+ *   plus, sans bonus d'outil (les branches d'un arbre, R-RES-REC-002).
  */
 
 /**
@@ -83,6 +85,7 @@ export const TILE_DEFINITIONS = Object.freeze({
       boostedBy: 'axe',
       resource: 'wood',
       amount: GAME_PARAMETERS.TREE_WOOD_YIELD,
+      extra: Object.freeze({ resource: 'branch', amount: GAME_PARAMETERS.TREE_BRANCH_YIELD }),
       becomes: 'stump',
       regrowDays: GAME_PARAMETERS.TREE_REGROW_DAYS,
     },
@@ -122,6 +125,16 @@ export const TILE_DEFINITIONS = Object.freeze({
       amount: GAME_PARAMETERS.MUSHROOM_YIELD,
       becomes: 'grass',
       regrowDays: GAME_PARAMETERS.MUSHROOM_REGROW_DAYS,
+    },
+  }),
+  // Hautes herbes (C-RES-10) : des fibres, à la main.
+  'tall-grass': tile('tall-grass', '"', {
+    harvest: {
+      action: 'pick',
+      resource: 'fiber',
+      amount: GAME_PARAMETERS.TALL_GRASS_FIBER_YIELD,
+      becomes: 'grass',
+      regrowDays: GAME_PARAMETERS.TALL_GRASS_REGROW_DAYS,
     },
   }),
   // Objet posé (R-ART-POS-001) : un feu de camp, allumé ou éteint selon l'horloge (R-ART-FEU-001).

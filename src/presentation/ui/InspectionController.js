@@ -225,10 +225,13 @@ function tileView(tile, game) {
   if (inspection.harvest === undefined) {
     return undefined;
   }
-  const { action, resource, amount, tool } = inspection.harvest;
+  const { action, resource, amount, tool, extra } = inspection.harvest;
+  const gains = [{ resource, amount }, ...(extra === undefined ? [] : [extra])]
+    .map((gain) => `${gain.amount} ${resourceNoun(gain.resource, gain.amount)}`)
+    .join(', ');
   return {
     title,
-    action: `${TEXTS.harvestActions[action]} : ${amount} ${resourceNoun(resource, amount)}`,
+    action: `${TEXTS.harvestActions[action]} : ${gains}`,
     button: TEXTS.harvestButton,
     // R-IHM-INS-007 : l'outil manquant passe avant la distance.
     ...(inspection.hasTool || tool === undefined

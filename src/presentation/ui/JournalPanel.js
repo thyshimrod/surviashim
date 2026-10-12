@@ -1,11 +1,13 @@
 // @ts-check
 import { TEXTS } from '../i18n/fr.js';
+import { iconElement } from './iconElement.js';
 
 /** @typedef {import('./journalView.js').JournalContent} JournalContent */
 /** @typedef {import('./journalView.js').JournalLine} JournalLine */
 
 /**
- * Journal (R-IHM-JRN-001, R-IHM-JRN-003), en DOM : les quêtes, puis les lieux. La touche J ou
+ * Journal (R-IHM-JRN-001, R-IHM-JRN-003, R-IHM-JRN-004), en DOM : les quêtes, les lieux, puis
+ * les archives. La touche J ou
  * la barre d'actions l'ouvrent et le ferment (WindowsController).
  */
 export class JournalPanel {
@@ -14,8 +16,10 @@ export class JournalPanel {
    * @param {Document} params.doc
    * @param {HTMLElement} params.container
    * @param {() => void} params.onClose Clic sur × (R-IHM-JRN-001).
+   * @param {(bookId: string) => void} params.onReread Clic sur « Relire » (R-IHM-JRN-004).
    */
-  constructor({ doc, container, onClose }) {
+  constructor({ doc, container, onClose, onReread }) {
+    this.onReread = onReread;
     this.doc = doc;
     this.root = doc.createElement('section');
     this.root.className = 'rpg-window journal-panel';
@@ -29,6 +33,7 @@ export class JournalPanel {
     title.textContent = TEXTS.journalTitle;
     this.places = doc.createElement('ul');
     this.quests = doc.createElement('ul');
+    this.archives = doc.createElement('ul');
     this.root.append(
       closeButton,
       title,
@@ -36,6 +41,8 @@ export class JournalPanel {
       this.quests,
       this.heading(TEXTS.placesTitle),
       this.places,
+      this.heading(TEXTS.archivesTitle),
+      this.archives,
     );
     container.append(this.root);
     this.lastRendered = '';
@@ -65,6 +72,27 @@ export class JournalPanel {
         ? content.lines.map((line) => this.placeItem(line))
         : [this.emptyItem(content.empty)]),
     );
+    this.archives.replaceChildren(
+      ...(content.noArchive === undefined
+        ? content.archives.map((book) => this.archiveItem(book))
+        : [this.emptyItem(content.noArchive)]),
+    );
+  }
+
+  /**
+   * @param {import('./journalView.js').ArchivedBook} book
+   * @returns {HTMLLIElement}
+   */
+  archiveItem(book) {
+    const item = this.doc.createElement('li');
+    item.className = 'archive';
+    const title = this.doc.createElement('span');
+    title.textContent = book.title;
+    const button = this.doc.createElement('button');
+    button.textContent = book.button;
+    button.addEventListener('click', () => this.onReread(book.id));
+    item.append(iconElement(this.doc, book.icon), title, button);
+    return item;
   }
 
   /**
