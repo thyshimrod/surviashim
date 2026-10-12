@@ -1138,7 +1138,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.6 | — |
 
-**Règle** — Les fenêtres d'information, d'inventaire, de lecture et d'artisanat s'affichent au milieu de l'écran ; le journal, à gauche. Une seule de ces fenêtres est ouverte à la fois : en ouvrir une ferme celle qui l'était. La touche Échap ou le bouton × ferment la fenêtre ouverte.
+**Règle** — Les fenêtres d'information, d'inventaire, de lecture, d'artisanat et le journal s'affichent au milieu de l'écran. Une seule de ces fenêtres est ouverte à la fois : en ouvrir une ferme celle qui l'était. La touche Échap ou le bouton × ferment la fenêtre ouverte.
 
 **Exemples**
 
@@ -1153,7 +1153,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Notes** — Concept C-IHM-12. Le joueur peut se déplacer fenêtre ouverte.
 
-**Historique** — v0.5 : création. v0.6 : le journal en fait partie (retour de test : ouvrir une fenêtre doit fermer les autres).
+**Historique** — v0.5 : création. v0.6 : le journal en fait partie, au milieu de l'écran lui aussi (retours de test : ouvrir une fenêtre doit fermer les autres ; le journal était à gauche).
 
 ### 3.11 INV — Fenêtre d'inventaire
 
