@@ -118,7 +118,7 @@ describe('R-IHM-FEN-001 · Une fenêtre à la fois', () => {
 });
 
 describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
-  it('ex.1 — une nouvelle partie, touche I : huit ressources à 0, ni outil ni livre', () => {
+  it('ex.1 — une nouvelle partie, touche I : neuf ressources à 0, ni outil ni livre', () => {
     const { state } = createTestGame({ tools: [] });
     const windows = new WindowsController();
 
@@ -137,6 +137,7 @@ describe("R-IHM-INV-001 · Fenêtre d'inventaire", () => {
         'Fibres 0',
         'Baies 0',
         'Champignons 0',
+        'Champignons grillés 0',
       ],
     );
     assert.equal(view.noTool, 'Aucun outil.');

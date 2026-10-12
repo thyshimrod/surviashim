@@ -20,6 +20,7 @@ describe('R-RES-ELE-001 · Éléments récoltables', () => {
     assert.deepEqual(inspect('tree'), {
       action: 'cut',
       tool: 'axe',
+      boostedBy: 'axe',
       resource: 'wood',
       amount: 3,
       becomes: 'stump',
@@ -31,6 +32,7 @@ describe('R-RES-ELE-001 · Éléments récoltables', () => {
     assert.deepEqual(inspect('rock'), {
       action: 'mine',
       tool: 'pickaxe',
+      boostedBy: 'pickaxe',
       resource: 'stone',
       amount: 2,
       becomes: 'grass',
@@ -189,6 +191,7 @@ describe('R-INV-RES-001 · Inventaire de départ', () => {
       fiber: 0,
       berry: 0,
       mushroom: 0,
+      'grilled-mushroom': 0,
     });
   });
 });

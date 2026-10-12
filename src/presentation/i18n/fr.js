@@ -44,6 +44,7 @@ export const TEXTS = Object.freeze({
     fiber: Object.freeze({ one: 'fibre', many: 'fibres' }),
     berry: Object.freeze({ one: 'baie', many: 'baies' }),
     mushroom: Object.freeze({ one: 'champignon', many: 'champignons' }),
+    'grilled-mushroom': Object.freeze({ one: 'champignon grillé', many: 'champignons grillés' }),
   }),
   /** Libellés du bandeau d'inventaire (R-IHM-HUD-001). */
   hudLabels: Object.freeze({
@@ -55,6 +56,7 @@ export const TEXTS = Object.freeze({
     fiber: 'Fibres',
     berry: 'Baies',
     mushroom: 'Champignons',
+    'grilled-mushroom': 'Champignons grillés',
   }),
   harvestButton: 'Récolter',
   closeButton: 'Fermer',
@@ -72,6 +74,19 @@ export const TEXTS = Object.freeze({
   healthLabel: 'PV',
   hungerLabel: 'Faim',
   eatButton: 'Manger',
+  // Recherche (R-IHM-REC-001), niveaux (R-IHM-HUD-002, R-IHM-NOT-004).
+  researchTitle: 'Recherche',
+  researchPoints: (/** @type {number} */ points) => 'Points de recherche : ' + points,
+  researchCost: (/** @type {number} */ cost) => cost + (cost > 1 ? ' points' : ' point'),
+  researchButton: 'Rechercher',
+  researched: 'Recherché',
+  requires: (/** @type {string} */ plan) => "Il faut d'abord : " + plan,
+  notEnoughPoints: 'Pas assez de points',
+  researchEmpty: 'Aucun plan à rechercher : trouvez des livres de recherche dans les ruines.',
+  levelLabel: (/** @type {number} */ level, /** @type {number} */ xp, /** @type {number} */ next) =>
+    'Niveau ' + level + ' · ' + xp + '/' + next,
+  levelUp: (/** @type {number} */ level) => 'Niveau ' + level + ' ! +1 point de recherche',
+  needsFire: 'Il faut un feu de camp allumé à portée',
   // Fenêtre « Partie » (R-IHM-SAU-001).
   gameTitle: 'Partie',
   savedOn: (/** @type {number} */ day) => 'Sauvegardée au réveil du jour ' + day,
@@ -94,6 +109,9 @@ export const TEXTS = Object.freeze({
   toolNames: Object.freeze({
     'flint-axe': 'Hache en silex',
     'flint-pickaxe': 'Pioche en silex',
+    'stone-axe': 'Hache en pierre',
+    'stone-pickaxe': 'Pioche en pierre',
+    'gatherer-bag': 'Sac du cueilleur',
   }),
   // Fenêtre d'inventaire (R-IHM-INV-001).
   inventoryTitle: 'Inventaire',
@@ -136,6 +154,7 @@ export const TEXTS = Object.freeze({
     inventory: 'Inventaire (I)',
     craft: 'Artisanat (C)',
     journal: 'Journal (J)',
+    research: 'Recherche (R)',
     game: 'Partie',
   }),
   talkAction: 'Parler',

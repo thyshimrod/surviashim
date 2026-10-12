@@ -52,7 +52,11 @@ describe('data/tools.js et data/recipes.js', () => {
     for (const [key, recipe] of Object.entries(RECIPES)) {
       assert.equal(recipe.id, key);
       assert.ok(plans.includes(key), key);
-      const gives = [recipe.tool in TOOLS, recipe.placeable in PLACEABLES];
+      const gives = [
+        recipe.tool in TOOLS,
+        recipe.placeable in PLACEABLES,
+        recipe.resource in RESOURCES,
+      ];
       assert.equal(gives.filter(Boolean).length, 1, key);
       for (const [resource, amount] of Object.entries(recipe.ingredients)) {
         assert.ok(resource in RESOURCES, resource);

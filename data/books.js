@@ -9,8 +9,8 @@
  * @typedef {object} BookDefinition
  * @property {string} id Identifiant unique, kebab-case.
  * @property {string} icon Icône (clé de ICONS, data/icons.js).
- * @property {'survival'} kind Un livre de survie apprend ses plans à la lecture (C-TEC-07) ; les
- *   livres de recherche viendront avec C-TEC-03.
+ * @property {'survival' | 'research'} kind Un livre de survie apprend ses plans à la lecture
+ *   (C-TEC-07) ; un livre de recherche les découvre, à rechercher ensuite (C-TEC-08).
  * @property {readonly string[]} plans Plans décrits par le livre (identifiants), dans l'ordre où
  *   la lecture les apprend.
  */
@@ -28,5 +28,17 @@ export const BOOKS = Object.freeze({
     icon: 'book-brown',
     kind: 'survival',
     plans: Object.freeze(['campfire']),
+  }),
+  stonework: Object.freeze({
+    id: 'stonework',
+    icon: 'tome-gold',
+    kind: 'research',
+    plans: Object.freeze(['stone-axe', 'stone-pickaxe']),
+  }),
+  'forager-guide': Object.freeze({
+    id: 'forager-guide',
+    icon: 'book-green',
+    kind: 'research',
+    plans: Object.freeze(['gatherer-bag', 'grilled-mushroom']),
   }),
 });

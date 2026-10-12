@@ -1,6 +1,7 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
 import { ticksFor, MINUTES_PER_DAY } from '../systems/time.js';
+import { gainExperience } from '../systems/experience.js';
 import { inspectCampfire } from './campfire.js';
 import { REJECTION_REASONS } from './commands.js';
 
@@ -93,7 +94,8 @@ export function harvest(state, rules, events, tile) {
   if (!inspection.isInReach) {
     return { ok: false, reason: REJECTION_REASONS.OUT_OF_REACH };
   }
-  const { resource, amount, becomes, regrowDays } = inspection.harvest;
+  const { resource, becomes, regrowDays, boostedBy } = inspection.harvest;
+  const amount = inspection.harvest.amount + bestBonus(state, rules, boostedBy); // R-RES-OUT-002
   state.inventory[resource] = (state.inventory[resource] ?? 0) + amount;
   state.map.setTile(tile.column, tile.row, rules.tiles[becomes]);
   if (regrowDays !== undefined && rules.time !== undefined) {
@@ -109,5 +111,26 @@ export function harvest(state, rules, events, tile) {
     total: state.inventory[resource],
   });
   events.emit(GAME_EVENTS.TILE_CHANGED, { ...tile, tileId: becomes });
+  gainExperience(state, rules, events, rules.experience?.harvest ?? 0); // R-JOU-EXP-002
   return { ok: true };
+}
+
+/**
+ * R-RES-OUT-002 : bonus du meilleur outil possédé de cette sorte.
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @param {string | undefined} kind
+ * @returns {number}
+ */
+function bestBonus(state, rules, kind) {
+  if (kind === undefined) {
+    return 0;
+  }
+  return Math.max(
+    0,
+    ...state.tools
+      .map((id) => rules.tools?.[id])
+      .filter((tool) => tool?.kind === kind)
+      .map((tool) => tool?.bonus ?? 0),
+  );
 }

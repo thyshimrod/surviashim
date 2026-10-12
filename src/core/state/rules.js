@@ -6,6 +6,7 @@ import { PLACEABLES } from '../../../data/placeables.js';
 import { PLACES } from '../../../data/places.js';
 import { QUESTS } from '../../../data/quests.js';
 import { RECIPES } from '../../../data/recipes.js';
+import { RESEARCH_PLANS } from '../../../data/research.js';
 import { RESOURCES } from '../../../data/resources.js';
 import { SEARCH_SPOTS } from '../../../data/searchSpots.js';
 import { TILE_DEFINITIONS } from '../../../data/tilesets.js';
@@ -47,6 +48,15 @@ export function createGameRules(parameters) {
       speed: parameters.NPC_WALK_SPEED,
       pauseMinutes: parameters.NPC_PAUSE_MINUTES,
     },
+    experience: {
+      harvest: parameters.XP_HARVEST,
+      search: parameters.XP_SEARCH,
+      craft: parameters.XP_CRAFT,
+      discover: parameters.XP_DISCOVER,
+      firstLevel: parameters.LEVEL_FIRST_XP,
+      step: parameters.LEVEL_XP_STEP,
+    },
+    research: RESEARCH_PLANS,
   };
 }
 

@@ -1,5 +1,7 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
+import { gainExperience } from '../systems/experience.js';
+import { hasLitFireInReach } from './campfire.js';
 import { REJECTION_REASONS } from './commands.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
@@ -24,6 +26,8 @@ import { REJECTION_REASONS } from './commands.js';
  * @property {boolean} isOwned `true` si cet outil est déjà possédé.
  * @property {IngredientStatus[]} ingredients Dans l'ordre de la recette.
  * @property {boolean} hasIngredients `true` si aucun ingrédient ne manque.
+ * @property {boolean} needsFire `true` si la recette se cuisine et qu'aucun feu allumé n'est à
+ *   portée (R-ART-FAB-003).
  */
 
 /**
@@ -40,8 +44,13 @@ export function readBook(state, rules, events, bookId) {
     return { ok: false, reason: REJECTION_REASONS.BOOK_NOT_OWNED };
   }
   const book = rules.books?.[bookId];
-  const plans = book?.kind === 'survival' ? book.plans : [];
-  const recipes = plans.filter((plan) => !state.knownRecipes.includes(plan));
+  const plans = book?.plans ?? [];
+  if (book?.kind === 'research') {
+    // C-TEC-08 : les plans sont découverts, à rechercher ensuite.
+    state.discoveredPlans.push(...plans.filter((plan) => !state.discoveredPlans.includes(plan)));
+  }
+  const recipes =
+    book?.kind === 'survival' ? plans.filter((plan) => !state.knownRecipes.includes(plan)) : [];
   state.knownRecipes.push(...recipes);
   events.emit(GAME_EVENTS.BOOK_READ, { bookId, recipes });
   return { ok: true };
@@ -56,18 +65,30 @@ export function readBook(state, rules, events, bookId) {
  */
 export function inspectRecipe(state, rules, recipeId) {
   const recipe = rules.recipes?.[recipeId];
-  const ingredients = Object.entries(recipe?.ingredients ?? {}).map(([resource, required]) => ({
+  if (recipe === undefined) {
+    return {
+      isKnown: false,
+      tool: undefined,
+      placeable: undefined,
+      isOwned: false,
+      ingredients: [],
+      hasIngredients: true,
+      needsFire: false,
+    };
+  }
+  const ingredients = Object.entries(recipe.ingredients).map(([resource, required]) => ({
     resource,
     owned: state.inventory[resource] ?? 0,
     required,
   }));
   return {
-    isKnown: recipe !== undefined && state.knownRecipes.includes(recipeId),
-    tool: recipe?.tool,
-    placeable: recipe?.placeable,
-    isOwned: recipe?.tool !== undefined && state.tools.includes(recipe.tool),
+    isKnown: state.knownRecipes.includes(recipeId),
+    tool: recipe.tool,
+    placeable: recipe.placeable,
+    isOwned: recipe.tool !== undefined && state.tools.includes(recipe.tool),
     ingredients,
     hasIngredients: ingredients.every(({ owned, required }) => owned >= required),
+    needsFire: recipe.station === 'campfire' && !hasLitFireInReach(state, rules),
   };
 }
 
@@ -82,25 +103,51 @@ export function inspectRecipe(state, rules, recipeId) {
  */
 export function craft(state, rules, events, recipeId) {
   const inspection = inspectRecipe(state, rules, recipeId);
-  if (!inspection.isKnown) {
-    return { ok: false, reason: REJECTION_REASONS.UNKNOWN_RECIPE };
-  }
-  if (inspection.isOwned) {
-    return { ok: false, reason: REJECTION_REASONS.ALREADY_OWNED };
-  }
-  if (!inspection.hasIngredients) {
-    return { ok: false, reason: REJECTION_REASONS.MISSING_INGREDIENTS };
+  const reason = refusalOf(inspection);
+  if (reason !== undefined) {
+    return { ok: false, reason };
   }
   for (const { resource, required } of inspection.ingredients) {
     state.inventory[resource] -= required;
   }
+  deliver(state, rules.recipes?.[recipeId]);
   const { tool, placeable } = inspection;
-  if (tool !== undefined) {
-    state.tools.push(tool);
-  }
-  if (placeable !== undefined) {
-    state.placeables[placeable] = (state.placeables[placeable] ?? 0) + 1; // R-INV-POS-001
-  }
   events.emit(GAME_EVENTS.ITEM_CRAFTED, { recipeId, tool, placeable });
+  gainExperience(state, rules, events, rules.experience?.craft ?? 0); // R-JOU-EXP-002
   return { ok: true };
+}
+
+/**
+ * R-ART-FAB-002 : premier motif de refus qui s'applique, dans l'ordre.
+ * @param {RecipeInspection} inspection
+ * @returns {string | undefined}
+ */
+function refusalOf(inspection) {
+  if (!inspection.isKnown) {
+    return REJECTION_REASONS.UNKNOWN_RECIPE;
+  }
+  if (inspection.isOwned) {
+    return REJECTION_REASONS.ALREADY_OWNED;
+  }
+  if (inspection.needsFire) {
+    return REJECTION_REASONS.NEEDS_FIRE;
+  }
+  return inspection.hasIngredients ? undefined : REJECTION_REASONS.MISSING_INGREDIENTS;
+}
+
+/**
+ * R-ART-FAB-001 : donne ce que produit la recette : outil, objet à poser ou ressource.
+ * @param {GameState} state
+ * @param {Readonly<import('../../../data/recipes.js').RecipeDefinition> | undefined} recipe
+ */
+function deliver(state, recipe) {
+  if (recipe?.tool !== undefined) {
+    state.tools.push(recipe.tool);
+  }
+  if (recipe?.placeable !== undefined) {
+    state.placeables[recipe.placeable] = (state.placeables[recipe.placeable] ?? 0) + 1; // R-INV-POS-001
+  }
+  if (recipe?.resource !== undefined) {
+    state.inventory[recipe.resource] = (state.inventory[recipe.resource] ?? 0) + 1;
+  }
 }

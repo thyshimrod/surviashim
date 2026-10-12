@@ -68,7 +68,8 @@ export function makeMap({ columns = 40, rows = 30, tileSize = 32, rocks = [], ti
  * portée de récolte 48 px, types de tuiles et rendements de data/tilesets.js, inventaire vide,
  * aucun PNJ ni lieu, portée de parole 64 px, dialogues de data/npcs.js. Le joueur possède
  * tous les outils (convention des exemples, spécification B.8) et ne connaît aucune recette ;
- * un inventaire partiel est complété par des 0. L'horloge marque le jour 1 à 6:00 ; temps, nuit,
+ * un inventaire partiel est complété par des 0. Ses outils par défaut sont la hache et la
+ * pioche en silex. L'horloge marque le jour 1 à 6:00 ; temps, nuit,
  * feu de camp, repousse, faim, santé et promenades suivent la partie C de la spécification
  * (`needs: false` coupe la faim et la santé). Les PNJ commencent par une pause chez eux.
  * @example
@@ -91,7 +92,7 @@ export function createTestGame({
   books = [],
   searchSpots = [],
   searchMaxBooks = 2,
-  tools = Object.keys(TOOLS),
+  tools = ['flint-axe', 'flint-pickaxe'],
   knownRecipes = [],
   items = [],
   quests = [],
@@ -102,6 +103,8 @@ export function createTestGame({
   health = 100,
   hunger = 100,
   needs = true,
+  discoveredPlans = [],
+  researched = [],
 } = {}) {
   const rules = createGameRules(GAME_PARAMETERS);
   const pauseUntil = clock + rules.npcWalk.pauseMinutes * rules.time.ticksPerMinute;
@@ -130,6 +133,8 @@ export function createTestGame({
     campfires,
     health,
     hunger,
+    discoveredPlans,
+    researched,
   });
   const game = new Game(state, {
     rules: {
@@ -151,6 +156,8 @@ export function createTestGame({
       time: rules.time,
       resources: rules.resources,
       npcWalk: rules.npcWalk,
+      experience: rules.experience,
+      research: rules.research,
       ...(needs ? { vitals: rules.vitals } : {}),
     },
   });

@@ -1,5 +1,5 @@
 // @ts-check
-import { craftItem, eat, placeItem, readBook } from '../../core/commands/commands.js';
+import { craftItem, eat, placeItem, readBook, researchPlan } from '../../core/commands/commands.js';
 import { InspectionController } from './InspectionController.js';
 
 /** @typedef {import('../input/designateTile.js').Target} Target */
@@ -8,11 +8,11 @@ import { InspectionController } from './InspectionController.js';
 
 /**
  * Fenêtre centrale ouverte (R-IHM-FEN-001).
- * @typedef {'inspection' | 'inventory' | 'book' | 'craft' | 'journal' | 'game'} WindowName
+ * @typedef {'inspection' | 'inventory' | 'book' | 'craft' | 'journal' | 'research' | 'game'} WindowName
  */
 
 /** Touches qui ouvrent et ferment une fenêtre (R-IHM-INV-001, R-IHM-ART-001, R-IHM-JRN-001). */
-const TOGGLE_KEYS = Object.freeze({ i: 'inventory', c: 'craft', j: 'journal' });
+const TOGGLE_KEYS = Object.freeze({ i: 'inventory', c: 'craft', j: 'journal', r: 'research' });
 const CLOSE_KEY = 'Escape';
 
 /**
@@ -23,7 +23,7 @@ export class WindowsController {
   /** Crée un contrôleur sans fenêtre ouverte. */
   constructor() {
     this.inspection = new InspectionController();
-    /** @type {'inventory' | 'book' | 'craft' | 'journal' | 'game' | undefined} */
+    /** @type {'inventory' | 'book' | 'craft' | 'journal' | 'research' | 'game' | undefined} */
     this.panel = undefined;
     /** La fenêtre « Partie » demande confirmation d'une nouvelle partie (R-IHM-SAU-001). */
     this.confirmingNewGame = false;
@@ -77,7 +77,7 @@ export class WindowsController {
 
   /**
    * Ouvre ou ferme une fenêtre : touche ou clic sur la barre d'actions (R-IHM-BAR-001).
-   * @param {'inventory' | 'craft' | 'journal' | 'game'} name
+   * @param {'inventory' | 'craft' | 'journal' | 'research' | 'game'} name
    */
   toggle(name) {
     this.show(this.panel === name ? undefined : name);
@@ -139,6 +139,16 @@ export class WindowsController {
     return game.execute(eat(resource));
   }
 
+  /**
+   * R-IHM-REC-001 : recherche un plan ; la fenêtre reste ouverte.
+   * @param {string} planId
+   * @param {InspectableGame} game
+   * @returns {CommandResult}
+   */
+  research(planId, game) {
+    return game.execute(researchPlan(planId));
+  }
+
   /** R-IHM-SAU-001 : « Nouvelle partie » demande confirmation. */
   askNewGame() {
     this.confirmingNewGame = true;
@@ -155,7 +165,7 @@ export class WindowsController {
   }
 
   /**
-   * @param {'inventory' | 'book' | 'craft' | 'journal' | 'game' | undefined} panel
+   * @param {'inventory' | 'book' | 'craft' | 'journal' | 'research' | 'game' | undefined} panel
    */
   show(panel) {
     this.inspection.close();

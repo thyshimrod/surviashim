@@ -184,3 +184,15 @@ function isInReach(state, rules, { column, row }) {
   const centerY = (bounds.top + bounds.bottom) / 2;
   return Math.hypot(x - centerX, y - centerY) <= rules.harvestReach;
 }
+
+/**
+ * R-ART-FAB-003 : un feu de camp allumé est-il à portée du joueur ?
+ * @param {GameState} state
+ * @param {GameRules} rules
+ * @returns {boolean}
+ */
+export function hasLitFireInReach(state, rules) {
+  return state.campfires.some(
+    (fire) => fire.burnsUntil > state.clock && isInReach(state, rules, fire),
+  );
+}

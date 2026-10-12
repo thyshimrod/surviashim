@@ -1,5 +1,6 @@
 // @ts-check
 import { PLACEABLES } from '../../../data/placeables.js';
+import { RESOURCES } from '../../../data/resources.js';
 import { TOOLS } from '../../../data/tools.js';
 import { TEXTS } from '../i18n/fr.js';
 import { CONTENT_TEXTS } from '../i18n/frContent.js';
@@ -52,8 +53,7 @@ function toEntry(id, inspection) {
   return {
     id,
     name: plan.charAt(0).toUpperCase() + plan.slice(1),
-    icon:
-      TOOLS[inspection.tool ?? '']?.icon ?? PLACEABLES[inspection.placeable ?? '']?.icon ?? 'axe',
+    icon: iconOf(id, inspection),
     ingredients: inspection.ingredients
       .map(
         ({ resource, owned, required }) =>
@@ -61,7 +61,7 @@ function toEntry(id, inspection) {
       )
       .join(' · '),
     button: TEXTS.craftButton,
-    isEnabled: !inspection.isOwned && inspection.hasIngredients,
+    isEnabled: !inspection.isOwned && !inspection.needsFire && inspection.hasIngredients,
     warning: warningOf(inspection),
   };
 }
@@ -74,6 +74,9 @@ function warningOf(inspection) {
   if (inspection.isOwned) {
     return TEXTS.alreadyOwned;
   }
+  if (inspection.needsFire) {
+    return TEXTS.needsFire;
+  }
   if (inspection.hasIngredients) {
     return undefined;
   }
@@ -84,4 +87,16 @@ function warningOf(inspection) {
       return `${amount} ${resourceNoun(resource, amount)}`;
     });
   return TEXTS.missingIngredients(missing.join(', '));
+}
+
+/**
+ * Icône de ce que produit la recette.
+ * @param {string} id
+ * @param {RecipeInspection} inspection
+ * @returns {string}
+ */
+function iconOf(id, inspection) {
+  const tool = TOOLS[inspection.tool ?? ''];
+  const placeable = PLACEABLES[inspection.placeable ?? ''];
+  return tool?.icon ?? placeable?.icon ?? RESOURCES[id]?.icon ?? 'axe';
 }

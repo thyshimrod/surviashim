@@ -185,17 +185,12 @@ describe('R-IHM-INS-005 · Désigner un PNJ', () => {
 });
 
 describe('R-IHM-HUD-002 · Expérience au bandeau', () => {
-  const label = (experience) => {
-    const entry = experienceEntry(experience);
-    return `${entry.label} ${entry.amount}`;
-  };
-
-  it('ex.1 — une nouvelle partie : « Expérience 0 »', () => {
-    assert.equal(label(Game.create().getState().experience), 'Expérience 0');
+  it('ex.1 — une nouvelle partie : « Niveau 1 · 0/100 »', () => {
+    assert.equal(experienceEntry(Game.create().getState().experience).label, 'Niveau 1 · 0/100');
   });
 
-  it('ex.2 — 70 points : « Expérience 70 »', () => {
-    assert.equal(label(70), 'Expérience 70');
+  it('ex.2 — 70 points : « Niveau 1 · 70/100 »', () => {
+    assert.equal(experienceEntry(70).label, 'Niveau 1 · 70/100');
   });
 });
 

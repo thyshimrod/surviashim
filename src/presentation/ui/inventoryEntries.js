@@ -1,13 +1,27 @@
 // @ts-check
 import { RESOURCES } from '../../../data/resources.js';
+import { GAME_PARAMETERS } from '../../../data/gameParameters.js';
+import { levelOf, levelThreshold } from '../../core/systems/experience.js';
 import { TEXTS } from '../i18n/fr.js';
+
+/** Règles des niveaux (R-JOU-EXP-003), pour l'affichage. */
+const LEVEL_RULES = Object.freeze({
+  experience: Object.freeze({
+    harvest: GAME_PARAMETERS.XP_HARVEST,
+    search: GAME_PARAMETERS.XP_SEARCH,
+    craft: GAME_PARAMETERS.XP_CRAFT,
+    discover: GAME_PARAMETERS.XP_DISCOVER,
+    firstLevel: GAME_PARAMETERS.LEVEL_FIRST_XP,
+    step: GAME_PARAMETERS.LEVEL_XP_STEP,
+  }),
+});
 
 /**
  * Ligne du bandeau d'inventaire.
  * @typedef {object} InventoryEntry
  * @property {string} id Ressource, ou « experience ».
  * @property {string} label Libellé affiché (« Bois »).
- * @property {number} [amount] Absente pour l'horloge.
+ * @property {number} [amount] Absente pour l'horloge et le niveau.
  * @property {string} icon Icône (clé de ICONS).
  */
 
@@ -26,12 +40,14 @@ export function inventoryEntries(inventory) {
 }
 
 /**
- * R-IHM-HUD-002 : l'expérience, en fin de bandeau.
+ * R-IHM-HUD-002 : niveau et expérience, en fin de bandeau : « Niveau 1 · 70/100 ».
  * @param {number} experience
  * @returns {InventoryEntry}
  */
 export function experienceEntry(experience) {
-  return { id: 'experience', label: TEXTS.experienceLabel, amount: experience, icon: 'experience' };
+  const level = levelOf(experience, LEVEL_RULES);
+  const next = levelThreshold(level + 1, LEVEL_RULES.experience);
+  return { id: 'experience', label: TEXTS.levelLabel(level, experience, next), icon: 'experience' };
 }
 
 /**

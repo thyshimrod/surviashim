@@ -16,6 +16,8 @@ import { GAME_PARAMETERS } from './gameParameters.js';
  * @property {number} amount Rendement.
  * @property {string} becomes Type de tuile laissé après la récolte (R-RES-REC-003).
  * @property {number} [regrowDays] Jours de jeu avant que l'élément repousse (R-RES-REC-005).
+ * @property {import('./tools.js').ToolKind} [boostedBy] Sorte d'outil dont le bonus s'ajoute au
+ *   rendement (R-RES-OUT-002).
  * @property {import('./tools.js').ToolKind} [tool] Sorte d'outil exigée (R-RES-OUT-001) ;
  *   absente, la récolte se fait à la main.
  */
@@ -76,6 +78,7 @@ export const TILE_DEFINITIONS = Object.freeze({
     harvest: {
       action: 'cut',
       tool: 'axe',
+      boostedBy: 'axe',
       resource: 'wood',
       amount: GAME_PARAMETERS.TREE_WOOD_YIELD,
       becomes: 'stump',
@@ -88,6 +91,7 @@ export const TILE_DEFINITIONS = Object.freeze({
     harvest: {
       action: 'mine',
       tool: 'pickaxe',
+      boostedBy: 'pickaxe',
       resource: 'stone',
       amount: GAME_PARAMETERS.ROCK_STONE_YIELD,
       becomes: 'grass',
@@ -101,6 +105,7 @@ export const TILE_DEFINITIONS = Object.freeze({
     harvest: {
       action: 'pick',
       resource: 'berry',
+      boostedBy: 'bag',
       amount: GAME_PARAMETERS.BERRY_YIELD,
       becomes: 'bush',
       regrowDays: GAME_PARAMETERS.BUSH_REGROW_DAYS,
@@ -111,6 +116,7 @@ export const TILE_DEFINITIONS = Object.freeze({
     harvest: {
       action: 'pick',
       resource: 'mushroom',
+      boostedBy: 'bag',
       amount: GAME_PARAMETERS.MUSHROOM_YIELD,
       becomes: 'grass',
       regrowDays: GAME_PARAMETERS.MUSHROOM_REGROW_DAYS,

@@ -28,4 +28,9 @@ export const RESOURCES = Object.freeze({
     icon: 'mushroom',
     food: GAME_PARAMETERS.MUSHROOM_FOOD,
   }),
+  'grilled-mushroom': Object.freeze({
+    id: 'grilled-mushroom',
+    icon: 'mushroom-green',
+    food: GAME_PARAMETERS.GRILLED_MUSHROOM_FOOD,
+  }),
 });

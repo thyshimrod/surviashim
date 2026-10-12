@@ -94,6 +94,8 @@ export { createGameRules } from './rules.js';
  * @property {Regrowth[]} regrowth Éléments qui repousseront (R-RES-REC-005).
  * @property {number} health PV (R-JOU-VIE-001).
  * @property {number} hunger Faim, de 0 à HUNGER_MAX (R-JOU-VIE-002).
+ * @property {string[]} discoveredPlans Plans des livres de recherche lus (R-INV-LIV-002).
+ * @property {string[]} researched Plans recherchés, dans l'ordre (R-TEC-REC-002).
  */
 
 /**
@@ -127,6 +129,9 @@ export { createGameRules } from './rules.js';
  *   [resources] Ressources, et ce qu'elles rendent de faim (R-JOU-MAN-001).
  * @property {import('../systems/needs.js').VitalRules} [vitals] Faim, santé, sommeil.
  * @property {{ speed: number, pauseMinutes: number }} [npcWalk] Promenades (R-PNJ-POS-003).
+ * @property {import('../systems/experience.js').ExperienceRules} [experience] Expérience, niveaux.
+ * @property {Readonly<Record<string, Readonly<import('../../../data/research.js').ResearchPlan>>>}
+ *   [research] Plans de recherche (R-TEC-REC-002).
  */
 
 /**
@@ -213,9 +218,10 @@ function copyTime({ clock = 0, placeables = {}, campfires = [], regrowth = [] })
 /**
  * Ce que le joueur a acquis (livres, outils, recettes, objets, quêtes, expérience), copié.
  * @param {{ books?: string[], tools?: string[], knownRecipes?: string[], items?: string[],
- *   quests?: QuestEntry[], experience?: number }} params
+ *   quests?: QuestEntry[], experience?: number, discoveredPlans?: string[],
+ *   researched?: string[] }} params
  * @returns {Pick<GameState, 'books' | 'tools' | 'knownRecipes' | 'items' | 'quests'
- *   | 'experience'>}
+ *   | 'experience' | 'discoveredPlans' | 'researched'>}
  */
 function copyProgress({
   books = [],
@@ -224,8 +230,12 @@ function copyProgress({
   items = [],
   quests = [],
   experience = 0,
+  discoveredPlans = [],
+  researched = [],
 }) {
   return {
+    discoveredPlans: [...discoveredPlans],
+    researched: [...researched],
     books: [...books],
     tools: [...tools],
     knownRecipes: [...knownRecipes],

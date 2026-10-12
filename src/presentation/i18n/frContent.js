@@ -27,6 +27,14 @@ export const CONTENT_TEXTS = Object.freeze({
       title: 'Le Tailleur de silex',
       text: "Choisis un silex sans fêlure. Frappe-le d'un geste sec avec une pierre plus dure : l'éclat qui se détache sera ta lame. Lie-la à un manche de bois vert avec des fibres tressées, et tu tiendras une hache digne de ce nom.",
     }),
+    stonework: Object.freeze({
+      title: "L'Art de la pierre",
+      text: 'Le silex coupe, mais il casse. Une bonne pierre, bien choisie et patiemment polie, tient des saisons entières. Emmanche-la serré : le bûcheron qui la porte abat deux fois plus de bois.',
+    }),
+    'forager-guide': Object.freeze({
+      title: 'Le Guide du cueilleur',
+      text: "Tresse un sac de fibres, large et souple : rien ne se perd plus quand on cueille. Et ne mange pas les champignons crus quand un feu brûle à côté : grillés, ils tiennent au corps jusqu'au soir.",
+    }),
     'watchman-notebook': Object.freeze({
       title: 'Carnet du guetteur',
       text: "Troisième nuit sans relève. Des feux partout sur les collines, et ce silence… Le vieux prêtre dit que la fumée de la sauge de l'aube les tient à distance. J'ai allumé un feu de camp au pied de la tour. Pourvu qu'il tienne jusqu'au matin.",
@@ -46,6 +54,10 @@ export const CONTENT_TEXTS = Object.freeze({
     'flint-axe': 'hache en silex',
     'flint-pickaxe': 'pioche en silex',
     campfire: 'feu de camp',
+    'stone-axe': 'hache en pierre',
+    'stone-pickaxe': 'pioche en pierre',
+    'gatherer-bag': 'sac du cueilleur',
+    'grilled-mushroom': 'champignons grillés',
   }),
   /** @type {Readonly<Record<string, string>>} */
   pages: Object.freeze({

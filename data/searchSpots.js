@@ -40,11 +40,12 @@ export const SEARCH_SPOTS = Object.freeze([
   spot([32, 29], 'ruin-chest', { resources: { branch: 4, fiber: 2 } }),
   // La Chapelle engloutie.
   spot([120, 58], 'ruin-bookshelf', { books: ['watchman-notebook'] }),
-  spot([123, 64], 'ruin-crate', { resources: { flint: 1, fiber: 3 } }),
+  spot([123, 64], 'ruin-crate', { books: ['forager-guide'], resources: { flint: 1, fiber: 3 } }),
   // Le Hameau abandonné.
   spot([115, 97], 'ruin-crate', { resources: { branch: 2, fiber: 1 } }),
   // La poupée de la quête de Maëlle (B.9).
   spot([127, 96], 'ruin-chest', { items: ['blue-doll'], resources: { flint: 2, branch: 1 } }),
-  spot([115, 105], 'ruin-crate'),
+  // Livres de recherche (B.11).
+  spot([115, 105], 'ruin-crate', { books: ['stonework'] }),
   spot([127, 105], 'ruin-crate', { resources: { fiber: 2 } }),
 ]);

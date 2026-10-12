@@ -11,7 +11,9 @@ RPG 2D en pixel art, vu de dessus : on rebâtit un village dans une vallée enva
 
 ## État
 
-**v0.8 (en cours) : vivre au rythme des jours.** Le bandeau affiche les PV et la faim. La faim baisse d'environ 40 points par journée ; rassasié, on récupère des PV, affamé on en perd ; à 0 PV, on s'évanouit et l'on se réveille au matin dans le Vallon, sans rien perdre. On cueille des baies sur les buissons du Vallon et des champignons en lisière des bois (ils repoussent en 2 jours), et on les mange depuis l'inventaire (« Manger »). Dès 18:00, on peut dormir près d'un feu allumé (« Dormir » dans sa fenêtre) : réveil à 6:00, PV au maximum, et la partie est sauvegardée ; au lancement, elle reprend. L'icône « Partie » de la barre d'actions permet de recommencer. Les habitants se promènent autour de chez eux.
+**v0.9 (en cours) : la recherche.** On gagne de l'expérience en jouant : récolter (+1), fouiller (+5), fabriquer (+5), découvrir un lieu (+10), finir une quête. Les niveaux, de plus en plus espacés (100, 250, 450…), donnent chacun un point de recherche ; le bandeau affiche « Niveau 2 · 120/250 ». Deux livres de recherche sont cachés dans les ruines (« L'Art de la pierre » au Hameau, « Le Guide du cueilleur » à la Chapelle) : les lire découvre leurs plans, qu'on apprend dans la fenêtre « Recherche » (touche R ou icône parchemin) pour 1 point chacun. Hache et pioche en pierre (+1 bois, +1 pierre ; il faut d'abord l'outil en silex), sac du cueilleur (+1 baie ou champignon), champignons grillés (à cuire près d'un feu allumé, ils rassasient de 35).
+
+**v0.8 (livrée) : vivre au rythme des jours.** Le bandeau affiche les PV et la faim. La faim baisse d'environ 40 points par journée ; rassasié, on récupère des PV, affamé on en perd ; à 0 PV, on s'évanouit et l'on se réveille au matin dans le Vallon, sans rien perdre. On cueille des baies sur les buissons du Vallon et des champignons en lisière des bois (ils repoussent en 2 jours), et on les mange depuis l'inventaire (« Manger »). Dès 18:00, on peut dormir près d'un feu allumé (« Dormir » dans sa fenêtre) : réveil à 6:00, PV au maximum, et la partie est sauvegardée ; au lancement, elle reprend. L'icône « Partie » de la barre d'actions permet de recommencer. Les habitants se promènent autour de chez eux.
 
 **v0.7 (livrée) : le temps passe.** Une horloge tourne en bout de bandeau (« Jour 1 · 6:00 ») : de 6:00 à 2:00, une journée dure 12 minutes réelles. Le soir, la lumière baisse ; la nuit, on ne voit qu'autour du héros et des feux. Le feu de camp (3 pierres + 2 bois, appris dans le *Carnet du guetteur*) se pose devant le héros depuis l'inventaire ; il brûle 10 heures de jeu et se ravive avec 1 bois. Les arbres coupés repoussent en 3 jours.
 
@@ -50,7 +52,7 @@ Puis ouvrir <http://localhost:8081> (port 8081).
 | Bouton « Récolter » ou « Fouiller » | Récolter ou fouiller l'élément (il faut être à côté, et avoir une hache ou une pioche pour couper ou piocher) |
 | Clic sur un habitant, puis « Parler » | Engager la conversation (il faut être à côté) |
 | Clic sur la boîte de dialogue, Espace ou Entrée | Page suivante |
-| Icônes de la barre d'actions, ou I, C, J | Ouvrir ou fermer l'inventaire (bouton « Lire » sur un livre), l'artisanat (bouton « Fabriquer »), le journal |
+| Icônes de la barre d'actions, ou I, C, J, R | Ouvrir ou fermer l'inventaire (bouton « Lire » sur un livre), l'artisanat (bouton « Fabriquer »), le journal, la recherche (bouton « Rechercher ») |
 | Clic sur un habitant, puis « Donner » | Rendre l'objet d'une quête |
 | Clic sur un feu de camp allumé, puis « Dormir » | Dormir jusqu'au matin (dès 18:00) et sauvegarder |
 | Échap ou × | Terminer le dialogue, ou fermer la fenêtre ouverte |

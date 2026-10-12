@@ -15,6 +15,7 @@ export const COMMAND_TYPES = Object.freeze({
   REKINDLE: 'REKINDLE',
   EAT: 'EAT',
   SLEEP: 'SLEEP',
+  RESEARCH: 'RESEARCH',
 });
 
 /** Motifs de refus d'une commande, dans l'ordre où ils sont vérifiés (spécification B.5). */
@@ -39,6 +40,11 @@ export const REJECTION_REASONS = Object.freeze({
   ALREADY_FULL: 'ALREADY_FULL',
   NOTHING_TO_SLEEP_BY: 'NOTHING_TO_SLEEP_BY',
   TOO_EARLY: 'TOO_EARLY',
+  NEEDS_FIRE: 'NEEDS_FIRE',
+  UNKNOWN_PLAN: 'UNKNOWN_PLAN',
+  ALREADY_RESEARCHED: 'ALREADY_RESEARCHED',
+  MISSING_PREREQUISITE: 'MISSING_PREREQUISITE',
+  NOT_ENOUGH_POINTS: 'NOT_ENOUGH_POINTS',
 });
 
 /**
@@ -55,9 +61,10 @@ export const REJECTION_REASONS = Object.freeze({
  * @typedef {{ type: 'REKINDLE', column: number, row: number }} RekindleCommand
  * @typedef {{ type: 'EAT', resource: string }} EatCommand
  * @typedef {{ type: 'SLEEP', column: number, row: number }} SleepCommand
+ * @typedef {{ type: 'RESEARCH', planId: string }} ResearchCommand
  * @typedef {SetMoveIntentCommand | HarvestCommand | SearchCommand | TalkCommand | NextPageCommand
  *   | EndDialogueCommand | ReadBookCommand | CraftCommand | GiveCommand | PlaceCommand
- *   | RekindleCommand | EatCommand | SleepCommand} Command
+ *   | RekindleCommand | EatCommand | SleepCommand | ResearchCommand} Command
  */
 
 /**
@@ -193,4 +200,13 @@ export function eat(resource) {
  */
 export function sleepBy({ column, row }) {
   return { ...harvestTile({ column, row }), type: COMMAND_TYPES.SLEEP };
+}
+
+/**
+ * Crée la commande « rechercher un plan » (R-TEC-REC-002).
+ * @param {string} planId
+ * @returns {ResearchCommand}
+ */
+export function researchPlan(planId) {
+  return { type: COMMAND_TYPES.RESEARCH, planId };
 }

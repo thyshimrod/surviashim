@@ -60,6 +60,16 @@
  * @property {number} MUSHROOM_REGROW_DAYS Jours avant que les champignons repoussent.
  * @property {number} NPC_WALK_SPEED Vitesse de marche des PNJ (px/tick).
  * @property {number} NPC_PAUSE_MINUTES Pause d'un PNJ à chaque étape de sa promenade (minutes de jeu).
+ * @property {number} XP_HARVEST Expérience par récolte.
+ * @property {number} XP_SEARCH Expérience par fouille.
+ * @property {number} XP_CRAFT Expérience par fabrication.
+ * @property {number} XP_DISCOVER Expérience par lieu découvert.
+ * @property {number} LEVEL_FIRST_XP Expérience pour passer au niveau 2.
+ * @property {number} LEVEL_XP_STEP Expérience demandée en plus à chaque niveau suivant.
+ * @property {number} RESEARCH_COST Coût d'un plan en points de recherche.
+ * @property {number} STONE_TOOL_BONUS Rendement en plus d'un outil en pierre.
+ * @property {number} BAG_BONUS Baies et champignons en plus avec le sac du cueilleur.
+ * @property {number} GRILLED_MUSHROOM_FOOD Faim rendue par un champignon grillé.
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -110,4 +120,14 @@ export const GAME_PARAMETERS = Object.freeze({
   MUSHROOM_REGROW_DAYS: 2,
   NPC_WALK_SPEED: 1,
   NPC_PAUSE_MINUTES: 20,
+  XP_HARVEST: 1,
+  XP_SEARCH: 5,
+  XP_CRAFT: 5,
+  XP_DISCOVER: 10,
+  LEVEL_FIRST_XP: 100,
+  LEVEL_XP_STEP: 50,
+  RESEARCH_COST: 1,
+  STONE_TOOL_BONUS: 1,
+  BAG_BONUS: 1,
+  GRILLED_MUSHROOM_FOOD: 35,
 });

@@ -1,5 +1,6 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
+import { gainExperience } from './experience.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
 /** @typedef {import('../state/GameState.js').GameRules} GameRules */
@@ -48,6 +49,7 @@ export function discoverPlaces(state, rules, events) {
       entry.status = 'discovered';
     }
     events.emit(GAME_EVENTS.PLACE_DISCOVERED, { placeId: place.id });
+    gainExperience(state, rules, events, rules.experience?.discover ?? 0); // R-JOU-EXP-002
   }
   state.currentPlaces = here.map((place) => place.id);
 }

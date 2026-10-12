@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.11** | 2026-10-12 | Brouillon — vivre au rythme des jours : faim, santé, sommeil, sauvegarde, PNJ qui se promènent |
+| **v0.12** | 2026-10-12 | Brouillon — la recherche : expérience, niveaux, livres de recherche, premiers plans |
 
 > *Surshim* est un nom de travail.
 
@@ -176,7 +176,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-JOU-05` | **Faim** : la jauge de faim baisse avec le temps, plus vite quand on travaille ou combat ; manger la remonte. Rassasié, le joueur récupère ses PV et son énergie ; affamé, il ne les récupère plus, puis **perd lentement des PV**. Rythme visé : deux à trois repas par journée de jeu. | VALIDÉ (G12) |
 | `C-JOU-06` | **Énergie, rempart contre la Flétrissure** : dans une zone flétrie (et la nuit hors de la lumière), la Flétrissure ronge l'énergie du joueur. Tant qu'il lui reste de l'énergie, il est protégé ; à zéro, la Flétrissure l'atteint : PV qui baissent, coups plus faibles. L'énergie se recharge en dormant, en mangeant et près du Foyer. L'énergie fixe ainsi la **durée d'une expédition** en zone flétrie. Elle ne sert **que** contre la Flétrissure. | VALIDÉ (G13, G14) |
 | `C-JOU-10` | **Faim et santé en v0.8** : la faim baisse d'environ 40 par journée (deux à trois repas) ; rassasié, on récupère des PV ; affamé, on en perd lentement. L'énergie (C-JOU-06) attendra la Flétrissure. | VALIDÉ — v0.8 (précise C-JOU-02, C-JOU-05) |
-| `C-JOU-09` | **Expérience** : le joueur gagne des points d'expérience (d'abord en accomplissant des quêtes), affichés en permanence. Plus tard, des **niveaux** d'expérience ouvriront des compétences ou des actions (et les points de recherche, C-TEC-03). | VALIDÉ — compteur en v0.6, niveaux plus tard |
+| `C-JOU-09` | **Expérience** : le joueur gagne des points d'expérience en jouant (récolter, fouiller, fabriquer, découvrir un lieu) et en accomplissant des quêtes, affichés en permanence. Des **niveaux**, de plus en plus espacés, donnent chacun un point de recherche (C-TEC-03). Plus tard : niveaux requis pour certaines compétences. | VALIDÉ — compteur en v0.6, niveaux en v0.9 |
 | `C-JOU-07` | *Hypothèse à tester* : l'énergie sert aussi d'endurance (esquive, travail). Risque : rendre le jeu trop dur ; à n'essayer qu'une fois la Flétrissure jouable. | PROPOSÉ — hypothèse (G13) |
 | `C-JOU-08` | **La lumière protège** : à la lumière du Foyer, des braseros et des torches, la Flétrissure ne ronge plus l'énergie. Poser des braseros permet d'avancer en zone flétrie par points d'appui. | VALIDÉ (G14) |
 
@@ -206,7 +206,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-RES-04` | **Trois façons de récolter** : **ramasser** à la main (fleurs, branches, cailloux, silex, baies, champignons), **couper** à la hache (arbres → bois), **piocher** à la pioche (rochers → pierre, filons → minerais). | VALIDÉ — outils exigés en v0.5 |
 | `C-RES-09` | **Cueillette** : des buissons à baies et des champignons se ramassent à la main, puis repoussent ; c'est la première nourriture. La cuisine viendra plus tard (C-ART-03). | VALIDÉ — v0.8 |
 | `C-RES-08` | **Progression par les outils** : au départ, on ne peut que ramasser. Les premiers matériaux (silex, branches, fibres) se trouvent dans les ruines ; ils permettent de fabriquer la hache et la pioche, qui ouvrent le bois et la pierre, puis la suite. | VALIDÉ |
-| `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite ou davantage. | PROPOSÉ |
+| `C-RES-05` | **Matériaux des outils** : silex < cuivre < fer < acier < métal ancien. Certaines ressources exigent un outil d'un matériau minimal (piocher un filon de fer demande une pioche en cuivre). Un meilleur outil récolte plus vite ou davantage. | PROPOSÉ — en v0.9, seul « un meilleur outil récolte davantage » est validé (outils en pierre, sac du cueilleur) |
 | `C-RES-06` | **Ressources de départ** : bois, pierre, branche, silex, fibre végétale, fleurs. Puis : minerais, herbes médicinales, plantes rares des zones flétries. | VALIDÉ — silex, branches et fibres arrivent en v0.4 par la fouille |
 | `C-RES-07` | Les arbres repoussent depuis leur souche au bout de quelques jours ; les rochers et les filons réapparaissent ailleurs. | VALIDÉ (Q14) — les arbres en v0.7 (3 jours), les rochers plus tard |
 
@@ -226,6 +226,7 @@ Les codes de thème servent aussi dans la spécification détaillée.
 | `C-ART-01` | Recettes fabriquées sur des **établis** (établi, forge, fourneau, métier à tisser). Une recette = ingrédients + établi + durée. | PROPOSÉ |
 | `C-ART-02` | Les recettes se débloquent en reprenant des zones et en accueillant des survivants (le forgeron apporte la forge). | PROPOSÉ |
 | `C-ART-03` | Cuisine : les plats rendent de l'énergie et donnent des bonus temporaires (vitesse, défense, rendement). | PROPOSÉ |
+| `C-ART-08` | **Cuisiner au feu de camp** : certaines recettes ne se fabriquent qu'à côté d'un feu allumé ; d'abord les champignons grillés, plus nourrissants que crus. | VALIDÉ — v0.9 |
 | `C-ART-04` | **Premier artisanat, à la main**, sans établi : une **hache en silex** (silex, branches, fibres), une **pioche en silex**, un **feu de camp** (pierres + bois). C'est le premier pas avant la recherche. On ne fabrique que les recettes **apprises** (C-TEC-07). | VALIDÉ — hache et pioche en v0.5 ; le feu de camp attend C-ART-05 |
 | `C-ART-06` | **Fenêtre d'artisanat** (touche C) : les recettes apprises, ce qu'elles demandent (possédé / requis) et un bouton **Fabriquer**. | VALIDÉ |
 | `C-ART-05` | Le **feu de camp** est la première source de lumière que le joueur fabrique (pierres et bois) : posé au sol, il éclaire la nuit ; il brûle une dizaine d'heures puis s'éteint, et se ravive avec du bois. Plus tard : il protège de la Flétrissure (C-JOU-08) et permet de cuire. | VALIDÉ — v0.7 (lumière et combustible) |
@@ -350,7 +351,9 @@ Inspiré des *engrammes* d'*ARK: Survival Evolved* : on ne sait pas tout faire d
 | `C-TEC-01` | **Arbre de recherche** : des **plans** (blueprints) se débloquent avec des **points de recherche** ; chaque plan apprend une ou plusieurs recettes d'artisanat ou de construction. Une fenêtre « Recherche » présente l'arbre. | VALIDÉ |
 | `C-TEC-02` | **Branches** de l'arbre, dans un monde médiéval fantastique : **Survie** (outils, feu, abris, cuisine), **Armes et armures** (hache, épée, arc, bouclier), **Habitat** (maisons, mobilier, confort), **Agriculture et élevage**, **Défense** (palissades, tours, pièges), **Magie** (runes, alchimie, purification de la Flétrissure), **Commandement** (gestion du village, métiers, leadership, ordres aux villageois). | PROPOSÉ |
 | `C-TEC-03` | Les **points de recherche** se gagnent par l'**expérience** (niveaux du personnage). Les **plans** eux-mêmes se **découvrent dans des livres** trouvés en explorant (ruines, bibliothèques, PNJ) : un plan n'est recherchable que si on a trouvé le livre qui le décrit. | VALIDÉ (G15) |
-| `C-TEC-04` | Un plan exige des **prérequis** : plans précédents de sa branche, matériau déjà découvert (on ne recherche pas la hache en fer avant d'avoir trouvé du fer), parfois un bâtiment ou un villageois. | PROPOSÉ |
+| `C-TEC-04` | Un plan exige des **prérequis** : plans précédents de sa branche, matériau déjà découvert (on ne recherche pas la hache en fer avant d'avoir trouvé du fer), parfois un bâtiment ou un villageois. | VALIDÉ — en v0.9, seulement « plan précédent » (la hache en pierre demande la hache en silex) ; le reste plus tard |
+| `C-TEC-08` | **Livres de recherche** : lire un livre de recherche **découvre** ses plans ; on les apprend ensuite dans la fenêtre « Recherche » avec des points de recherche (1 point par plan pour commencer). | VALIDÉ — v0.9 |
+| `C-TEC-09` | **Premiers plans de recherche** (branche Survie) : outils en pierre (meilleur rendement), sac du cueilleur (cueillette plus riche), champignons grillés (cuits au feu de camp, plus nourrissants). | VALIDÉ — v0.9 |
 | `C-TEC-06` | **Livres** : chaque livre a un titre et un texte (souvent un fragment de l'histoire de la vallée) et décrit un ou plusieurs **plans**. On les relit au journal. | VALIDÉ |
 | `C-TEC-05` | **Choix technologiques** : les points sont rares, on se spécialise d'abord (magie ou armes ? habitat ou défense ?) ; ce n'est qu'un **ordre de priorité**, tout reste accessible à terme. | VALIDÉ (G16) |
 | `C-TEC-07` | **Livres de survie** : **lire** un livre de survie (tailler le silex, faire du feu…) **apprend** directement ses recettes, sans point de recherche. C'est le premier artisanat (C-ART-04). Les plans plus avancés passeront par la recherche (C-TEC-03). | VALIDÉ |
@@ -397,8 +400,8 @@ Chaque version est **jouable** de bout en bout et ajoute une brique. Les version
 | v0.5 | **Livrée.** Premier artisanat : fenêtre d'inventaire, lecture des livres de survie, recettes apprises, fenêtre d'artisanat, hache et pioche en silex, outils requis pour couper et piocher | C-INV-03, C-INV-04, C-TEC-07, C-ART-04, C-ART-06, C-RES-04, C-RES-08, C-IHM-12 |
 | v0.6 | **Livrée.** Barre d'actions ; la première quête (la poupée de Maëlle) ; l'expérience | C-IHM-13, C-VIL-09, C-JOU-09 |
 | v0.7 | **Livrée.** Le temps passe : jour / nuit et horloge, nuit sombre avec halos de lumière, feu de camp à poser et à raviver, repousse des arbres | C-MON-02, C-MON-11, C-IHM-14, C-ART-05, C-ART-07, C-RES-07 |
-| **v0.8** | **En cours.** Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au coucher, PNJ qui se promènent | C-RES-09, C-JOU-02, C-JOU-05, C-JOU-10, C-SAU-01, C-SAU-03, C-SAU-04, C-VIL-08, C-IHM-15 |
-| v0.9 | La recherche : plans avancés, expérience et points de recherche | C-TEC-01 à C-TEC-05 |
+| v0.8 | **Livrée.** Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au coucher, PNJ qui se promènent | C-RES-09, C-JOU-02, C-JOU-05, C-JOU-10, C-SAU-01, C-SAU-03, C-SAU-04, C-VIL-08, C-IHM-15 |
+| **v0.9** | **En cours.** La recherche : expérience gagnée en jouant, niveaux et points de recherche, livres de recherche, fenêtre « Recherche », outils en pierre, sac du cueilleur, champignons grillés au feu | C-JOU-09, C-TEC-01, C-TEC-03, C-TEC-04, C-TEC-05, C-TEC-08, C-TEC-09, C-ART-08 |
 | v0.10 | Le Foyer, la Flétrissure et le premier monstre : lumière, énergie, sauge de l'aube, combat, mort | C-MON-04, C-JOU-06, C-MEN-08, C-CBT-01, C-SAU-02 |
 | v0.11 | Construire : établi, palissade, maison | C-CON-01, C-CON-02, C-ART-01 |
 | v0.12 | Cultiver ; le premier raid annoncé ; un PNJ rejoint le village ; la première zone reprise | C-AGR-01, C-MEN-02, C-MEN-04, C-VIL-01, C-MEN-01 |
@@ -454,3 +457,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.9 | 2026-10-12 | Retours de test : notifications au-dessus du héros avec une croix, quêtes jusqu'à fermeture, une seule notification par fouille, nom du lieu à chaque retour (C-IHM-10, C-MON-06) ; livres retirés du journal (C-IHM-09) ; journal parmi les fenêtres exclusives (C-IHM-12). |
 | v0.10 | 2026-10-12 | Réponse G3 (12 minutes de 6 h à 2 h). Périmètre de la v0.7 choisi : jour / nuit (C-MON-02, C-MON-11), horloge (C-IHM-14), feu de camp qui s'éteint et se ravive (C-ART-05, C-ART-07), repousse des arbres (C-RES-07). Faim, sommeil, sauvegarde et PNJ qui se déplacent passent en v0.8. |
 | v0.11 | 2026-10-12 | Périmètre de la v0.8 choisi : baies et champignons (C-RES-09), faim et PV sans énergie (C-JOU-10), dormir près d'un feu allumé dès 18:00 (C-SAU-03), s'évanouir sans perte (C-SAU-04), sauvegarde au coucher et reprise automatique (C-SAU-01 validé), PNJ qui se promènent (C-VIL-08), jauges et fenêtre « Partie » (C-IHM-15). |
+| v0.12 | 2026-10-12 | Périmètre de la v0.9 choisi : expérience gagnée en jouant (C-JOU-09), niveaux croissants à 1 point de recherche, livres de recherche dans les cachettes (C-TEC-08), plans à 1 point, prérequis « plan précédent » (C-TEC-04), outils en pierre, sac du cueilleur, champignons grillés au feu (C-TEC-09, C-ART-08). |

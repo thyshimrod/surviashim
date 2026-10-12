@@ -192,6 +192,7 @@ describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
         'Fibres 4',
         'Baies 5',
         'Champignons 1',
+        'Champignons grillés 0',
       ],
     );
   });
@@ -208,6 +209,7 @@ describe("R-IHM-HUD-001 · Affichage de l'inventaire", () => {
       'Fibres 0',
       'Baies 0',
       'Champignons 0',
+      'Champignons grillés 0',
     ]);
   });
 });

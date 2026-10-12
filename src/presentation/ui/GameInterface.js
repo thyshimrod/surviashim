@@ -20,6 +20,8 @@ import { JournalPanel } from './JournalPanel.js';
 import { journalView } from './journalView.js';
 import { NotificationList } from './NotificationList.js';
 import { NotificationQueue } from './NotificationQueue.js';
+import { ResearchPanel } from './ResearchPanel.js';
+import { researchView } from './researchView.js';
 import { Toolbar } from './Toolbar.js';
 import { toolbarView } from './toolbarView.js';
 import { WindowsController } from './WindowsController.js';
@@ -96,6 +98,12 @@ export class GameInterface {
       onButton: (label) => this.onGameButton(label, onRestart),
     });
     this.journal = new JournalPanel({ doc, container, onClose: () => this.windows.closeJournal() });
+    this.research = new ResearchPanel({
+      doc,
+      container,
+      onClose,
+      onResearch: (planId) => this.windows.research(planId, game),
+    });
   }
 
   /**
@@ -163,6 +171,7 @@ export class GameInterface {
     this.inventory.render(windows.open === 'inventory' ? inventoryView(state) : undefined);
     this.book.render(windows.bookId === undefined ? undefined : bookView(windows.bookId));
     this.craft.render(windows.open === 'craft' ? craftView(this.game) : undefined);
+    this.research.render(windows.open === 'research' ? researchView(this.game) : undefined);
     this.gamePanel.render(
       windows.open === 'game'
         ? gameMenuView({ savedDay: this.savedDay(), confirming: windows.confirmingNewGame })

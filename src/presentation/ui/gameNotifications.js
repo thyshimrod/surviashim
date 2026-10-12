@@ -35,6 +35,7 @@ const sticky = (texts) => texts.map((text) => ({ text, sticky: true }));
  * Données des événements notifiés (catalogue : src/core/events/gameEvents.js).
  * @typedef {object} EventPayload
  * @property {string} [placeId]
+ * @property {number} [level]
  * @property {string} [questId]
  * @property {number} [experience]
  * @property {string[]} [recipes]
@@ -62,6 +63,9 @@ const BY_EVENT = Object.freeze({
   [GAME_EVENTS.BOOK_READ]: ({ recipes = [] }) => brief(learnedMessages(recipes)),
   [GAME_EVENTS.ITEM_CRAFTED]: ({ recipeId = '' }) => brief([craftedMessage(recipeId)]),
   [GAME_EVENTS.SLEPT]: () => brief([TEXTS.sleptMessage]),
+  // R-IHM-NOT-004, R-IHM-REC-001
+  [GAME_EVENTS.LEVEL_UP]: ({ level = 0 }) => sticky([TEXTS.levelUp(level)]),
+  [GAME_EVENTS.RESEARCHED]: ({ recipes = [] }) => brief(learnedMessages(recipes)),
   [GAME_EVENTS.FAINTED]: () => sticky([TEXTS.faintedMessage]),
   // R-IHM-NOT-003
   [GAME_EVENTS.QUEST_STARTED]: ({ questId = '' }) => sticky([questStartedMessage(questId)]),

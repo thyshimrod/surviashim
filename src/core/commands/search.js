@@ -1,6 +1,7 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
 import { REJECTION_REASONS } from './commands.js';
+import { gainExperience } from '../systems/experience.js';
 import { inspectTile } from './harvest.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
@@ -34,6 +35,7 @@ export function search(state, rules, events, tile) {
   state.map.setTile(tile.column, tile.row, rules.tiles[becomes]);
   events.emit(GAME_EVENTS.ITEMS_FOUND, { ...tile, ...findings });
   events.emit(GAME_EVENTS.TILE_CHANGED, { ...tile, tileId: becomes });
+  gainExperience(state, rules, events, rules.experience?.search ?? 0); // R-JOU-EXP-002
   return { ok: true };
 }
 

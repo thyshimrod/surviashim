@@ -1,5 +1,6 @@
 // @ts-check
 import { GAME_EVENTS } from '../events/gameEvents.js';
+import { gainExperience } from '../systems/experience.js';
 import { REJECTION_REASONS } from './commands.js';
 
 /** @typedef {import('../state/GameState.js').GameState} GameState */
@@ -83,7 +84,7 @@ export function give(state, rules, events, { npcId, refusal }) {
   if (entry !== undefined) {
     entry.status = 'done';
   }
-  state.experience += quest.experience; // R-JOU-EXP-001
+  gainExperience(state, rules, events, quest.experience); // R-JOU-EXP-001
   state.dialogue = { npcId, page: 0, pages: [...quest.thanks] };
   events.emit(GAME_EVENTS.QUEST_COMPLETED, {
     questId: quest.id,

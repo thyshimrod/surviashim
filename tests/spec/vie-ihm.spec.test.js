@@ -144,10 +144,10 @@ describe('R-IHM-SAU-001 · Fenêtre « Partie »', () => {
 });
 
 describe("R-IHM-BAR-001 · Barre d'actions", () => {
-  it('ex.1 — survol, de haut en bas : Inventaire, Artisanat, Journal, Partie', () => {
+  it('ex.1 — survol, de haut en bas : Inventaire, Artisanat, Journal, Recherche, Partie', () => {
     assert.deepEqual(
       toolbarView(new WindowsController()).map((button) => button.label),
-      ['Inventaire (I)', 'Artisanat (C)', 'Journal (J)', 'Partie'],
+      ['Inventaire (I)', 'Artisanat (C)', 'Journal (J)', 'Recherche (R)', 'Partie'],
     );
   });
 });
