@@ -4,11 +4,12 @@ import { lightSources, place, rekindle } from './commands/campfire.js';
 import { research } from './commands/research.js';
 import { eat, sleep } from './commands/rest.js';
 import { burnSage } from './commands/sage.js';
-import { COMMAND_TYPES } from './commands/commands.js';
+import { COMMAND_TYPES, REJECTION_REASONS } from './commands/commands.js';
 import { craft, inspectRecipe, readBook } from './commands/crafting.js';
 import { finishDialogue, inspectNpc, talk, talkRefusal, turnPage } from './commands/dialogue.js';
 import { harvest, inspectTile, updateHarvest } from './commands/harvest.js';
 import { give } from './commands/quests.js';
+import { approach, followPath, goTo, stopTravel } from './commands/travel.js';
 import { search } from './commands/search.js';
 import { EventBus } from './events/EventBus.js';
 import { GAME_EVENTS } from './events/gameEvents.js';
@@ -34,7 +35,8 @@ import { advanceClock, timeOf } from './systems/time.js';
 /**
  * Champs de toutes les commandes : chaque traitement ne lit que ceux de son type.
  * @typedef {{ type: string, dx: number, dy: number, column: number, row: number, npcId: string,
- *   bookId: string, recipeId: string, itemId: string, resource: string, planId: string }} CommandFields
+ *   bookId: string, recipeId: string, itemId: string, resource: string, planId: string,
+ *   action: Command }} CommandFields
  */
 
 /**
@@ -43,6 +45,9 @@ import { advanceClock, timeOf } from './systems/time.js';
  */
 const HANDLERS = Object.freeze({
   [COMMAND_TYPES.SET_MOVE_INTENT]: (game, { dx, dy }) => {
+    if (dx !== 0 || dy !== 0) {
+      stopTravel(game.state); // R-JOU-DEP-004 : une direction abandonne le chemin.
+    }
     game.state.player.moveIntent = { dx, dy };
     return { ok: true };
   },
@@ -63,6 +68,14 @@ const HANDLERS = Object.freeze({
   [COMMAND_TYPES.RESEARCH]: (game, { planId }) =>
     research(game.state, game.rules, game.events, planId),
   [COMMAND_TYPES.SLEEP]: (game, command) => sleep(game.state, game.rules, game.events, command),
+  [COMMAND_TYPES.GO_TO]: (game, command) => {
+    stopTravel(game.state);
+    return goTo(game.state, command);
+  },
+  [COMMAND_TYPES.GO_AND_ACT]: (game, { action }) => {
+    stopTravel(game.state);
+    return game.act(action, 0);
+  },
   [COMMAND_TYPES.GIVE]: (game, { npcId }) => {
     const refusal = talkRefusal(game.state, game.rules, npcId);
     return give(game.state, game.rules, game.events, { npcId, refusal });
@@ -123,6 +136,22 @@ export class Game {
   }
 
   /**
+   * R-JOU-DEP-005 : fait l'action ; hors de portée, le héros va d'abord à portée, tant qu'il lui
+   * reste des essais.
+   * @param {Command} action
+   * @param {number} attempts Essais déjà faits pour rejoindre l'élément.
+   * @returns {CommandResult}
+   */
+  act(action, attempts) {
+    const result = this.apply(action);
+    const maxAttempts = this.rules.travel?.attempts ?? 1;
+    if (result.ok || result.reason !== REJECTION_REASONS.OUT_OF_REACH || attempts >= maxAttempts) {
+      return result;
+    }
+    return approach(this.state, this.rules, action, attempts);
+  }
+
+  /**
    * Décrit une tuile (ce qu'on peut en récolter, si elle est à portée) sans rien modifier.
    * @param {{ column: number, row: number }} tile
    * @returns {TileInspection}
@@ -154,6 +183,16 @@ export class Game {
     this.state.tick += 1;
     advanceClock(this.state);
     updateHarvest(this.state, this.rules, this.events);
+    const arrived = followPath(this.state, this.rules);
+    if (arrived?.action !== undefined) {
+      const result = this.act(arrived.action, arrived.attempts + 1);
+      if (!result.ok) {
+        this.events.emit(GAME_EVENTS.COMMAND_REJECTED, {
+          command: arrived.action,
+          reason: result.reason,
+        });
+      }
+    }
     movePlayer(this.state, this.rules);
     discoverPlaces(this.state, this.rules, this.events);
     regrowTrees(this.state, this.rules, this.events);

@@ -17,6 +17,8 @@ export const COMMAND_TYPES = Object.freeze({
   SLEEP: 'SLEEP',
   RESEARCH: 'RESEARCH',
   BURN_SAGE: 'BURN_SAGE',
+  GO_TO: 'GO_TO',
+  GO_AND_ACT: 'GO_AND_ACT',
 });
 
 /** Motifs de refus d'une commande, dans l'ordre où ils sont vérifiés (spécification B.5). */
@@ -48,6 +50,7 @@ export const REJECTION_REASONS = Object.freeze({
   LEVEL_TOO_LOW: 'LEVEL_TOO_LOW',
   NOT_ENOUGH_POINTS: 'NOT_ENOUGH_POINTS',
   UNKNOWN_TECHNIQUE: 'UNKNOWN_TECHNIQUE',
+  NO_PATH: 'NO_PATH',
   NOTHING_TO_BURN: 'NOTHING_TO_BURN',
 });
 
@@ -67,9 +70,13 @@ export const REJECTION_REASONS = Object.freeze({
  * @typedef {{ type: 'SLEEP', column: number, row: number }} SleepCommand
  * @typedef {{ type: 'RESEARCH', planId: string }} ResearchCommand
  * @typedef {{ type: 'BURN_SAGE' }} BurnSageCommand
+ * @typedef {{ type: 'GO_TO', column: number, row: number }} GoToCommand
+ * @typedef {{ type: 'GO_AND_ACT', action: HarvestCommand | SearchCommand | TalkCommand
+ *   | GiveCommand | RekindleCommand | SleepCommand }} GoAndActCommand
  * @typedef {SetMoveIntentCommand | HarvestCommand | SearchCommand | TalkCommand | NextPageCommand
  *   | EndDialogueCommand | ReadBookCommand | CraftCommand | GiveCommand | PlaceCommand
- *   | RekindleCommand | EatCommand | SleepCommand | ResearchCommand | BurnSageCommand} Command
+ *   | RekindleCommand | EatCommand | SleepCommand | ResearchCommand | BurnSageCommand
+ *   | GoToCommand | GoAndActCommand} Command
  */
 
 /**
@@ -222,4 +229,23 @@ export function researchPlan(planId) {
  */
 export function burnSage() {
   return { type: COMMAND_TYPES.BURN_SAGE };
+}
+
+/**
+ * Crée la commande « aller à une tuile » (R-JOU-DEP-004).
+ * @param {{ column: number, row: number }} tile
+ * @returns {GoToCommand}
+ * @throws {TypeError} Si la colonne ou la ligne n'est pas un entier.
+ */
+export function goToTile({ column, row }) {
+  return { ...harvestTile({ column, row }), type: COMMAND_TYPES.GO_TO };
+}
+
+/**
+ * Crée la commande « aller puis agir » (R-JOU-DEP-005).
+ * @param {GoAndActCommand['action']} action
+ * @returns {GoAndActCommand}
+ */
+export function goAndAct(action) {
+  return { type: COMMAND_TYPES.GO_AND_ACT, action };
 }

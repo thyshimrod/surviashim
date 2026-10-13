@@ -5,6 +5,12 @@ body {
   overflow: hidden;
   background: #10140f;
   font-family: 'Trebuchet MS', Verdana, sans-serif;
+  /* R-IHM-AFF-003 : au doigt, ni défilement, ni zoom, ni sélection. */
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #screen {
@@ -205,6 +211,7 @@ body {
 
 .center-window {
   position: absolute;
+  box-sizing: border-box;
   top: var(--window-top);
   left: 50%;
   transform: translateX(-50%);
@@ -247,6 +254,7 @@ body {
 /* Onglets de l'inventaire (R-IHM-INV-001). */
 .center-window .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 10px;
   border-bottom: 1px solid #6b6252;
@@ -406,4 +414,60 @@ body {
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
+}
+
+/* R-IHM-AFF-003 : les fenêtres qui défilent se font défiler au doigt. */
+.center-window,
+.journal-panel {
+  touch-action: pan-y;
+}
+
+/* R-IHM-AFF-003 : téléphone, en portrait ou en paysage étroit. */
+@media (max-width: 640px) {
+  .inventory-hud {
+    right: 12px;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  .toolbar {
+    top: 84px;
+  }
+
+  .center-window,
+  .journal-panel,
+  .inspect-panel {
+    left: calc(50% + 30px);
+    width: calc(100% - 96px);
+  }
+
+  :root {
+    --window-top: 96px;
+  }
+
+  .notifications li {
+    font-size: 14px;
+  }
+
+  .center-window .resources {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 480px) {
+  :root {
+    --window-top: 56px;
+  }
+
+  .toolbar {
+    top: 52px;
+    gap: 2px;
+  }
+
+  .toolbar button {
+    width: 34px;
+    height: 34px;
+  }
 }

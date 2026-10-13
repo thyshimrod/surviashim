@@ -57,6 +57,7 @@ export function sleep(state, rules, events, tile) {
   }
   state.dialogue = undefined;
   state.harvesting = undefined; // R-RES-REC-006
+  state.travel = undefined; // R-JOU-DEP-004
   state.player.moveIntent = { dx: 0, dy: 0 };
   state.clock = nextMorning(state.clock, time);
   state.health = vitals.healthMax;

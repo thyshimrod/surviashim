@@ -10,7 +10,7 @@ import { GAME_EVENTS } from '../../src/core/events/gameEvents.js';
 import { notificationsFor } from '../../src/presentation/ui/gameNotifications.js';
 import { NotificationQueue } from '../../src/presentation/ui/NotificationQueue.js';
 import { WindowsController } from '../../src/presentation/ui/WindowsController.js';
-import { createTestGame, makeMap } from '../helpers/testGame.js';
+import { createTestGame, makeMap, runUntil } from '../helpers/testGame.js';
 
 /** Aldric tel que dans la vallée, en (1232, 2896) ; le joueur à la position donnée. */
 function withAldric(position) {
@@ -51,15 +51,16 @@ describe('R-IHM-INS-005 · Désigner un PNJ', () => {
     );
   });
 
-  it('ex.3 — à 100 px : bouton inactif et « Trop loin : approchez-vous »', () => {
-    const { game } = withAldric({ x: 1232, y: 2996 });
+  it('ex.3 — à 100 px, clic sur « Parler » : fenêtre fermée, le héros y va, le dialogue commence', () => {
+    const { game, state } = withAldric({ x: 1232, y: 2996 });
     const controller = new InspectionController();
-
     controller.designate({ npcId: 'aldric' }, game);
 
-    const view = controller.view(game);
-    assert.equal(view.isActionEnabled, false);
-    assert.equal(view.warning, 'Trop loin : approchez-vous');
+    assert.deepEqual(controller.confirm(game), { ok: true });
+    assert.equal(controller.isOpen, false);
+
+    assert.ok(runUntil(game, () => state.dialogue !== undefined));
+    assert.equal(state.dialogue.npcId, 'aldric');
   });
 
   it('ex.4 — à 40 px, clic sur « Parler » : le dialogue commence, la fenêtre est fermée', () => {

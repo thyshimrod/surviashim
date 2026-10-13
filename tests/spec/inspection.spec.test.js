@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { screenToWorld } from '../../src/presentation/camera/camera.js';
 import { designateTile } from '../../src/presentation/input/designateTile.js';
 import { InspectionController } from '../../src/presentation/ui/InspectionController.js';
-import { createTestGame, makeMap, walk, finishHarvest } from '../helpers/testGame.js';
+import { createTestGame, makeMap, finishHarvest, runUntil } from '../helpers/testGame.js';
 
 const map = makeMap();
 
@@ -116,23 +116,24 @@ describe('R-IHM-INS-003 · Bouton « Récolter »', () => {
     assert.equal(view.warning, undefined);
   });
 
-  it('ex.2 — arbre hors de portée : bouton inactif, « Trop loin : approchez-vous »', () => {
+  it('ex.2 — arbre hors de portée : le bouton est actif, sans avertissement', () => {
     const { game } = gameWithElements({ x: 240, y: 400 });
 
     const view = openOn(game, 7, 6).view(game);
 
-    assert.equal(view.isActionEnabled, false);
-    assert.equal(view.warning, 'Trop loin : approchez-vous');
+    assert.equal(view.isActionEnabled, true);
+    assert.equal(view.warning, undefined);
   });
 
-  it("ex.3 — le joueur s'approche à portée : le bouton devient actif", () => {
-    const { game } = gameWithElements({ x: 240, y: 300 });
+  it('ex.3 — hors de portée, clic sur « Récolter » : fenêtre fermée, le héros y va et récolte', () => {
+    const { game, state } = gameWithElements({ x: 240, y: 400 });
     const controller = openOn(game, 7, 6);
-    assert.equal(controller.view(game).isActionEnabled, false);
 
-    walk(game, 'haut', 40); // 60 px vers le haut, à 1,5 px/tick : y = 240
+    assert.deepEqual(controller.confirm(game), { ok: true });
+    assert.equal(controller.isOpen, false);
 
-    assert.equal(controller.view(game).isActionEnabled, true);
+    assert.ok(runUntil(game, () => state.harvesting !== undefined));
+    assert.deepEqual([state.harvesting.column, state.harvesting.row], [7, 6]);
   });
 
   it('ex.4 — clic sur « Récolter » : fenêtre fermée ; à la fin de la récolte, 1 bois', () => {

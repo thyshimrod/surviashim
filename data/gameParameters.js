@@ -90,6 +90,8 @@
  * @property {number} FLINT_HARVEST_TICKS Durée d'une récolte avec un outil en silex (ticks).
  * @property {number} STONE_HARVEST_TICKS Durée d'une récolte avec un outil en pierre (ticks).
  * @property {number} HAND_HARVEST_TICKS Durée d'une récolte à la main (ticks).
+ * @property {number} PATH_STUCK_TICKS Ticks sans avancer avant d'abandonner un chemin.
+ * @property {number} APPROACH_ATTEMPTS Essais pour rejoindre un élément avant d'agir.
  */
 
 /** @type {Readonly<GameParameters>} */
@@ -170,4 +172,6 @@ export const GAME_PARAMETERS = Object.freeze({
   FLINT_HARVEST_TICKS: 180,
   STONE_HARVEST_TICKS: 90,
   HAND_HARVEST_TICKS: 60,
+  PATH_STUCK_TICKS: 30,
+  APPROACH_ATTEMPTS: 3,
 });

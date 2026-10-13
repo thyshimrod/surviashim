@@ -3,6 +3,7 @@ import {
   burnSage,
   craftItem,
   eat,
+  goToTile,
   placeItem,
   readBook,
   researchPlan,
@@ -58,14 +59,22 @@ export class WindowsController {
 
   /**
    * Désigne un élément du monde : la fenêtre d'information remplace la fenêtre ouverte, si elle
-   * s'ouvre (R-IHM-INS-002).
+   * s'ouvre (R-IHM-INS-002) ; sinon, le héros va à la tuile touchée (R-IHM-CMD-002).
    * @param {Target | undefined} target
    * @param {InspectableGame} game
    */
   designate(target, game) {
+    if (game.getState().dialogue !== undefined) {
+      return; // R-IHM-CMD-002 : pendant un dialogue, le clic est ignoré.
+    }
     this.inspection.designate(target, game);
     if (this.inspection.isOpen) {
       this.panel = undefined;
+    } else if (target !== undefined && !('npcId' in target)) {
+      // R-IHM-CMD-002 : toucher le sol y conduit le héros.
+      if (game.execute(goToTile(target)).ok) {
+        this.close();
+      }
     }
   }
 

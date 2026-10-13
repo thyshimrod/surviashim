@@ -31,6 +31,7 @@ export function createGameRules(parameters) {
     hitbox: { width: parameters.PLAYER_HITBOX_WIDTH, height: parameters.PLAYER_HITBOX_HEIGHT },
     harvestReach: parameters.HARVEST_REACH,
     handHarvestTicks: parameters.HAND_HARVEST_TICKS,
+    travel: { stuckTicks: parameters.PATH_STUCK_TICKS, attempts: parameters.APPROACH_ATTEMPTS },
     talkReach: parameters.TALK_REACH,
     tiles: TILE_DEFINITIONS,
     npcs: NPCS,

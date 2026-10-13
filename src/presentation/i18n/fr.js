@@ -68,7 +68,6 @@ export const TEXTS = Object.freeze({
   harvestDuration: (/** @type {string} */ label, /** @type {number} */ seconds) =>
     label + ' · ' + String(seconds).replace('.', ',') + ' s',
   closeButton: 'Fermer',
-  tooFar: 'Trop loin : approchez-vous',
   // Feu de camp (R-IHM-INS-008).
   campfireLit: (/** @type {number} */ hours) => 'Allumé, encore ' + hours + ' h',
   campfireOut: 'Éteint',

@@ -80,6 +80,7 @@ export { createGameRules } from './rules.js';
  * @property {Npc[]} npcs
  * @property {Dialogue | undefined} dialogue
  * @property {Harvesting | undefined} harvesting Récolte en cours (R-RES-REC-006).
+ * @property {Travel | undefined} travel Chemin suivi (R-JOU-DEP-004, R-JOU-DEP-005).
  * @property {JournalEntry[]} journal Dans l'ordre d'arrivée.
  * @property {string[]} books Livres trouvés, dans l'ordre (R-INV-LIV-001).
  * @property {string[]} tools Outils possédés, dans l'ordre d'obtention (R-INV-OUT-001).
@@ -104,6 +105,16 @@ export { createGameRules } from './rules.js';
  */
 
 /**
+ * Chemin suivi par le héros (R-JOU-DEP-004), et l'action à faire en arrivant (R-JOU-DEP-005).
+ * @typedef {object} Travel
+ * @property {{ column: number, row: number }[]} path Tuiles qui restent à atteindre.
+ * @property {import('../commands/commands.js').Command} [action]
+ * @property {number} attempts Essais déjà faits pour rejoindre l'élément.
+ * @property {number} stuckTicks Ticks sans avancer.
+ * @property {{ x: number, y: number }} last Position au tick précédent.
+ */
+
+/**
  * Récolte en cours (R-RES-REC-006).
  * @typedef {object} Harvesting
  * @property {number} column
@@ -120,6 +131,7 @@ export { createGameRules } from './rules.js';
  * @property {number} walkSpeed Distance parcourue par tick de marche (px).
  * @property {Size} hitbox Taille de la boîte de collision du joueur et des PNJ (px).
  * @property {number} harvestReach Portée de récolte (px, R-RES-REC-001).
+ * @property {{ stuckTicks: number, attempts: number }} [travel] Chemins (R-JOU-DEP-004, 005).
  * @property {number} [handHarvestTicks] Durée d'une récolte à la main (R-RES-REC-006) ; absente,
  *   elle est immédiate.
  * @property {number} [talkReach] Portée de parole (px, R-PNJ-DIA-001).
@@ -169,6 +181,7 @@ export function createEmptyInventory() {
  * @param {Npc[]} [params.npcs]
  * @param {Dialogue} [params.dialogue]
  * @param {Harvesting} [params.harvesting]
+ * @param {Travel} [params.travel]
  * @param {JournalEntry[]} [params.journal]
  * @param {string[]} [params.books]
  * @param {string[]} [params.tools]
@@ -190,14 +203,7 @@ export function createEmptyInventory() {
  * @returns {GameState}
  */
 export function createGameState(params) {
-  const {
-    map,
-    player,
-    inventory = createEmptyInventory(),
-    dialogue,
-    tick = 0,
-    harvesting,
-  } = params;
+  const { map, player, inventory = createEmptyInventory(), dialogue, tick = 0 } = params;
   const { health = 100, hunger = 100, energy = 100, purified = [], inBlight = false } = params;
   return {
     tick,
@@ -210,10 +216,25 @@ export function createGameState(params) {
     inBlight,
     inventory: { ...inventory },
     dialogue: dialogue === undefined ? undefined : copyDialogue(dialogue),
-    harvesting: harvesting === undefined ? undefined : { ...harvesting },
+    ...copyActivity(params),
     ...copyWorld(params),
     ...copyProgress(params),
     ...copyTime(params),
+  };
+}
+
+/**
+ * Ce que le héros est en train de faire : récolte et chemin, copiés.
+ * @param {{ harvesting?: Harvesting, travel?: Travel }} params
+ * @returns {Pick<GameState, 'harvesting' | 'travel'>}
+ */
+function copyActivity({ harvesting, travel }) {
+  return {
+    harvesting: harvesting === undefined ? undefined : { ...harvesting },
+    travel:
+      travel === undefined
+        ? undefined
+        : { ...travel, path: travel.path.map((tile) => ({ ...tile })), last: { ...travel.last } },
   };
 }
 

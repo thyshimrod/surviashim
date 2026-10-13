@@ -2,7 +2,7 @@
 
 | Version courante | Date | Statut du document |
 |---|---|---|
-| **v0.15** | 2026-10-12 | Brouillon — retours de test de la v0.10 (suite) : durée de récolte selon l'outil, feu de camp posé en le fabriquant, fenêtres ancrées en haut, arbre de compétences proposé |
+| **v0.16** | 2026-10-13 | Brouillon — jouable sur téléphone : toucher pour aller, aller puis agir, écrans tactiles et petits écrans |
 
 > *Surshim* est un nom de travail.
 
@@ -343,6 +343,7 @@ C'est le cœur du « survival » : la pression qui donne du sens au village et �
 | `C-IHM-11` | **Atlas d'icônes** : chaque objet, ressource et livre a une icône tirée de la planche d'icônes (24 px). | VALIDÉ |
 | `C-IHM-12` | Les **fenêtres** (information, inventaire, lecture, artisanat) s'ouvrent au centre de l'écran, près du héros, **le haut toujours à la même place** : elles grandissent vers le bas, pour que les onglets et les boutons ne bougent pas. Elles se ferment par × ou Échap ; fermer un livre ramène à la fenêtre d'où on l'a ouvert. Une seule fenêtre, journal compris, est ouverte à la fois. | VALIDÉ — v0.10 : haut fixe, retour après lecture |
 | `C-IHM-15` | **Jauges** de santé (PV) et de faim au bandeau ; un bouton « Manger » sur la nourriture de l'inventaire ; une fenêtre « Partie » (sauvegarde, nouvelle partie). | VALIDÉ — v0.8 |
+| `C-IHM-16` | **Jouable à la souris et au doigt**, sur ordinateur comme sur téléphone : toucher (ou cliquer) le sol y conduit le héros, qui contourne les obstacles ; toucher un élément l'inspecte ; une action demandée de trop loin (récolter, parler, fouiller, raviver, dormir) y conduit d'abord le héros, qui agit en arrivant. Les touches restent possibles sur ordinateur. L'écran s'adapte au téléphone, en portrait comme en paysage, sans zoom accidentel. | VALIDÉ — v0.10 (demande du porteur du projet : montrer le jeu publié sur github.io) |
 | `C-IHM-14` | **Horloge** au bandeau : le jour et l'heure (« Jour 1 · 6:00 »). | VALIDÉ — v0.7 |
 | `C-IHM-13` | **Barre d'actions** verticale, à gauche sous le bandeau : une icône par fenêtre (inventaire, artisanat, journal). Survoler une icône affiche son nom et sa touche ; un clic ouvre ou ferme la fenêtre. On n'a pas à connaître les touches. | VALIDÉ |
 
@@ -466,3 +467,4 @@ Les réponses seront reportées dans les concepts concernés, qui passeront à `
 | v0.13 | 2026-10-12 | La v0.10 est découpée : Foyer, Flétrissure, énergie et sauge d'abord (C-MON-04 et C-UNI-03 validés pour le Foyer, C-MEN-09), le monstre, le combat et la mort en v0.11. Feuille de route décalée d'une version. |
 | v0.14 | 2026-10-12 | Retours de test de la v0.10 : bandeau essentiel (C-IHM-06), inventaire en onglets et livres lus aux archives du journal (C-INV-03, C-IHM-09), notifications importantes plus longues (C-IHM-10), branches à la coupe et hautes herbes à fibres (C-RES-10), fumée de sauge en plan de recherche au niveau 10 (C-MEN-08, C-TEC-04). |
 | v0.15 | 2026-10-12 | Retours de test de la v0.10 (suite) : la récolte prend du temps selon l'outil, en silex lente et maigre, en pierre rapide et riche (C-RES-11, précise C-RES-05) ; le feu de camp se pose en le fabriquant (C-ART-07) ; fenêtres au haut fixe, retour à la fenêtre d'origine après lecture (C-IHM-12) ; arbre de compétences proposé (C-JOU-11). |
+| v0.16 | 2026-10-13 | Demande du porteur du projet, pour montrer le jeu publié : jouable au doigt et à la souris (C-IHM-16) — toucher pour aller avec recherche de chemin, aller puis agir quand c'est trop loin, téléphone en portrait et en paysage ; les noms de la barre d'actions restent au survol. |

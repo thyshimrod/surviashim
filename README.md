@@ -45,14 +45,15 @@ npm install
 npm run serve
 ```
 
-Puis ouvrir <http://localhost:8081> (port 8081).
+Puis ouvrir <http://localhost:8081> (port 8081). Le jeu se joue à la souris ou au doigt, sur ordinateur comme sur téléphone (portrait ou paysage) ; les touches restent possibles sur ordinateur.
 
-| Touche | Effet |
+| Geste ou touche | Effet |
 |---|---|
+| Clic ou toucher sur le sol | Y aller : le héros contourne les obstacles |
 | Flèches, ou ZQSD (WASD en QWERTY) | Se déplacer ; deux touches pour une diagonale |
 | Clic sur un arbre, un rocher, des fleurs, une bibliothèque, un coffre, une caisse | Ouvrir la fenêtre d'information |
-| Bouton « Récolter » ou « Fouiller » | Récolter ou fouiller l'élément (il faut être à côté, et avoir une hache ou une pioche pour couper ou piocher) |
-| Clic sur un habitant, puis « Parler » | Engager la conversation (il faut être à côté) |
+| Bouton « Récolter » ou « Fouiller » | Récolter ou fouiller l'élément ; de loin, le héros y va d'abord (il faut une hache ou une pioche pour couper ou piocher) |
+| Clic sur un habitant, puis « Parler » | Engager la conversation ; de loin, le héros rejoint l'habitant |
 | Clic sur la boîte de dialogue, Espace ou Entrée | Page suivante |
 | Icônes de la barre d'actions, ou I, C, J, R | Ouvrir ou fermer l'inventaire (bouton « Lire » sur un livre), l'artisanat (bouton « Fabriquer »), le journal, la recherche (bouton « Rechercher ») |
 | Clic sur un habitant, puis « Donner » | Rendre l'objet d'une quête |

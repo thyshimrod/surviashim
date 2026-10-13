@@ -149,6 +149,7 @@ export function createTestGame({
       hitbox,
       harvestReach,
       handHarvestTicks: rules.handHarvestTicks,
+      travel: rules.travel,
       talkReach,
       tiles: TILE_DEFINITIONS,
       npcs: npcDefinitions,
@@ -259,4 +260,21 @@ export function craftAt(game, recipeId) {
 export function at(day, time) {
   const [hours, minutes] = time.split(':').map(Number);
   return ((day - 1) * 1440 + hours * 60 + minutes) * GAME_PARAMETERS.TICK_PER_GAME_MINUTE;
+}
+
+/**
+ * Fait passer des ticks jusqu'à ce que la condition soit vraie, au plus `maxTicks`.
+ * @param {Game} game
+ * @param {() => boolean} isDone
+ * @param {number} [maxTicks]
+ * @returns {boolean} `true` si la condition est devenue vraie.
+ */
+export function runUntil(game, isDone, maxTicks = 1200) {
+  for (let tick = 0; tick < maxTicks; tick += 1) {
+    if (isDone()) {
+      return true;
+    }
+    game.update();
+  }
+  return isDone();
 }

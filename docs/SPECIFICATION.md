@@ -266,7 +266,7 @@ Une règle encore `NOUVEAU` ou `À CONFIRMER` (jamais livrée) peut être retouc
 
 ## B.4 Ordre d'exécution d'un tick
 
-Un tick exécute, dans l'ordre : 0. l'avance de l'horloge (R-MON-TPS-001) ; 1. le déplacement du joueur (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003) ; 3. la repousse (R-RES-REC-005) ; 4. la faim, l'énergie et la santé (R-JOU-VIE-002, 003, R-JOU-ENE-002 à 004), puis l'évanouissement (R-JOU-VIE-004) ; 5. la promenade des PNJ (R-PNJ-POS-003). Un feu de camp s'éteint de lui-même quand l'horloge atteint sa fin de combustion (R-ART-FEU-001).
+Un tick exécute, dans l'ordre : 0. l'avance de l'horloge (R-MON-TPS-001), puis la récolte en cours (R-RES-REC-006) ; 1. le déplacement du joueur, en suivant son chemin s'il en a un (R-JOU-DEP-*, R-MON-COL-*, R-PNJ-POS-002, R-PNJ-DIA-003) ; 2. la découverte des lieux (R-MON-LIE-002), puis l'annonce des lieux où le joueur revient (R-MON-LIE-003) ; 3. la repousse (R-RES-REC-005) ; 4. la faim, l'énergie et la santé (R-JOU-VIE-002, 003, R-JOU-ENE-002 à 004), puis l'évanouissement (R-JOU-VIE-004) ; 5. la promenade des PNJ (R-PNJ-POS-003). Un feu de camp s'éteint de lui-même quand l'horloge atteint sa fin de combustion (R-ART-FEU-001).
 
 ## B.5 Commandes du joueur
 
@@ -274,7 +274,9 @@ Les commandes sont traitées immédiatement, entre deux ticks.
 
 | Commande | Effet | Motifs de refus possibles, vérifiés dans cet ordre |
 |---|---|---|
-| Direction demandée | Fixe la direction appliquée à chaque tick (R-JOU-DEP-001) | — (jamais refusée) |
+| Direction demandée | Fixe la direction appliquée à chaque tick (R-JOU-DEP-001) ; une direction abandonne le chemin suivi (R-JOU-DEP-004) | — (jamais refusée) |
+| Aller à une tuile | Le héros y va par le plus court chemin (R-JOU-DEP-004) | `NO_PATH` : la tuile est hors de la carte, infranchissable, ou aucun chemin n'y mène |
+| Aller puis agir | Fait l'action ; si l'élément est trop loin, le héros s'en approche puis la fait (R-JOU-DEP-005) | ceux de l'action, sauf `OUT_OF_REACH` ; `NO_PATH` : aucun chemin ne mène à portée |
 | Récolter une tuile | Récolte l'élément de la tuile (R-RES-REC-001 à 004, R-RES-OUT-001) | `NOTHING_TO_HARVEST` : la tuile est hors de la carte ou n'est pas récoltable ; `MISSING_TOOL` : il faut un outil que le joueur n'a pas ; `OUT_OF_REACH` : l'élément est hors de portée |
 | Parler à un PNJ | Commence un dialogue (R-PNJ-DIA-001) | `NOBODY_TO_TALK_TO` : ce PNJ n'existe pas ; `ALREADY_TALKING` : un dialogue est déjà en cours ; `OUT_OF_REACH` : le PNJ est trop loin |
 | Fouiller une tuile | Fouille l'élément de la tuile (R-RES-FOU-001 à 004) | `NOTHING_TO_SEARCH` : la tuile est hors de la carte ou ne se fouille pas ; `OUT_OF_REACH` : l'élément est hors de portée |
@@ -471,6 +473,8 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 | `FLINT_HARVEST_TICKS` | 180 | ticks (= 3 s) | NOUVEAU | v0.10 | R-RES-REC-006 |
 | `STONE_HARVEST_TICKS` | 90 | ticks (= 1,5 s) | NOUVEAU | v0.10 | R-RES-REC-006 |
 | `HAND_HARVEST_TICKS` | 60 | ticks (= 1 s) | NOUVEAU | v0.10 | R-RES-REC-006 |
+| `PATH_STUCK_TICKS` | 30 | ticks | NOUVEAU | v0.10 | R-JOU-DEP-004 |
+| `APPROACH_ATTEMPTS` | 3 | essais | NOUVEAU | v0.10 | R-JOU-DEP-005 |
 
 ---
 
@@ -540,6 +544,52 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-JOU-01. Sans cette règle, le joueur irait environ 41 % plus vite en diagonale.
 
 **Historique** — v0.1 : création. Validée le 2026-10-11 (partie E.3) : passe à `NOUVEAU`.
+
+#### R-JOU-DEP-004 · Aller à une tuile
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.10 | `PATH_STUCK_TICKS` |
+
+**Règle** — Le joueur peut demander d'aller à une tuile franchissable. Le héros suit alors le plus court chemin de tuile en tuile, en 8 directions, sans couper le coin d'une tuile infranchissable : il va au centre de sa tuile, puis au centre de chaque tuile du chemin, à la vitesse de marche (R-JOU-DEP-002, R-JOU-DEP-003), et s'arrête au centre de la tuile visée. Le chemin est abandonné si le joueur demande une direction (R-JOU-DEP-001), s'il parle, s'il dort ou s'évanouit, ou s'il n'avance plus pendant `PATH_STUCK_TICKS` ticks (un PNJ lui barre la route). Refus `NO_PATH` si la tuile est hors de la carte, infranchissable, ou si aucun chemin n'y mène.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | le joueur au centre de (10, 10), de l'herbe partout | il va à (13, 10) | il arrive au centre de (13, 10) et s'arrête |
+| 2 | idem, de l'eau en (12, 8) à (12, 12) | il va à (14, 10) | il arrive au centre de (14, 10) sans passer sur l'eau |
+| 3 | idem | il va à (12, 10), de l'eau | refus `NO_PATH` ; il ne bouge pas |
+| 4 | la tuile (20, 20) entourée d'eau | il va à (20, 20) | refus `NO_PATH` |
+| 5 | le joueur en chemin vers (16, 10) | il demande la direction « haut » | le chemin est abandonné ; quand il relâche, il s'arrête |
+| 6 | — | il va à (−1, 0), hors de la carte | refus `NO_PATH` |
+
+**Notes** — Concept C-IHM-16. Les PNJ ne sont pas des obstacles du chemin : s'ils barrent la route, les collisions arrêtent le héros, qui abandonne au bout de `PATH_STUCK_TICKS`.
+
+**Historique** — v0.10 : création (demande du porteur du projet : jouer sur téléphone).
+
+#### R-JOU-DEP-005 · Aller puis agir
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.10 | `APPROACH_ATTEMPTS`, `HARVEST_REACH`, `TALK_REACH` |
+
+**Règle** — Le joueur peut demander une action sur un élément (récolter, fouiller, raviver, dormir, parler, donner) en y allant au besoin. Si l'action est acceptée, elle se fait aussitôt. Si elle n'est refusée que parce que l'élément est hors de portée (`OUT_OF_REACH`), le héros va (R-JOU-DEP-004) à la tuile franchissable la plus proche d'où l'élément est à portée, puis refait l'action en arrivant ; si elle est encore hors de portée (un PNJ a bougé), il recommence, `APPROACH_ATTEMPTS` fois au plus. Les autres refus sont rendus tels quels, sans bouger ; `NO_PATH` si aucun chemin ne mène à portée.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | la hache en silex, le joueur au centre de (10, 10), un arbre en (15, 10) | il va le récolter | il marche jusqu'à portée, puis la récolte commence ; au terme, 1 bois |
+| 2 | un arbre à portée | il va le récolter | la récolte commence aussitôt, sans marcher |
+| 3 | aucun outil, un arbre en (15, 10) | il va le récolter | refus `MISSING_TOOL` ; il ne bouge pas |
+| 4 | un arbre en (20, 20), entouré d'eau | il va le récolter | refus `NO_PATH` |
+| 5 | Aldric à 200 px du joueur | il va lui parler | il marche jusqu'à portée de parole, puis le dialogue commence |
+| 6 | en chemin vers un arbre | il demande une direction | le chemin est abandonné ; l'arbre n'est pas récolté |
+
+**Notes** — Concept C-IHM-16.
+
+**Historique** — v0.10 : création (demande du porteur du projet : jouer sur téléphone).
 
 ### 1.2 ORI — Orientation
 
@@ -1075,7 +1125,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 ## 3. IHM — Interface joueur
 
-### 3.1 CMD — Commandes au clavier
+### 3.1 CMD — Commandes au clavier et au toucher
 
 #### R-IHM-CMD-001 · Touches de déplacement
 
@@ -1097,6 +1147,28 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Concept C-IHM-04. La reconfiguration des touches viendra plus tard.
 
 **Historique** — v0.1 : création. Validée le 2026-10-11 (partie E.3) : passe à `NOUVEAU`.
+
+#### R-IHM-CMD-002 · Toucher pour aller
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.10 | — |
+
+**Règle** — Un clic ou un toucher sur le monde qui n'ouvre pas la fenêtre d'information (de l'herbe, un chemin…) ferme la fenêtre ouverte et conduit le héros à cette tuile (R-JOU-DEP-004). Désigner un élément ouvre la fenêtre d'information, comme avant, sans déplacer le héros. Pendant un dialogue, le clic est ignoré.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | aucune fenêtre ouverte, de l'herbe en (14, 10) | clic sur la tuile (14, 10) | le héros va en (14, 10) |
+| 2 | la fenêtre d'information ouverte sur un arbre | clic sur l'herbe (14, 10) | la fenêtre est fermée et le héros va en (14, 10) |
+| 3 | un arbre en (7, 6) | clic sur l'arbre | la fenêtre d'information est ouverte ; le héros ne bouge pas |
+| 4 | un dialogue en cours | clic sur l'herbe | rien ne se passe |
+| 5 | de l'eau en (12, 10) | clic sur l'eau | le héros ne bouge pas |
+
+**Notes** — Concept C-IHM-16. Sur téléphone, un toucher est un clic.
+
+**Historique** — v0.10 : création (demande du porteur du projet : jouer sur téléphone).
 
 ### 3.2 CAM — Caméra
 
@@ -1174,6 +1246,25 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 **Notes** — Pilier P4 (perspective trois-quarts). Le sol (herbe, chemins) est toujours dessiné sous les éléments debout.
 
 **Historique** — v0.1 : création. Validée le 2026-10-11 (partie E.3) : passe à `NOUVEAU`.
+
+#### R-IHM-AFF-003 · Écrans tactiles et petits écrans
+
+| Statut | Version | Paramètres |
+|---|---|---|
+| NOUVEAU | v0.10 | — |
+
+**Règle** — Le jeu se joue au doigt sur téléphone, en portrait comme en paysage : un double toucher ou un pincement ne zoome pas la page, l'écran ne défile pas, rien ne se sélectionne. Sur un écran étroit, le bandeau passe à la ligne au besoin, et les fenêtres centrales tiennent dans la largeur, à droite de la barre d'actions.
+
+**Exemples**
+
+| # | Étant donné | Quand | Alors |
+|---|---|---|---|
+| 1 | la page du jeu | elle est ouverte sur un téléphone | sa balise « viewport » interdit le zoom (`maximum-scale=1`, `user-scalable=no`) |
+| 2 | la page du jeu | on touche l'écran | ni défilement, ni zoom au double toucher, ni sélection (`touch-action: none`, `user-select: none` sur la page) |
+
+**Notes** — Concept C-IHM-16. Affaire de mise en page : les exemples vérifient la page et la feuille de style ; la tenue des fenêtres sur un écran étroit se vérifie dans le navigateur, en vue téléphone.
+
+**Historique** — v0.10 : création (demande du porteur du projet : jouer sur téléphone).
 
 ### 3.4 ANI — Animation du joueur
 
@@ -1270,20 +1361,20 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | MODIFIÉ | v0.10 | `HARVEST_REACH` |
 
-**Règle** — Le bouton « Récolter » est actif quand le joueur a l'outil requis (R-IHM-INS-007) et que l'élément désigné est à portée (R-RES-REC-001) ; hors de portée, il est inactif et la fenêtre affiche « Trop loin : approchez-vous ». L'état du bouton suit les déplacements du joueur. Un clic sur le bouton actif commence la récolte (R-RES-REC-006) et ferme la fenêtre.
+**Règle** — Le bouton « Récolter » est actif quand le joueur a l'outil requis (R-IHM-INS-007) ; hors de portée, il reste actif : un clic y conduit d'abord le héros (R-JOU-DEP-005) et ferme la fenêtre. Un clic sur le bouton actif commence la récolte (R-RES-REC-006) et ferme la fenêtre.
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
 | 1 | la fenêtre ouverte sur un arbre à portée | l'écran est affiché | le bouton est actif |
-| 2 | la fenêtre ouverte sur un arbre hors de portée | l'écran est affiché | le bouton est inactif et « Trop loin : approchez-vous » est affiché |
-| 3 | la fenêtre ouverte sur un arbre hors de portée | le joueur s'approche à portée | le bouton devient actif |
+| 2 | la fenêtre ouverte sur un arbre hors de portée | l'écran est affiché | le bouton est actif, sans avertissement |
+| 3 | la fenêtre ouverte sur un arbre hors de portée | clic sur « Récolter » | la fenêtre est fermée ; le héros marche jusqu'à l'arbre, puis la récolte commence |
 | 4 | la fenêtre ouverte sur un arbre à portée (rendement 1), 0 bois | clic sur « Récolter » | la fenêtre est fermée ; à la fin de la récolte, l'inventaire contient 1 bois |
 
-**Notes** — Concept C-IHM-05. On peut inspecter un élément de loin, mais il faut s'en approcher pour le récolter. Exemples : convention de B.8 (le joueur a les outils).
+**Notes** — Concept C-IHM-05. On peut inspecter un élément de loin et demander de le récolter : le héros s'en approche. Exemples : convention de B.8 (le joueur a les outils).
 
-**Historique** — v0.2 : création. v0.5 : « actif quand l'élément est à portée » → actif s'il est à portée **et** que le joueur a l'outil requis, car couper et piocher demandent désormais un outil. v0.10 : le clic commence la récolte, qui prend du temps.
+**Historique** — v0.2 : création. v0.5 : « actif quand l'élément est à portée » → actif s'il est à portée **et** que le joueur a l'outil requis, car couper et piocher demandent désormais un outil. v0.10 : le clic commence la récolte, qui prend du temps. Puis : hors de portée, le bouton reste actif et le héros s'approche (demande du porteur du projet : jouer sur téléphone).
 
 #### R-IHM-RCL-001 · Récolte en cours
 
@@ -1328,9 +1419,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.6 | `TALK_REACH` |
+| MODIFIÉ | v0.10 | `TALK_REACH` |
 
-**Règle** — Un clic sur le sprite d'un PNJ le désigne, en priorité sur le décor. La fenêtre d'information affiche alors son nom, l'action « Parler » et un bouton « Parler », actif si le PNJ est à portée de parole (R-PNJ-DIA-001), inactif sinon avec « Trop loin : approchez-vous ». Un clic sur le bouton actif commence le dialogue et ferme la fenêtre. Si le joueur peut donner à ce PNJ l'objet d'une quête (R-PNJ-QUE-002), la fenêtre affiche en plus « Donner : <objet> » et un bouton « Donner », actif dans les mêmes conditions ; un clic sur ce bouton donne l'objet et ferme la fenêtre.
+**Règle** — Un clic sur le sprite d'un PNJ le désigne, en priorité sur le décor. La fenêtre d'information affiche alors son nom, l'action « Parler » et un bouton « Parler », toujours actif : à portée de parole (R-PNJ-DIA-001), un clic commence le dialogue ; hors de portée, il reste actif : un clic y conduit d'abord le héros (R-JOU-DEP-005) et ferme la fenêtre. Dans les deux cas, la fenêtre se ferme. Si le joueur peut donner à ce PNJ l'objet d'une quête (R-PNJ-QUE-002), la fenêtre affiche en plus « Donner : <objet> » et un bouton « Donner », qui se comporte de même ; un clic sur ce bouton donne l'objet et ferme la fenêtre.
 
 **Exemples**
 
@@ -1338,7 +1429,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|---|
 | 1 | Aldric sur la tuile (38, 90) : son sprite couvre x de 1216 à 1248 et y de 2864 à 2896 | clic au point (1230, 2880) | Aldric est désigné |
 | 2 | Aldric désigné | l'écran est affiché | la fenêtre affiche « Aldric, l'ermite » et « Parler » |
-| 3 | Aldric désigné, à 100 px du joueur | l'écran est affiché | le bouton est inactif et « Trop loin : approchez-vous » est affiché |
+| 3 | Aldric désigné, à 100 px du joueur | clic sur « Parler » | la fenêtre est fermée ; le héros marche jusqu'à Aldric, puis le dialogue commence |
 | 4 | Aldric désigné, à 40 px du joueur | clic sur « Parler » | le dialogue commence à la page 1 et la fenêtre est fermée |
 | 5 | la quête de Maëlle en cours, la poupée possédée, Maëlle désignée à 40 px | l'écran est affiché | la fenêtre affiche « Donner : poupée de chiffon bleue » et un bouton « Donner » actif |
 | 6 | idem | clic sur « Donner » | la poupée est donnée et la fenêtre est fermée |
@@ -1346,28 +1437,28 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Notes** — Concepts C-IHM-05, C-VIL-07. Même geste que pour récolter : on clique pour savoir ce qu'on peut faire.
 
-**Historique** — v0.3 : création. v0.6 : bouton « Donner » ajouté, pour rendre l'objet d'une quête (C-VIL-09).
+**Historique** — v0.3 : création. v0.6 : bouton « Donner » ajouté, pour rendre l'objet d'une quête (C-VIL-09). v0.10 : hors de portée, le héros s'approche (demande du porteur du projet : jouer sur téléphone).
 
 #### R-IHM-INS-006 · Désigner un élément à fouiller
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.4 | `HARVEST_REACH` |
+| MODIFIÉ | v0.10 | `HARVEST_REACH` |
 
-**Règle** — Désigner un élément à fouiller ouvre la fenêtre d'information : son nom, l'action « Fouiller » et un bouton « Fouiller », actif à portée (R-RES-FOU-002), inactif sinon avec « Trop loin : approchez-vous ». Un clic sur le bouton actif fouille l'élément et ferme la fenêtre. Un élément déjà fouillé n'ouvre pas la fenêtre.
+**Règle** — Désigner un élément à fouiller ouvre la fenêtre d'information : son nom, l'action « Fouiller » et un bouton « Fouiller », actif : à portée (R-RES-FOU-002), un clic fouille l'élément et ferme la fenêtre ; hors de portée, il reste actif : un clic y conduit d'abord le héros (R-JOU-DEP-005) et ferme la fenêtre. Un élément déjà fouillé n'ouvre pas la fenêtre.
 
 **Exemples**
 
 | # | Étant donné | Quand | Alors |
 |---|---|---|---|
 | 1 | une bibliothèque en ruine | on la désigne | la fenêtre affiche « Bibliothèque en ruine » et « Fouiller » |
-| 2 | un coffre ancien hors de portée | on le désigne | le bouton est inactif et « Trop loin : approchez-vous » est affiché |
+| 2 | un coffre ancien hors de portée | clic sur « Fouiller » | la fenêtre est fermée ; le héros marche jusqu'au coffre, puis le fouille |
 | 3 | un coffre ancien à portée | clic sur « Fouiller » | le coffre est fouillé et la fenêtre est fermée |
 | 4 | un coffre déjà fouillé | on le désigne | la fenêtre reste fermée |
 
 **Notes** — Concepts C-IHM-05, C-MON-09.
 
-**Historique** — v0.4 : création.
+**Historique** — v0.4 : création. v0.10 : hors de portée, le héros s'approche (demande du porteur du projet : jouer sur téléphone).
 
 #### R-IHM-INS-007 · Outil manquant
 
@@ -1394,9 +1485,9 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 | Statut | Version | Paramètres |
 |---|---|---|
-| EN VIGUEUR | v0.8 | `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH`, `SLEEP_START` |
+| MODIFIÉ | v0.10 | `CAMPFIRE_REKINDLE_WOOD`, `HARVEST_REACH`, `SLEEP_START` |
 
-**Règle** — Désigner un feu de camp ouvre la fenêtre d'information : « Feu de camp », son état (« Allumé, encore <h> h » en heures entières arrondies au-dessus, ou « Éteint ») et un bouton « Raviver : 1 bois ». Le bouton est actif si le joueur a assez de bois et que le feu est à portée ; sinon il est inactif avec « Il faut 1 bois » (en priorité) ou « Trop loin : approchez-vous ». Un clic sur le bouton actif ravive le feu (R-ART-FEU-001) ; la fenêtre reste ouverte. Un second bouton « Dormir » est actif si le feu est allumé, à portée, et qu'il est au moins `SLEEP_START` (avant 6:00) ; sinon il est inactif avec « Le feu est éteint », « Trop tôt pour dormir (dès 18:00) » ou « Trop loin : approchez-vous », dans cet ordre. Un clic sur « Dormir » actif fait dormir le joueur (R-JOU-SOM-001) et ferme la fenêtre.
+**Règle** — Désigner un feu de camp ouvre la fenêtre d'information : « Feu de camp », son état (« Allumé, encore <h> h » en heures entières arrondies au-dessus, ou « Éteint ») et un bouton « Raviver : 1 bois ». Le bouton est actif si le joueur a assez de bois ; sinon il est inactif avec « Il faut 1 bois ». Un clic sur le bouton actif ravive le feu (R-ART-FEU-001) ; la fenêtre reste ouverte. Un second bouton « Dormir » est actif si le feu est allumé et qu'il est au moins `SLEEP_START` (avant 6:00) ; sinon il est inactif avec « Le feu est éteint » ou « Trop tôt pour dormir (dès 18:00) », dans cet ordre. Hors de portée, un clic sur un bouton actif y conduit d'abord le héros (R-JOU-DEP-005) et ferme la fenêtre. Un clic sur « Dormir » actif fait dormir le joueur (R-JOU-SOM-001) et ferme la fenêtre.
 
 **Exemples**
 
@@ -1410,7 +1501,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Notes** — Concepts C-IHM-05, C-ART-05.
 
-**Historique** — v0.7 : création. v0.8 : bouton « Dormir ».
+**Historique** — v0.7 : création. v0.8 : bouton « Dormir ». v0.10 : hors de portée, le héros s'approche (demande du porteur du projet : jouer sur téléphone).
 
 #### R-IHM-INS-009 · Désigner le Foyer
 
@@ -1418,7 +1509,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 |---|---|---|
 | NOUVEAU | v0.10 | `SLEEP_START`, `HARVEST_REACH` |
 
-**Règle** — Désigner le Foyer ouvre la fenêtre d'information : « Le Foyer », « Un feu ancien, qui ne s'éteint jamais. » et un bouton « Dormir », actif à portée à partir de `SLEEP_START` ; sinon inactif avec « Trop tôt pour dormir (dès 18:00) » ou « Trop loin : approchez-vous ». Un clic sur « Dormir » fait dormir le joueur et ferme la fenêtre.
+**Règle** — Désigner le Foyer ouvre la fenêtre d'information : « Le Foyer », « Un feu ancien, qui ne s'éteint jamais. » et un bouton « Dormir », actif à partir de `SLEEP_START`, sinon inactif avec « Trop tôt pour dormir (dès 18:00) » ; hors de portée, un clic y conduit d'abord le héros (R-JOU-DEP-005). Un clic sur « Dormir » fait dormir le joueur et ferme la fenêtre.
 
 **Exemples**
 
@@ -1429,7 +1520,7 @@ Valeurs réglables **validées**. Les règles les citent par leur nom. Modifier 
 
 **Notes** — Concepts C-MON-04, C-IHM-05.
 
-**Historique** — v0.10 : création.
+**Historique** — v0.10 : création. Puis : hors de portée, le héros s'approche (demande du porteur du projet : jouer sur téléphone).
 
 ### 3.6 HUD — Bandeau d'informations
 
@@ -2847,6 +2938,7 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | Q26 | Détails de la v0.9 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : deux livres de recherche (« L'Art de la pierre » au Hameau, « Le Guide du cueilleur » à la Chapelle) ; recettes des outils en pierre (2 pierres, 2 branches, 1 fibre), du sac (5 fibres, 1 branche), des champignons grillés (1 champignon au feu) ; bonus de +1 ; champignon grillé à 35 ; touche R pour la recherche ; « Niveau n · xp/seuil » au bandeau ; notification de niveau qui reste. | B.11, partie C, R-TEC-REC-*, R-RES-OUT-002, R-IHM-REC-001, R-IHM-HUD-002 |
 | Q27 | Détails de la v0.10 (non précisés dans la demande) ? | **Choix par défaut, à revoir** : énergie −1 toutes les 3 minutes de jeu en zone flétrie (100 points en 5 h de jeu) ; à 0, −1 PV toutes les 10 minutes et plus de PV regagnés ; +1 toutes les 2 minutes à 5 tuiles du Foyer ; réveil avec au moins 50 d'énergie ; Foyer en (32, 91), halo de 10 tuiles ; zones flétries = rectangles du Bois des Murmures et des Collines ; sauge en lisière, 1 par plant, repousse en 3 jours, purifie à 5 tuiles ; on la brûle depuis l'inventaire, une fois la fumée de sauge recherchée (niveau 10). Retours de test : notifications importantes 10 s ; hautes herbes à 2 fibres, en 2 jours ; arbre à 2 branches ; onglets de l'inventaire. | B.12, partie C, R-JOU-ENE-*, R-MON-FOY-001, R-MEN-*, R-IHM-INV-001 |
 | Q28 | Retours de test de la v0.10 (suite) : outils, feu, fenêtres ? | **Tranché par le porteur du projet** : la récolte dure 3 s en silex, 1,5 s en pierre, 1 s à la main, et s'interrompt si l'on bouge ; en silex on récolte 1 bois ou 1 pierre, en pierre 3 bois ou 2 pierres ; fabriquer un feu le pose devant le joueur, refusé sans place libre ; les fenêtres gardent leur haut fixe ; fermer un livre ramène à sa fenêtre d'origine. L'arbre de compétences reste une idée (C-JOU-11). | R-RES-REC-006, R-RES-OUT-002, R-ART-FAB-001, R-IHM-FEN-001, R-IHM-LIV-001 |
+| Q29 | Comment jouer sur téléphone ? | **Tranché par le porteur du projet** : toucher (ou cliquer) le sol pour y aller, sur ordinateur comme sur téléphone, les touches restant possibles ; une action demandée de trop loin y conduit d'abord le héros ; portrait et paysage ; les noms de la barre d'actions restent au survol. | R-JOU-DEP-004, R-JOU-DEP-005, R-IHM-CMD-002, R-IHM-AFF-003 |
 | Q11 | Origine et licence des assets ? | **Ressources de RPG Maker, pour un jeu personnel non publié** : utilisables tant que le jeu n'est pas diffusé. | — (assets/ASSETS.md) |
 
 ---
@@ -2864,4 +2956,4 @@ Chaque question ouverte bloque les règles `À CONFIRMER` citées. Une fois tran
 | v0.7 | 2026-10-12 | **Livrée.** Le temps passe : horloge (12 minutes réelles de 6:00 à 2:00), nuit sombre avec halos de lumière, feu de camp à fabriquer, poser et raviver, repousse des arbres. | Clôture de la v0.6 : 18 règles passées `EN VIGUEUR`. v0.7 : 9 NOUVEAU (R-MON-TPS-001, 002, R-IHM-HOR-001, R-IHM-NUI-001, R-IHM-INS-008, R-INV-POS-001, R-RES-REC-005, R-ART-POS-001, R-ART-FEU-001), 4 MODIFIÉ (R-IHM-INV-001, R-IHM-ART-001, R-ART-FAB-001, 002). 11 paramètres ajoutés. Q24 tranchée par défaut. |
 | v0.8 | 2026-10-12 | **Livrée.** Vivre au rythme des jours : baies et champignons, faim et santé, s'évanouir, dormir près d'un feu, sauvegarde au réveil, PNJ qui se promènent. | Clôture de la v0.7 : 24 règles passées `EN VIGUEUR`. v0.8 : 10 NOUVEAU (R-JOU-VIE-001 à 004, R-JOU-MAN-001, R-JOU-SOM-001, R-IHM-HUD-003, R-IHM-SAU-001, R-SAU-SAV-001, R-PNJ-POS-003), 9 MODIFIÉ (R-IHM-NOT-001, R-RES-ELE-001, R-RES-REC-003, R-RES-REC-005, R-INV-RES-001, R-IHM-HUD-001, R-IHM-INV-001, R-IHM-INS-008, R-IHM-BAR-001). 17 paramètres ajoutés. Q25 tranchée par défaut. |
 | v0.9 | 2026-10-12 | **Livrée.** La recherche : expérience gagnée en jouant, niveaux croissants, points de recherche, livres de recherche, fenêtre « Recherche », outils en pierre, sac du cueilleur, champignons grillés au feu. | Clôture de la v0.8 : 36 règles passées `EN VIGUEUR`. v0.9 : 8 NOUVEAU (R-JOU-EXP-002, 003, R-TEC-REC-001, 002, R-RES-OUT-002, R-ART-FAB-003, R-IHM-REC-001, R-IHM-NOT-004), 8 MODIFIÉ (R-INV-LIV-002, R-ART-FAB-002, R-INV-RES-001, R-IHM-HUD-001, R-IHM-HUD-002, R-IHM-ART-001, R-IHM-BAR-001, R-IHM-FEN-001). 10 paramètres ajoutés. Q26 tranchée par défaut. |
-| v0.10 | 2026-10-12 | *En cours.* Le Foyer et la Flétrissure : le Foyer du Vallon, deux zones flétries, l'énergie qui s'y épuise, la sauge de l'aube qui purifie. Le monstre, le combat et la mort viendront en v0.11. Retours de test : bandeau essentiel, inventaire en onglets, livres lus aux archives, notifications importantes de 10 s, branches à la coupe, hautes herbes, fumée de sauge au niveau 10. | Clôture de la v0.9 : 26 règles passées `EN VIGUEUR`. v0.10 : 10 NOUVEAU (R-JOU-ENE-001 à 004, R-MON-FOY-001, R-MEN-FLE-001, R-MEN-SAU-002, R-IHM-INS-009, R-IHM-FLE-001, R-IHM-NOT-005, R-IHM-JRN-004), plus de 20 MODIFIÉ (dont R-IHM-INV-001, R-TEC-REC-002, R-IHM-NOT-001, 003, 004, R-RES-ELE-001, R-RES-REC-002), 1 SUPPRIMÉ (R-IHM-HUD-001) ; puis 2 NOUVEAU (R-RES-REC-006, R-IHM-RCL-001), récolte, artisanat, lecture et fenêtres MODIFIÉ (Q28), en plus des 11 MODIFIÉ (R-JOU-VIE-003, 004, R-JOU-SOM-001, R-RES-ELE-001, R-RES-REC-003, 005, R-INV-RES-001, R-IHM-HUD-001, 003, R-IHM-NUI-001, R-IHM-INV-001). 11 paramètres ajoutés. Q27 tranchée par défaut. |
+| v0.10 | 2026-10-12 | *En cours.* Le Foyer et la Flétrissure : le Foyer du Vallon, deux zones flétries, l'énergie qui s'y épuise, la sauge de l'aube qui purifie. Le monstre, le combat et la mort viendront en v0.11. Retours de test : bandeau essentiel, inventaire en onglets, livres lus aux archives, notifications importantes de 10 s, branches à la coupe, hautes herbes, fumée de sauge au niveau 10. | Clôture de la v0.9 : 26 règles passées `EN VIGUEUR`. v0.10 : 10 NOUVEAU (R-JOU-ENE-001 à 004, R-MON-FOY-001, R-MEN-FLE-001, R-MEN-SAU-002, R-IHM-INS-009, R-IHM-FLE-001, R-IHM-NOT-005, R-IHM-JRN-004), plus de 20 MODIFIÉ (dont R-IHM-INV-001, R-TEC-REC-002, R-IHM-NOT-001, 003, 004, R-RES-ELE-001, R-RES-REC-002), 1 SUPPRIMÉ (R-IHM-HUD-001) ; puis 2 NOUVEAU (R-RES-REC-006, R-IHM-RCL-001), récolte, artisanat, lecture et fenêtres MODIFIÉ (Q28) ; puis 4 NOUVEAU (R-JOU-DEP-004, 005, R-IHM-CMD-002, R-IHM-AFF-003) pour jouer sur téléphone (Q29), en plus des 11 MODIFIÉ (R-JOU-VIE-003, 004, R-JOU-SOM-001, R-RES-ELE-001, R-RES-REC-003, 005, R-INV-RES-001, R-IHM-HUD-001, 003, R-IHM-NUI-001, R-IHM-INV-001). 11 paramètres ajoutés. Q27 tranchée par défaut. |

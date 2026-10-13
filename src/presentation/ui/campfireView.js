@@ -7,15 +7,15 @@ import { TEXTS } from '../i18n/fr.js';
 const MINUTES_PER_HOUR = 60;
 
 /**
- * R-IHM-INS-008 : fenêtre d'information d'un feu de camp. Le bois manquant passe avant la
- * distance.
+ * R-IHM-INS-008 : fenêtre d'information d'un feu de camp. De loin, les boutons restent actifs :
+ * le héros s'approchera (R-JOU-DEP-005).
  * @param {TileInspection & { campfire: import('../../core/commands/campfire.js').CampfireInspection }} inspection
  * @returns {InspectionView}
  */
-export function campfireView({ campfire, isInReach }) {
+export function campfireView({ campfire }) {
   if (campfire.isHearth) {
     // R-IHM-INS-009 : le Foyer ne se ravive pas ; son bouton fait dormir.
-    const sleep = sleepButton(campfire, isInReach);
+    const sleep = sleepButton(campfire);
     return {
       title: TEXTS.tileNames.hearth,
       action: TEXTS.hearthDescription,
@@ -25,36 +25,28 @@ export function campfireView({ campfire, isInReach }) {
     };
   }
   const hours = Math.ceil(campfire.minutesLeft / MINUTES_PER_HOUR);
-  let warning;
-  if (!campfire.hasFuel) {
-    warning = TEXTS.woodNeeded;
-  } else if (!isInReach) {
-    warning = TEXTS.tooFar;
-  }
+  const warning = campfire.hasFuel ? undefined : TEXTS.woodNeeded;
   return {
     title: TEXTS.tileNames.campfire,
     action: campfire.isLit ? TEXTS.campfireLit(hours) : TEXTS.campfireOut,
     button: TEXTS.rekindleButton,
     isActionEnabled: warning === undefined,
     warning,
-    sleep: sleepButton(campfire, isInReach),
+    sleep: sleepButton(campfire),
   };
 }
 
 /**
- * Bouton « Dormir » : le feu éteint, l'heure, puis la distance, dans cet ordre.
+ * Bouton « Dormir » : le feu éteint, puis l'heure.
  * @param {import('../../core/commands/campfire.js').CampfireInspection} campfire
- * @param {boolean} isInReach
  * @returns {{ button: string, isEnabled: boolean, warning?: string }}
  */
-function sleepButton(campfire, isInReach) {
+function sleepButton(campfire) {
   let warning;
   if (!campfire.isLit) {
     warning = TEXTS.fireOut;
   } else if (!campfire.isBedtime) {
     warning = TEXTS.tooEarlyToSleep;
-  } else if (!isInReach) {
-    warning = TEXTS.tooFar;
   }
   return warning === undefined
     ? { button: TEXTS.sleepButton, isEnabled: true }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { Game } from '../../src/core/Game.js';
 import { findingsMessages } from '../../src/presentation/ui/findingsMessages.js';
 import { InspectionController } from '../../src/presentation/ui/InspectionController.js';
-import { createTestGame, searchAt } from '../helpers/testGame.js';
+import { createTestGame, runUntil, searchAt } from '../helpers/testGame.js';
 
 /** Juste au sud de la tuile (7, 6) (centre (240, 208)) : distance 28 px, à portée. */
 const SOUTH = { x: 240, y: 236 };
@@ -164,13 +164,13 @@ describe('R-IHM-INS-006 · Désigner un élément à fouiller', () => {
     );
   });
 
-  it('ex.2 — un coffre hors de portée : bouton inactif, « Trop loin : approchez-vous »', () => {
-    const { game, controller } = open('ruin-chest', { x: 240, y: 400 });
+  it('ex.2 — un coffre hors de portée, clic sur « Fouiller » : le héros y va et le fouille', () => {
+    const { game, state, controller } = open('ruin-chest', { x: 240, y: 400 });
 
-    const view = controller.view(game);
+    assert.deepEqual(controller.confirm(game), { ok: true });
+    assert.equal(controller.isOpen, false);
 
-    assert.equal(view.isActionEnabled, false);
-    assert.equal(view.warning, 'Trop loin : approchez-vous');
+    assert.ok(runUntil(game, () => state.map.tileIdAt(7, 6) === 'ruin-chest-open'));
   });
 
   it('ex.3 — un coffre à portée, clic sur « Fouiller » : fouillé, fenêtre fermée', () => {

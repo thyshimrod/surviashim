@@ -2,6 +2,7 @@
 import { harvestLabel } from './harvestView.js';
 import {
   giveTo,
+  goAndAct,
   harvestTile,
   rekindle,
   searchTile,
@@ -23,6 +24,7 @@ import { campfireView } from './campfireView.js';
  * @property {(tile: { column: number, row: number }) => TileInspection} inspect
  * @property {(npcId: string) => NpcInspection} inspectNpc
  * @property {(command: import('../../core/commands/commands.js').Command) => CommandResult} execute
+ * @property {() => { dialogue?: unknown }} getState
  */
 
 /**
@@ -32,7 +34,7 @@ import { campfireView } from './campfireView.js';
  * @property {string} action Ce qu'on peut faire (« Couper : 3 bois », « Parler »).
  * @property {string} button Libellé du bouton (« Récolter », « Parler »).
  * @property {boolean} isActionEnabled État du bouton (R-IHM-INS-003, R-IHM-INS-005).
- * @property {string | undefined} warning Message affiché quand le bouton est inactif.
+ * @property {string} [warning] Message affiché quand le bouton est inactif.
  * @property {{ action: string, button: string, isEnabled: boolean }} [give] Second bouton :
  *   donner l'objet d'une quête à ce PNJ (R-IHM-INS-005).
  * @property {{ button: string, isEnabled: boolean, warning?: string }} [sleep] Second bouton :
@@ -112,7 +114,7 @@ export class InspectionController {
     if (selected === undefined || 'npcId' in selected) {
       return undefined;
     }
-    const result = game.execute(sleepBy(selected));
+    const result = game.execute(goAndAct(sleepBy(selected)));
     if (result.ok) {
       this.close();
     }
@@ -140,7 +142,7 @@ export class InspectionController {
     if (selected === undefined || !('npcId' in selected)) {
       return undefined;
     }
-    const result = game.execute(giveTo(selected.npcId));
+    const result = game.execute(goAndAct(giveTo(selected.npcId)));
     if (result.ok) {
       this.close();
     }
@@ -158,9 +160,10 @@ export class InspectionController {
       return undefined;
     }
     const command = commandFor(selected, game);
-    const result = game.execute(command);
-    // R-IHM-INS-008 : la fenêtre d'un feu de camp ravivé reste ouverte.
-    if (result.ok && command.type !== 'REKINDLE') {
+    const isRekindledHere = command.type === 'REKINDLE' && game.inspect(command).isInReach;
+    const result = game.execute(goAndAct(command)); // R-JOU-DEP-005 : de loin, il s'approche.
+    // R-IHM-INS-008 : la fenêtre d'un feu de camp ravivé sur place reste ouverte.
+    if (result.ok && !isRekindledHere) {
       this.close();
     }
     return result;
@@ -191,7 +194,7 @@ function isInspectable(target, game) {
  * Commande du bouton : parler, fouiller ou récolter.
  * @param {Target} target
  * @param {InspectableGame} game
- * @returns {import('../../core/commands/commands.js').Command}
+ * @returns {import('../../core/commands/commands.js').GoAndActCommand['action']}
  */
 function commandFor(target, game) {
   if ('npcId' in target) {
@@ -212,10 +215,8 @@ function commandFor(target, game) {
 function tileView(tile, game) {
   const inspection = game.inspect(tile);
   const title = TEXTS.tileNames[inspection.tileId] ?? inspection.tileId;
-  const reach = {
-    isActionEnabled: inspection.isInReach,
-    warning: inspection.isInReach ? undefined : TEXTS.tooFar,
-  };
+  // R-JOU-DEP-005 : de loin, le bouton reste actif ; le héros s'approchera.
+  const reach = { isActionEnabled: true };
   if (inspection.campfire !== undefined) {
     return campfireView({ ...inspection, campfire: inspection.campfire });
   }
@@ -252,8 +253,7 @@ function npcView(npcId, game) {
     title: CONTENT_TEXTS.npcNames[npcId]?.full ?? npcId,
     action: TEXTS.talkAction,
     button: TEXTS.talkAction,
-    isActionEnabled: inspection.isInReach,
-    warning: inspection.isInReach ? undefined : TEXTS.tooFar,
+    isActionEnabled: true,
     ...(inspection.giveableItem === undefined
       ? {}
       : {
@@ -262,7 +262,7 @@ function npcView(npcId, game) {
               TEXTS.itemNames[inspection.giveableItem]?.inline ?? inspection.giveableItem,
             ),
             button: TEXTS.giveButton,
-            isEnabled: inspection.isInReach,
+            isEnabled: true,
           },
         }),
   };
